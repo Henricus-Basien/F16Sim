@@ -14,6 +14,12 @@ EXT=c
 SRC_DIR=src
 OBJ_DIR=obj
 
+#----------------------------------------
+# Create Paths
+#----------------------------------------
+
+MKDIR_P = mkdir -p
+
 #+++++++++++++++++++++
 # Source Files
 #+++++++++++++++++++++
@@ -34,21 +40,13 @@ LDFLAGS  += -Llib
 # External Libraries
 LDLIBS   += -lm
 
-# #+++++++++++++++++++++
-# # External Libraries
-# #+++++++++++++++++++++
-
-# # Math
-# CPPFLAGS += -I/usr/include/???
-# LDLIBS   += -l???
-
 #***************************************
 # Compile
 #***************************************
 
-.PHONY: all clean
+.PHONY: all clean directories
 
-all: $(EXE)
+all: directories $(EXE) 
 
 $(EXE): $(OBJ)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
@@ -62,3 +60,12 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 
 clean:
 	$(RM) -r $(OBJ_DIR)/*
+
+#***************************************
+# MakeDirectories
+#***************************************
+
+directories: ${OBJ_DIR}
+
+${OBJ_DIR}:
+	${MKDIR_P} ${OBJ_DIR}
