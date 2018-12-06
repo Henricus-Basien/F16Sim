@@ -1,0 +1,5 @@
+obj/
+build/
+CMake/
+F16Sim
+*_output.*
