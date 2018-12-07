@@ -30,22 +30,29 @@ typedef int bool;
 //----------------------------------------
 
 #include <time.h>
+// #include <sys\time.h>
 
 #define s_to_ms 1000.0
 #define s_to_us 1000000.0
 #define s_to_ns 1000000000.0
 
 time_t getTime_s(){
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
+	struct timeval ts; //struct timespec ts;
+	gettimeofday(&ts , NULL);//timespec_get(&ts, TIME_UTC);
 	return ts.tv_sec;
 }
 
-time_t getTime_ns(){
-	struct timespec ts;
-	timespec_get(&ts, TIME_UTC);
-	return ts.tv_nsec;
+time_t getTime_us(){
+	struct timeval ts; //struct timespec ts;
+	gettimeofday(&ts , NULL);//timespec_get(&ts, TIME_UTC);
+	return ts.tv_usec;
 }
+
+// time_t getTime_ns(){
+// 	struct timeval ts; //struct timespec ts;
+// 	gettimeofday(&ts , NULL);//timespec_get(&ts, TIME_UTC);
+// 	return ts.tv_nsec;
+// }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // Internal
@@ -57,7 +64,9 @@ time_t getTime_ns(){
 // Main
 //****************************************************************************************************
 
+bool Print = false;//true;
 bool Convert = true;
+char *OutputFile = "F16Sim_output.csv";
 
 //================================================================================
 // Set State
@@ -167,7 +176,6 @@ void Convert_SI_to_IU(){
 	Convert_xdot_SI_to_IU();
 }
 
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // State - xu
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -238,7 +246,7 @@ void PrintState(){
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void ExportState(){
-	FILE *f = fopen("output.csv", "w");
+	FILE *f = fopen(OutputFile, "w");
 	if (f == NULL){
 	    printf("Error opening file!\n");
 	    exit(1);
@@ -254,6 +262,15 @@ void ExportState(){
 	fprintf(f,"\n");
 	
 	fclose(f);
+}
+
+void Export_plus(){
+	//--- Convert ---
+	if (Convert) Convert_IU_to_SI();
+	//--- Print ---
+	if (Print) PrintState();
+	//--- Export ---
+	ExportState();
 }
 
 //================================================================================
@@ -285,6 +302,13 @@ void UpdateSimulation(double *xu, double *xdot){
 
 }
 
+void UpdateSimulation_plus(double *xu, double *xdot){
+	//--- Convert ---
+	if (Convert) Convert_SI_to_IU();
+	//--- Update ---	
+	UpdateSimulation(xu,xdot);
+}
+
 //================================================================================
 // Run Simulation
 //================================================================================
@@ -295,10 +319,11 @@ void RunSimulation(){
 	// Init
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	
-	int MaxNrRuns = 10000;
+	int t_max = 3600; // [s]
 
-	time_t t_ns  = getTime_ns(); // [ns]
-	time_t dt_ns = 0;            // [ns]
+	time_t t_us  = getTime_us(); // [us]
+	time_t dt_us = 0;            // [us]
+	double t0  = getTime_s()/1.0; // [s]
 	double t  = 0.0; // [s]
 	double dt = 0.0; // [s]
 	double Hz = 0.0; // [Hz]
@@ -307,37 +332,41 @@ void RunSimulation(){
 	// Run
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	for (unsigned long RunNr=0;RunNr<MaxNrRuns;RunNr++){
+	//for (unsigned long RunNr=0;RunNr<MaxNrRuns;RunNr++){
+	unsigned long RunNr = 0;
+	while (true){
+		RunNr+=1;
+		if (t-t0>t_max) break;
 		//----------------------------------------
 		// Run Simulation
 		//----------------------------------------
-		UpdateSimulation(xu,xdot);
+		UpdateSimulation_plus(xu,xdot);
 		//----------------------------------------
 		// Increment Time
 		//----------------------------------------
-		dt_ns = getTime_ns()-t_ns;
-		t_ns  = getTime_ns();
-		dt = dt_ns/s_to_ns;
-		// t  = t_ns /s_to_ns;
+		dt_us = getTime_us()-t_us;
+		t_us  = getTime_us();
+		dt = dt_us/s_to_us;
+		// t  = t_us /s_to_us;
 		t  = getTime_s()/1.0;
 		if (dt !=0){
 			Hz = 1./dt;
 		}
-		printf("# t/dt/FPS [s/us/Hz]: %lu \t: %f \t/ %f \t/ %f \n",RunNr,t,dt*s_to_us,Hz);
+		printf("# t/dt/FPS [s/us/Hz]: %lu \t: %f \t/ %f \t/ %f \n",RunNr,t-t0,dt*s_to_us,Hz);
 		//----------------------------------------
 		// Increment/Integrate State
 		//----------------------------------------
 		for (int i=0;i<NrStates;i++){
 			xu[i]+=xdot[i]*dt;
 		}
+
+		Export_plus();
 	}
 }
 
 //================================================================================
 // Main
 //================================================================================
-
-bool Print   = true;
 
 int main(int argc, char **argv){
 
@@ -354,29 +383,35 @@ int main(int argc, char **argv){
 	for (int i=0;i<argc-1;i++){
 		double temp = strtod(argv[i+1],NULL);
 		xu[i] = temp;
-		printf("Set Initial Value '%s [%s]' to %f\n",xnames[i],xunits[i],xu[i]);
+		if (Print) printf("Set Initial Value '%s [%s]' to %f\n",xnames[i],xunits[i],xu[i]);
 	}
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Update
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-	//--- Convert ---
-	if (Convert) Convert_SI_to_IU();
-	//--- Update ---	
-	UpdateSimulation(xu,xdot);
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	// Export
+	// Simulate Continously
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	
-	//--- Convert ---
-	if (Convert) Convert_IU_to_SI();
-	//--- Print ---
-	if (Print) PrintState();
-	//--- Export ---
-	ExportState();
+	if (0){
+		RunSimulation();
+	}
 
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// Update Once
+	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	else{
+	
+		//----------------------------------------
+		// Update
+		//----------------------------------------
+		
+		UpdateSimulation_plus(xu,xdot);
+
+		//----------------------------------------
+		// Export
+		//----------------------------------------
+		
+		Export_plus();
+	}
 	return 0;
 }
 

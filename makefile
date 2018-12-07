@@ -1,8 +1,24 @@
+EXE = F16Sim
+
+ifdef OS
+    #EXE +=.exe
+    RM = del /Q
+    FixPath = $(subst /,\,$1)
+    MKDIR_P = mkdir
+else
+    ifeq ($(shell uname), Linux)
+    	
+        RM = rm -f
+        FixPath = $1
+        MKDIR_P = mkdir -p
+    endif
+endif
+
+#$(call FixPath,TEXT)
+
 #***************************************
 # Settings
 #***************************************
-
-EXE = F16Sim
 
 CC=gcc
 EXT=c
@@ -14,25 +30,21 @@ EXT=c
 SRC_DIR=src
 OBJ_DIR=obj
 
-#----------------------------------------
-# Create Paths
-#----------------------------------------
-
-MKDIR_P = mkdir -p
-
 #+++++++++++++++++++++
 # Source Files
 #+++++++++++++++++++++
 
 SRC = $(wildcard $(SRC_DIR)/*.$(EXT))
-OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJ = $(SRC:$(SRC_DIR)/%.$(EXT)=$(OBJ_DIR)/%.o)
 
 #+++++++++++++++++++++
 # Flags
 #+++++++++++++++++++++
 
 # Compiler Flags
-CFLAGS   += -Wall -Wno-implicit-function-declaration -Wno-unused-variable -Wno-unused-but-set-variable -Wno-int-conversion -Wno-comment # some warnings about bad code
+STD = -std=gnu11
+#STD = -std=c99
+CFLAGS   += $(STD) -Wall -Wno-implicit-function-declaration -Wno-unused-variable -Wno-unused-but-set-variable -Wno-int-conversion -Wno-comment # some warnings about bad code
 # Preprocessor Flags
 CPPFLAGS += -Iinclude # -I is a preprocessor flag, not a compiler flag
 # Linker Flags
@@ -46,13 +58,16 @@ LDLIBS   += -lm
 
 .PHONY: all clean directories
 
-all: directories $(EXE) 
+all: directories $(EXE)
+# all:
+# 	@echo "SRC: $(SRC)"
+# 	@echo "OBJ: $(OBJ)"
 
 $(EXE): $(OBJ)
-	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(call FixPath,$^) $(LDLIBS) -o $(call FixPath,$@)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $(call FixPath,$<) -o $(call FixPath,$@)
 
 #***************************************
 # Clean

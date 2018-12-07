@@ -1,5 +1,57 @@
+######################
+#      Folders       #
+######################
+
 obj/
 build/
 CMake/
+bin/
+
+######################
+#    Build Files     #
+######################
+
 F16Sim
+*.exe
+
+######################
+#      Outputs       #
+######################
+
 *_output.*
+
+######################
+#  Temporary Files   #
+######################
+*~
+~*
+
+Temp/
+Temp/*
+
+######################
+# Python Files (temp)#
+######################
+*.pyc
+######################
+# OS generated files #
+######################
+desktop.ini
+
+.DS_Store
+.DS_Store?
+#._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+######################
+#   Git Merge Files  #
+######################
+
+*_BACKUP_*
+*_BASE_*
+*_LOCAL_*
+*_REMOTE_*
+*.orig
