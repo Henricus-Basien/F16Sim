@@ -65,6 +65,7 @@ def Print(text):
 #****************************************************************************************************
 
 NrStates = 18
+LinearAngles = True#False#True#False
 
 class F16Sim(object):
     """docstring for F16Sim"""
@@ -102,7 +103,12 @@ class F16Sim(object):
 
     def Init_State(self):
 
-        self.CS = CoordinateSystem(refCS=np.identity(3),pos=self.pos,att=self.att,RotationSigns=[1,-1,-1],name="F16 CS")
+        refCS = np.identity(3)
+        refCS[:,1] = -refCS[:,1]
+        refCS[:,2] = -refCS[:,2]
+        # RotationSigns=[1,-1,-1]
+        RotationSigns=np.ones(3)
+        self.CS = CoordinateSystem(refCS=refCS,pos=self.pos,att=self.att,RotationSigns=RotationSigns,name="F16 CS")
 
         self.xu   = np.zeros(NrStates)
         self.xdot = np.zeros(NrStates)
@@ -365,9 +371,15 @@ class F16Sim(object):
         #--- Fix East-West ---
         self.pos[1]*=-1
         #--- Coordinate System ---
-        att = copy(self.att)
-        att[0]-=np.radians(90) # ToDo: Why, WTG?!
-        self.CS.setCS(att)
+        if LinearAngles:
+            self.CS.setCS(self.att)
+            for i in range(3):
+                self.xu[3+i] = self.att[i]
+        else:
+            datt = [self.dt*u for u in self.xu[9:12]]#self.xdot[3:6]]#self.xdot[9:12]]
+            #print datt
+            self.CS.shiftCS(datt)
+            self.att = self.CS.getAttitude()
 
         #--- ToDoConvert Velocity! ---
         #self.vel = ...based on AoA and AoS
@@ -379,7 +391,15 @@ class F16Sim(object):
     def IntegrateState(self):
 
         for i in range(12):
+            if not LinearAngles and i in range(3,3+3): #Skip Angles
+                continue
             self.xu[i]+=self.dt*self.xdot[i]
+            if i in range(3,3+3):
+                if self.xu[i]>np.pi:
+                    self.xu[i]-=2*np.pi
+                elif self.xu[i]<-np.pi:
+                    self.xu[i]+=2*np.pi
+                #self.xu[i] = self.xu[i]%(2*np.pi)
 
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Print
@@ -423,11 +443,20 @@ class F16Sim(object):
     def Update_3DModel(self):
 
         self.Frame.pos = self.pos
-        self.Frame.axis = copy(self.CS.matrix[:,0])
-        self.Frame.up   = copy(self.CS.matrix[:,2])
+        self.Frame.axis =  copy(self.CS.matrix[:,0])
+        self.Frame.up   =  copy(self.CS.matrix[:,1])#copy(self.CS.matrix[:,2])
 
-        self.rps_vector.axis = self.rps
-        self.acc_vector.axis = self.acc
+        rps = copy(self.rps)
+        rps[1]*=-1
+        rps[2]*=-1
+        self.rps_vector.axis = rps
+        acc = copy(self.acc)
+        if 1:
+            acc[2]-=g
+        acc[1]*=-1
+        acc[2]*=-1
+
+        self.acc_vector.axis = acc
         
         if self.ShowInfo:
             self.InfoLabel.text = "F16:\n"+self.GetInfoText()
@@ -446,8 +475,8 @@ if __name__=="__main__":
     from threading import Thread
 
     #--- Simulation ---
-    pos = [6*-1000,0,1000]#[0,0,1000]
-    vel = [150,np.radians(3),0] # [Vt,AoA,AoS]
+    pos = [5*-1000,0,1000]#[0,0,1000]
+    vel = [150,np.radians(1),0] # [Vt,AoA,AoS]
     att = np.zeros(3)#[0  ,np.radians(4),0]
     rps = np.zeros(3)
     Trim_per= {"Elevator":-0.65}
@@ -473,7 +502,7 @@ if __name__=="__main__":
 
     def InitVisuals():
         
-        from visual import display
+        from visual import display,points,box
         window = display(title="F16 Simulation",width=Resolution[0],height=Resolution[1])
         window.up      = np.identity(3)[2]
         window.forward = -np.ones(3)
@@ -485,9 +514,26 @@ if __name__=="__main__":
         if stereo is not None:
             window.stereo = stereo
 
+        D = 2500#5000#2500
+
         #--- CS ---
         for i in range(3):
             arrow(axis=np.identity(3)[i]*1000,color=np.identity(3)[i],opacity=0.75)
+
+        #--- Point Cloud ---
+        if 1:
+            Points = []
+            d = 500#100
+            n = int(D/d)
+            for i in range(-n,n+1):
+                for j in range(-n,n+1):
+                    for k in range(0,n+1):
+                        p = np.array([i,j,k]).astype(float)*d
+                        Points.append(tuple(p))#+=list(p)
+            points(pos=Points)
+
+        if 1:
+            box(width=D*2,height=D*2,depth=10,axis=-np.identity(3)[2],color=[0.6,0.3,0.15])
 
         return window
 
@@ -558,8 +604,8 @@ if __name__=="__main__":
     def UpdateVisuals():
         sim.window.center  = sim.pos
         if FPV:
-            sim.window.forward = sim.CS.matrix[:,0]
-            sim.window.up      = -sim.CS.matrix[:,1]
+            sim.window.forward = copy(sim.CS.matrix[:,0])
+            sim.window.up      = -copy(sim.CS.matrix[:,2])#copy(sim.CS.matrix[:,1])
         from visual import rate
         rate(MaxFPS)
         #print "Update"

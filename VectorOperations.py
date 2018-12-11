@@ -76,7 +76,7 @@ try:
     from SysInfo import SysInfo
     re=SysInfo.re
 except:
-    re = 15#16
+    re = 10#15#16
 
 PH = " "*3
 
@@ -301,9 +301,9 @@ class CoordinateSystem():
         angxy=AngleBetween(self.matrix[:,0],self.matrix[:,1])
         angyz=AngleBetween(self.matrix[:,1],self.matrix[:,2])
         angxz=AngleBetween(self.matrix[:,0],self.matrix[:,2])
-        angxyDif=abs(round(angxy-np.pi/2,re))
-        angyzDif=abs(round(angyz-np.pi/2,re))
-        angxzDif=abs(round(angxz-np.pi/2,re))
+        angxyDif=abs(angxy-np.pi/2)#round(angxy-np.pi/2,re))
+        angyzDif=abs(angyz-np.pi/2)#round(angyz-np.pi/2,re))
+        angxzDif=abs(angxz-np.pi/2)#round(angxz-np.pi/2,re))
         
         nz=abs(np.cross(self.matrix[:,0],self.matrix[:,1]))
         nx=abs(np.cross(self.matrix[:,1],self.matrix[:,2]))
