@@ -7,6 +7,8 @@ build/
 CMake/
 bin/
 
+Profiling-Results/
+
 ######################
 #    Build Files     #
 ######################

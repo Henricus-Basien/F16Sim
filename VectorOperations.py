@@ -226,8 +226,9 @@ def EulerRotation(M,axis=[0,0,1],ang=0):
     if 0:
         axis = AxisNameToVector(axis)
         
-    key = GetRotationKey(axis,ang)
-    if not key in RotationMatrices:
+    #key = GetRotationKey(axis,ang)
+    key = "0"
+    if 1: #not key in RotationMatrices:
         RotationMatrices[key] = rotation_matrix(axis,ang)
         # if len(RotationMatrices)%100==0:
         #     print len(RotationMatrices)

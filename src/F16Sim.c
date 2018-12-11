@@ -64,6 +64,8 @@ time_t getTime_us(){
 // Main
 //****************************************************************************************************
 
+//#define TrackTimeInSingleRun
+
 bool Print = false;//true;
 bool Convert = true;
 char *OutputFile = "F16Sim_output.csv";
@@ -252,12 +254,18 @@ void ExportState(){
 	    exit(1);
 	}
 
-	for (int i=0;i<NrStates;i++){
-		fprintf(f,"%f , \t",xu[i]);
+	//--- State ---
+	if (0){
+		for (int i=0;i<NrStates;i++){
+			fprintf(f,"%f,",xu[i]);
+			//fprintf(f,"%f , \t",xu[i]);
+		}
+		fprintf(f,"\n");
 	}
-	fprintf(f,"\n");
+	//--- Derivatives ---
 	for (int i=0;i<NrStates;i++){
-		fprintf(f,"%f , \t",xdot[i]);
+		fprintf(f,"%f,",xdot[i]);
+		//fprintf(f,"%f , \t",xdot[i]);
 	}
 	fprintf(f,"\n");
 	
@@ -370,6 +378,12 @@ void RunSimulation(){
 
 int main(int argc, char **argv){
 
+	#ifdef TrackTimeInSingleRun
+		unsigned long t_us = getTime_us();
+		float dt_Sim;
+		float Hz_Sim;
+	#endif
+
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Init State
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -385,6 +399,13 @@ int main(int argc, char **argv){
 		xu[i] = temp;
 		if (Print) printf("Set Initial Value '%s [%s]' to %f\n",xnames[i],xunits[i],xu[i]);
 	}
+
+	#ifdef TrackTimeInSingleRun
+		unsigned long dt_us_init = getTime_us()-t_us;
+		float dt_init = dt_us_init/s_to_us;
+		float Hz_init = 1./dt_init;
+		printf("F16Sim-Init  :: dt/FPS [ms/Hz]: %f \t/ %f \n",dt_init*s_to_ms,Hz_init);
+	#endif
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Simulate Continously
@@ -406,12 +427,29 @@ int main(int argc, char **argv){
 		
 		UpdateSimulation_plus(xu,xdot);
 
+		#ifdef TrackTimeInSingleRun
+			unsigned long dt_us_Sim = getTime_us()-t_us;
+			dt_Sim = dt_us_Sim/s_to_us;
+			Hz_Sim = 1./dt_Sim;
+			printf("F16Sim-Sim   :: dt/FPS [ms/Hz]: %f \t/ %f \n",dt_Sim          *s_to_ms,Hz_Sim);
+		#endif
+
 		//----------------------------------------
 		// Export
 		//----------------------------------------
 		
 		Export_plus();
+		
 	}
+
+	#ifdef TrackTimeInSingleRun
+		unsigned long dt_us = getTime_us()-t_us;
+		float dt = dt_us/s_to_us;
+		float Hz = 1./dt;
+		printf("F16Sim-Export:: dt/FPS [ms/Hz]: %f \t/ %f \n",(dt-dt_Sim)*s_to_ms,1./(dt-dt_Sim));
+		printf("F16Sim-Total :: dt/FPS [ms/Hz]: %f \t/ %f \n",dt          *s_to_ms,Hz);
+	#endif
+
 	return 0;
 }
 

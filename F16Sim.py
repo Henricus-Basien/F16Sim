@@ -15,7 +15,7 @@ Email: Henricus@Basien.de
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #--- System ---
-import os#,sys
+import os,sys
 from copy import copy
 from collections import OrderedDict
 #--- Timing ---
@@ -23,9 +23,11 @@ from time import time as getTime
 from time import sleep
 #--- Mathematics ---
 import numpy as np
-
+    
 #--- User Input ---
 import pygame as pg
+pg.init()
+sleep(1.0)
 
 #--- Visualization ---
 try:
@@ -35,11 +37,22 @@ except:
     print "WARNING: Unable to import Visual!"
     Imported_Visual = False
 
+#--- Profiler ---
+sys.path.insert(0,os.path.join(os.path.expandvars(r"%ALEX%"),"Scripts","Profiler"))
+try:
+    raise
+    from Profiler import Profiler
+    Imported_Profiler = True
+except:
+    Imported_Profiler = False
+
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # Internal
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from VectorOperations import CoordinateSystem,getCS
+from CallF16Sim_cpp import CallF16Sim_cpp
+
+from VectorOperations import CoordinateSystem#,getCS
 
 lbf_to_N = 4.448222
 g = 9.81
@@ -70,11 +83,14 @@ class F16Sim(object):
         self.acc = np.zeros(3)
         self.HighFidelity = HighFidelity
 
-        self.Controlled = Controlled
+        self.PrintTime = False#True
 
         self.Init_State()
         self.Init_Time()
-        self.Init_Control()
+        
+        self.Controlled = Controlled
+        if self.Controlled:
+            self.Init_Control()
 
         self.Visualize = Visualize
         if self.Visualize:
@@ -85,6 +101,8 @@ class F16Sim(object):
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     def Init_State(self):
+
+        self.CS = CoordinateSystem(refCS=np.identity(3),pos=self.pos,att=self.att,RotationSigns=[1,-1,-1],name="F16 CS")
 
         self.xu   = np.zeros(NrStates)
         self.xdot = np.zeros(NrStates)
@@ -121,8 +139,6 @@ class F16Sim(object):
     
     def Init_Control(self):
 
-        pg.init()
-        sleep(1.0)
         pg.joystick.init()
         sleep(1.0)
 
@@ -176,9 +192,9 @@ class F16Sim(object):
       
     def Create3DModel(self,ShowInfo=True,opacity=0.9):#False):#True):
         
-        self.Frame = frame(pos=self.pos,make_trail=True,trail_type="points")
+        make_trail = True#False#True
+        self.Frame = frame(pos=self.pos,make_trail=make_trail,trail_type="points",interval=1,retain=300)#100)
 
-        self.CS = CoordinateSystem(pos=self.pos,att=self.att,RotationSigns=[1,-1,-1],name="F16 CS")
         for i in range(3):
             if i==0: l = 15.0/2.
             else:    l = 9.96/2.
@@ -208,7 +224,8 @@ class F16Sim(object):
     def Update(self,PrintData=False):#True):
 
         self.Update_Time()
-        self.Update_Controls()
+        if self.Controlled:
+            self.Update_Controls()
         self.CallF16Sim()
         self.ExtractOutput()
         self.IntegrateState()
@@ -227,11 +244,15 @@ class F16Sim(object):
         self.RunNr+=1
         self.dt = (getTime()-self.t0)-self.t
         self.t  =  getTime()-self.t0
+        self.dt_avg = self.t/self.RunNr
 
-        InfoText = "Run#"+str(self.RunNr)+": t="+str(round(self.t,2))+" s | dt="+str(round(self.dt*1000,2))+" ms"
-        if self.dt!=0:
-            InfoText+=" | FPS="+str(round(1./self.dt,2))+" Hz"
-        print InfoText
+        if self.PrintTime:
+            InfoText = "Run#"+str(self.RunNr)+": t="+str(round(self.t,2))+" s | dt="+str(round(self.dt*1000,2))+" ms"
+            if self.dt!=0:
+                InfoText+=" | FPS="+str(round(1./self.dt,2))+" Hz"
+                if 1:
+                    InfoText+=" | FPS_Avg="+str(round(1./self.dt_avg,2))+" Hz"
+            print InfoText
 
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Controls
@@ -309,14 +330,8 @@ class F16Sim(object):
         parameters = ""
         for x in self.xu:
             parameters+=" "+str(x)
-
-        cmd = "./F16Sim"
-        if os.name=="nt":
-            #cmd = 'bash -c "'+cmd+'"'
-            cmd = "F16Sim.exe"
-
-        cmd+=" "+parameters
-        os.system(cmd)
+        # print parameters
+        CallF16Sim_cpp(parameters,MeasureTime=self.PrintTime)
 
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Extract
@@ -327,8 +342,11 @@ class F16Sim(object):
         with open("F16Sim_output.csv","r") as OutputFile:
             lines = OutputFile.readlines()
 
-            self.xu   = [float(v.strip()) for v in filter(None,lines[0].split(",")) if v.strip()!=""]
-            self.xdot = [float(v.strip()) for v in filter(None,lines[1].split(",")) if v.strip()!=""]
+            if 0:#1:
+                self.xu   = [float(v.strip()) for v in filter(None,lines[0].split(",")) if v.strip()!=""]
+                self.xdot = [float(v.strip()) for v in filter(None,lines[1].split(",")) if v.strip()!=""]
+            else:
+                self.xdot = [float(v.strip()) for v in filter(None,lines[0].split(",")) if v.strip()!=""]
 
     #----------------------------------------
     # Convert
@@ -347,7 +365,9 @@ class F16Sim(object):
         #--- Fix East-West ---
         self.pos[1]*=-1
         #--- Coordinate System ---
-        self.CS.setCS(self.att)
+        att = copy(self.att)
+        att[0]-=np.radians(90) # ToDo: Why, WTG?!
+        self.CS.setCS(att)
 
         #--- ToDoConvert Velocity! ---
         #self.vel = ...based on AoA and AoS
@@ -375,17 +395,24 @@ class F16Sim(object):
     def GetInfoText(self,nd=3):
 
         InfoText = ""
+        InfoText+="FPS_avg: "+str(round(1./self.dt_avg,2))+" Hz"+"\n"
+        InfoText+="\n"
+
         InfoText+="pos: "+str([str(np.round(           v ,nd)) for v in self.pos])+" [m]"    +"\n"
         #InfoText+="vel: "+str([str(np.round(           v ,nd)) for v in self.vel])+"[m/s]"  +"\n"
         InfoText+="vel: "+str(np.round(self.vel[0],nd))+" [m/s]"+" | AoA/AoS "+str(np.round(np.degrees(self.vel[1])))+"/"+str(np.round(np.degrees(self.vel[2])))+" [deg]"+"\n"
+        InfoText+="acc: "+str([str(np.round(         v/g ,nd)) for v in self.acc])+" [g]"    +"\n"
         InfoText+="att: "+str([str(np.round(np.degrees(v),nd)) for v in self.att])+" [deg]"  +"\n"
         InfoText+="rps: "+str([str(np.round(np.degrees(v),nd)) for v in self.rps])+" [deg/s]"+"\n"
 
-        InfoText+="\n"
-        InfoText+="Thrust:   "+str(round(self.Controls["Thrust"  ],nd))+" [N]  "+" ("+str(round(self.Controls_per["Thrust"  ]*100,nd))+"%)"+"\n" 
-        InfoText+="Elevator: "+str(round(self.Controls["Elevator"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Elevator"]*100,nd))+"%)"+"\n" 
-        InfoText+="Ailerons: "+str(round(self.Controls["Ailerons"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Ailerons"]*100,nd))+"%)"+"\n" 
-        InfoText+="Rudder:   "+str(round(self.Controls["Rudder"  ],nd))+" [deg]"+" ("+str(round(self.Controls_per["Rudder"  ]*100,nd))+"%)"+"\n" 
+        try:
+            InfoText+="\n"
+            InfoText+="Thrust:   "+str(round(self.Controls["Thrust"  ],nd))+" [N]  "+" ("+str(round(self.Controls_per["Thrust"  ]*100,nd))+"%)"+"\n" 
+            InfoText+="Elevator: "+str(round(self.Controls["Elevator"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Elevator"]*100,nd))+"%)"+"\n" 
+            InfoText+="Ailerons: "+str(round(self.Controls["Ailerons"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Ailerons"]*100,nd))+"%)"+"\n" 
+            InfoText+="Rudder:   "+str(round(self.Controls["Rudder"  ],nd))+" [deg]"+" ("+str(round(self.Controls_per["Rudder"  ]*100,nd))+"%)"+"\n" 
+        except:
+            print "Error reading Controls!"
 
         return InfoText
 
@@ -415,64 +442,144 @@ if __name__=="__main__":
     # Settings
     #================================================================================
     
+    RunThreaded = False#True
+    from threading import Thread
+
     #--- Simulation ---
-    pos = [0,0,1000]
-    vel = [100,np.radians(7),0] # [Vt,AoA,AoS]
-    att = [0  ,np.radians(4),0]
+    pos = [6*-1000,0,1000]#[0,0,1000]
+    vel = [150,np.radians(3),0] # [Vt,AoA,AoS]
+    att = np.zeros(3)#[0  ,np.radians(4),0]
     rps = np.zeros(3)
+    Trim_per= {"Elevator":-0.65}
     HighFidelity = True
 
-    Controlled = True
+    Controlled = True#False#True
 
-    Visualize = True#False#True
+    Visualize = True#False#True#False#True
     if not Imported_Visual:
         Visualize = False
 
-    MaxSimTime = 60#20#3#10 # [s]
+    MaxSimTime = 10*60# 10#60# 10#60*10#20#3#10 # [s]
 
     #--- Visualization ---
-    FPV = False#True#False#True#False
+    FPV = True#False#True#False#True#False
     Resolution = [1920,1080]
-    MaxFPS = 500 # [FPS]
-    stereo = "crosseyed" # None
+    MaxFPS = 1000#500 # [FPS]
+    stereo = None#"crosseyed" # None
 
     #================================================================================
     # Initialize
     #================================================================================
-    
-    if Visualize:
-        from visual import display,rate,arrow
-        window = display(title="F16 Simulation",width=Resolution[0],height=Resolution[1])
 
+    def InitVisuals():
+        
+        from visual import display
+        window = display(title="F16 Simulation",width=Resolution[0],height=Resolution[1])
         window.up      = np.identity(3)[2]
         window.forward = -np.ones(3)
         window.center  = pos
 
         if FPV:
-            window.range = 15*2
+            window.range = 15*3#2
 
-        window.stereo = stereo
+        if stereo is not None:
+            window.stereo = stereo
 
         #--- CS ---
         for i in range(3):
             arrow(axis=np.identity(3)[i]*1000,color=np.identity(3)[i],opacity=0.75)
+
+        return window
+
+    if Visualize:# and not RunThreaded:
+        window = InitVisuals()
 
     #================================================================================
     # Run Simulation
     #================================================================================
     
     sim = F16Sim(pos=pos,att=att,vel=vel,rps=rps,HighFidelity=HighFidelity,Controlled=Controlled,Visualize=Visualize)
+    sim.Finished = False
+    sim.Controls_trim.update(Trim_per)
+    if Visualize:
+        sim.window = window
 
-    while True:
+    if RunThreaded:
+        sim.Controlled = False
+        sim.Update_Controls()
+        print sim.Controls
+
+    def RunF16Sim():
+        pg.init()
+        while True:
+
+            try:
+                UpdateF16Sim()
+            except (KeyboardInterrupt, SystemExit):
+                print "Escaped Simulation Loop!"
+                break
+
+            #--- Terminate Simulation ---
+            if Terminate():
+                break
+
+            # for event in pg.event.get():
+            #     print event,event.type
+            #     if event.type == pg.KEYDOWN:
+            #         if event.key == "escape" or event.key == pg.K_ESCAPE:
+            #             print "Escaped Simulation Loop!"
+            #             return
+
+        sim.Finished = True
+
+    def UpdateF16Sim():
         #--- Update Simulation ---
         sim.Update()
         #--- Update Visualization ---
-        if Visualize:
-            window.center  = sim.pos
-            if FPV:
-                window.forward = sim.CS.matrix[:,0]
-                window.up      = -sim.CS.matrix[:,1]
-            rate(MaxFPS)
-        #--- Terminate Simulation ---
+        if Visualize and not RunThreaded:
+            UpdateVisuals()
+
+    def Terminate():
         if sim.t>MaxSimTime:
-            break
+            return True
+        else:
+            return False
+
+    #----------------------------------------
+    # Visualize
+    #----------------------------------------
+    
+    def RunF16Visuals():
+        #InitVisuals()
+        while not sim.Finished:
+            sim.Update_Controls()
+            UpdateVisuals()
+
+    def UpdateVisuals():
+        sim.window.center  = sim.pos
+        if FPV:
+            sim.window.forward = sim.CS.matrix[:,0]
+            sim.window.up      = -sim.CS.matrix[:,1]
+        from visual import rate
+        rate(MaxFPS)
+        #print "Update"
+        
+    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Excecute
+    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    func = RunF16Sim
+
+    if RunThreaded:
+
+        t = Thread(target=func)#UpdateVisuals)
+        t.start()
+        RunF16Visuals()
+
+    else:
+        if Imported_Profiler:
+            Profiler.Profile(func)
+        else:
+            func()
+
+    pg.quit()
