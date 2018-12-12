@@ -123,7 +123,7 @@ class F16Sim(object):
         self.xu[1]*=-1
 
         #--- Thrust ---
-        self.xu[12] = 20000 # [N]\
+        self.xu[12] = 20000 # [N]
 
         #--- Fidelity ---
         self.xu[17] = int(self.HighFidelity)
@@ -145,6 +145,9 @@ class F16Sim(object):
     
     def Init_Control(self):
 
+        self.Control_ext   = OrderedDict()
+        self.Controls_trim = OrderedDict()
+
         pg.joystick.init()
         sleep(1.0)
 
@@ -158,8 +161,20 @@ class F16Sim(object):
             joystick.init()
             print "'"+name+"'",joystick
 
-        self.Yoke   = self.Joysticks["Saitek Pro Flight Yoke"]
-        self.Pedals = self.Joysticks["CH PRO PEDALS USB"]
+        try:
+            self.Yoke   = self.Joysticks["Saitek Pro Flight Yoke"]
+        except:
+            print "Control device 'Saitek Pro Flight Yoke' is not found...unable to control the simulation!"
+            self.Yoke = None
+        try:
+            self.Pedals = self.Joysticks["CH PRO PEDALS USB"]
+        except:
+            print "Control device 'CH PRO PEDALS USB' is not found...unable to control the simulation!"
+            self.Pedals = None
+
+        if self.Yoke is None or self.Pedals is None:
+            self.Controlled = False
+            return
 
         for i in range(1):#(100):
             self.PrintAllControls()
@@ -169,7 +184,7 @@ class F16Sim(object):
         # Extremes
         #----------------------------------------
 
-        self.Control_ext = OrderedDict()
+        # self.Control_ext = OrderedDict()
         self.Control_ext["Thrust"  ]   = [1000*lbf_to_N,19000*lbf_to_N]
         self.Control_ext["Elevator"] = [-25.0,25.0]
         self.Control_ext["Ailerons"] = [-21.5,21.5]
@@ -179,7 +194,7 @@ class F16Sim(object):
         # Trim
         #----------------------------------------
         
-        self.Controls_trim = OrderedDict()
+        # self.Controls_trim = OrderedDict()
         for name in self.Control_ext:
             self.Controls_trim[name] = 0.0
 
@@ -425,14 +440,15 @@ class F16Sim(object):
         InfoText+="att: "+str([str(np.round(np.degrees(v),nd)) for v in self.att])+" [deg]"  +"\n"
         InfoText+="rps: "+str([str(np.round(np.degrees(v),nd)) for v in self.rps])+" [deg/s]"+"\n"
 
-        try:
-            InfoText+="\n"
-            InfoText+="Thrust:   "+str(round(self.Controls["Thrust"  ],nd))+" [N]  "+" ("+str(round(self.Controls_per["Thrust"  ]*100,nd))+"%)"+"\n" 
-            InfoText+="Elevator: "+str(round(self.Controls["Elevator"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Elevator"]*100,nd))+"%)"+"\n" 
-            InfoText+="Ailerons: "+str(round(self.Controls["Ailerons"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Ailerons"]*100,nd))+"%)"+"\n" 
-            InfoText+="Rudder:   "+str(round(self.Controls["Rudder"  ],nd))+" [deg]"+" ("+str(round(self.Controls_per["Rudder"  ]*100,nd))+"%)"+"\n" 
-        except:
-            print "Error reading Controls!"
+        if self.Controlled:
+            try:
+                InfoText+="\n"
+                InfoText+="Thrust:   "+str(round(self.Controls["Thrust"  ],nd))+" [N]  "+" ("+str(round(self.Controls_per["Thrust"  ]*100,nd))+"%)"+"\n" 
+                InfoText+="Elevator: "+str(round(self.Controls["Elevator"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Elevator"]*100,nd))+"%)"+"\n" 
+                InfoText+="Ailerons: "+str(round(self.Controls["Ailerons"],nd))+" [deg]"+" ("+str(round(self.Controls_per["Ailerons"]*100,nd))+"%)"+"\n" 
+                InfoText+="Rudder:   "+str(round(self.Controls["Rudder"  ],nd))+" [deg]"+" ("+str(round(self.Controls_per["Rudder"  ]*100,nd))+"%)"+"\n" 
+            except:
+                print "Error reading Controls!"
 
         return InfoText
 
@@ -480,7 +496,7 @@ if __name__=="__main__":
     att = np.zeros(3)#[0  ,np.radians(4),0]
     rps = np.zeros(3)
     Trim_per= {"Elevator":-0.65}
-    HighFidelity = True
+    HighFidelity = False#True
 
     Controlled = True#False#True
 

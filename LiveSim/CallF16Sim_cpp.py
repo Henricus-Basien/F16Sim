@@ -13,10 +13,12 @@ from time import time as getTime
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def CallF16Sim_cpp(parameters="",MeasureTime=False):#True):
-    cmd = "./F16Sim"
+    
     if os.name=="nt":
         #cmd = 'bash -c "'+cmd+'"'
-        cmd = "F16Sim.exe"
+        cmd = "../F16Sim.exe"
+    else:
+        cmd = "./../F16Sim"
 
     cmd+=" "+parameters
     if MeasureTime: t0_ = getTime()

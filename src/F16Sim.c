@@ -21,7 +21,8 @@ Email: Henricus@Basien.de
 // Boolean
 //----------------------------------------
 
-typedef int bool;
+
+typedef int bool_;
 #define true 1
 #define false 0
 
@@ -66,8 +67,8 @@ time_t getTime_us(){
 
 //#define TrackTimeInSingleRun
 
-bool Print = false;//true;
-bool Convert = true;
+bool_ Print = false;//true;
+bool_ Convert = true;
 char *OutputFile = "F16Sim_output.csv";
 
 //================================================================================
@@ -285,8 +286,8 @@ void Export_plus(){
 // Update Simulation
 //================================================================================
 
-bool PrintData  = false;//true;//false;
-bool ExportData = false;//true;//false;
+bool_ PrintData  = false;//true;//false;
+bool_ ExportData = false;//true;//false;
 
 void UpdateSimulation(double *xu, double *xdot){
 	
@@ -453,3 +454,52 @@ int main(int argc, char **argv){
 	return 0;
 }
 
+//****************************************************************************************************
+// Matlab Mex
+//****************************************************************************************************
+
+#ifdef COMPILE_TO_MEX
+	#include "mex.h"
+	/*########################################*/
+	/*### Added for mex function in matlab ###*/
+	/*########################################*/
+
+	int fix(double);
+	int sign(double);
+
+	void mexFunction(int nlhs, mxArray *plhs[],
+	               int nrhs, const mxArray *prhs[])
+	{
+
+	#define XU prhs[0]
+	#define XDOTY plhs[0]
+
+	int i;
+	double *xup, *xdotp;
+
+	if (mxGetM(XU)==18 && mxGetN(XU)==1){ 
+
+	    /* Calling Program */
+	    xup = mxGetPr(XU);
+	    XDOTY = mxCreateDoubleMatrix(18, 1, mxREAL);
+	    xdotp = mxGetPr(XDOTY);
+
+	    //UpdateSimulation_plus(xup,xdotp);
+	    nlplant(xup,xdotp);
+
+	    /* debug
+	    for (i=0;i<=14;i++){
+	      printf("xdotp(%d) = %e\n",i+1,xdotp[i]);
+	    }
+	    end debug */
+
+	} /* End if */
+	else{ 
+	    mexErrMsgTxt("Input and/or output is wrong size.");
+	} /* End else */
+
+	} /* end mexFunction */
+
+	/*########################################*/
+	/*########################################*/
+#endif

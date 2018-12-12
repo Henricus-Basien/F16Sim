@@ -41,48 +41,49 @@
 // nl plant
 //****************************************************************************************************
 
-// /*########################################*/
-// /*### Added for mex function in matlab ###*/
-// /*########################################*/
+// #ifdef COMPILE_TO_MEX
+//   /*########################################*/
+//   /*### Added for mex function in matlab ###*/
+//   /*########################################*/
 
-// int fix(double);
-// int sign(double);
+//   int fix(double);
+//   int sign(double);
 
-// void mexFunction(int nlhs, mxArray *plhs[],
-//                  int nrhs, const mxArray *prhs[])
-// {
+//   void mexFunction(int nlhs, mxArray *plhs[],
+//                    int nrhs, const mxArray *prhs[])
+//   {
 
-// #define XU prhs[0]
-// #define XDOTY plhs[0]
+//   #define XU prhs[0]
+//   #define XDOTY plhs[0]
 
-// int i;
-// double *xup, *xdotp;
+//   int i;
+//   double *xup, *xdotp;
 
-// if (mxGetM(XU)==18 && mxGetN(XU)==1){ 
+//   if (mxGetM(XU)==18 && mxGetN(XU)==1){ 
 
-//       /* Calling Program */
-//       xup = mxGetPr(XU);
-//       XDOTY = mxCreateDoubleMatrix(18, 1, mxREAL);
-//       xdotp = mxGetPr(XDOTY);
+//         /* Calling Program */
+//         xup = mxGetPr(XU);
+//         XDOTY = mxCreateDoubleMatrix(18, 1, mxREAL);
+//         xdotp = mxGetPr(XDOTY);
 
-//       nlplant(xup,xdotp);
+//         nlplant(xup,xdotp);
 
-//       /* debug
-//       for (i=0;i<=14;i++){
-//         printf("xdotp(%d) = %e\n",i+1,xdotp[i]);
-//       }
-//       end debug */
+//         /* debug
+//         for (i=0;i<=14;i++){
+//           printf("xdotp(%d) = %e\n",i+1,xdotp[i]);
+//         }
+//         end debug */
 
-// } /* End if */
-// else{ 
-//       mexErrMsgTxt("Input and/or output is wrong size.");
-// } /* End else */
+//   } /* End if */
+//   else{ 
+//         mexErrMsgTxt("Input and/or output is wrong size.");
+//   } /* End else */
 
-// } /* end mexFunction */
+//   } /* end mexFunction */
 
-// /*########################################*/
-// /*########################################*/
-
+//   /*########################################*/
+//   /*########################################*/
+// #endif
 
 void nlplant(double *xu, double *xdot){
 
@@ -505,9 +506,9 @@ xdot[11] = (Jx*N_tot + Jxz*L_tot + (Jx*(Jx-Jy)+Jxz*Jxz)*P*Q - Jxz*(Jx-Jy+Jz)*Q*R
 
 accels(xu,xdot,temp);
 
-xdot[12]  = temp[0];	/* anx_cg */
-xdot[13]  = temp[1];	/* any_cg */
-xdot[14]  = temp[2];	/* anz_cg */
+xdot[12]  = temp[0];    /* anx_cg */
+xdot[13]  = temp[1];    /* any_cg */
+xdot[14]  = temp[2];    /* anz_cg */
 xdot[15]  = mach;
 xdot[16]  = qbar;
 xdot[17]  = ps;
