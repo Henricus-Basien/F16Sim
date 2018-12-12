@@ -87,6 +87,7 @@
 
 void nlplant_(double *xu, double *xdot){
 
+  // printf("Running nlplant...\n");
   int fi_flag;
 
   /* #include f16_constants */

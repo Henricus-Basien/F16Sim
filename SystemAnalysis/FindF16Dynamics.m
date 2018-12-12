@@ -1,3 +1,5 @@
+Settings
+
 %================================================
 %     Matlab Script File used to linearize the 
 %     non-linear F-16 model. The program will 
@@ -15,20 +17,45 @@ addpath obsmutoolsfornewermatlabversions -END % required for some new MATLAB ver
 
 global fi_flag_Simulink
 
+global USE_SI_UNITS lbf_to_N lu
+global altitude0 velocity0
+global PlotPoles PlotBode
+
 newline = sprintf('\n');
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Trim
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 %% Trim aircraft to desired altitude and velocity
 %%
-altitude = input('Enter the altitude for the simulation (ft)  :  ');
-velocity = input('Enter the velocity for the simulation (ft/s):  ');
+
+if exist("altitude0") == 0 || isempty(altitude0)
+    altitude = input('Enter the altitude for the simulation ('+lu+')  :  ');
+else
+    altitude = altitude0;
+end
+if exist("velocity0") == 0 || isempty(velocity0)
+    velocity = input('Enter the velocity for the simulation ('+lu+'/s)  :  ');
+else
+    velocity = velocity0;
+end
 
 %% Initial guess for trim
 %%
-thrust = 5000;          % thrust, lbs
-elevator = -0.09;       % elevator, degrees
-alpha = 8.49;              % AOA, degrees
-rudder = -0.01;             % rudder angle, degrees
-aileron = 0.01;            % aileron, degrees
+if (USE_SI_UNITS == 1)
+    thrust = 5000*lbf_to_N;          % thrust, lbs
+    elevator = -0.09;       % elevator, degrees
+    alpha = 8.49;              % AOA, degrees
+    rudder = -0.01;             % rudder angle, degrees
+    aileron = 0.01;            % aileron, degrees
+else
+    thrust = 5000;          % thrust, lbs
+    elevator = -0.09;       % elevator, degrees
+    alpha = 8.49;              % AOA, degrees
+    rudder = -0.01;             % rudder angle, degrees
+    aileron = 0.01;            % aileron, degrees
+end
 
 %% Find trim for Hifi model at desired altitude and velocity
 %%
@@ -40,7 +67,7 @@ fi_flag_Simulink = 1;
 %%
 trim_state_lin = trim_state_hi; trim_thrust_lin = trim_thrust_hi; trim_control_lin = trim_control_hi;
 [A_hi,B_hi,C_hi,D_hi] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3); ...
-		dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
+        dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
 
 %% Find trim for Hifi model at desired altitude and velocity
 %%
@@ -52,7 +79,7 @@ fi_flag_Simulink = 0;
 %%
 trim_state_lin = trim_state_lo; trim_thrust_lin = trim_thrust_lo; trim_control_lin = trim_control_lo;
 [A_lo,B_lo,C_lo,D_lo] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3);...
-		dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
+        dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
 
 %% Make state space model
 %%
@@ -260,62 +287,92 @@ for i=1:length( D_lateral_lo(:,1) )
     mprintf([ D_lateral_lo(i,:) ],'  %.3e ')
 end %for
 
-% Display the real, imaginary, frequency (magnitude) and damping ratios
-rifd(lat_poles_lo)
+%================================================================================
+% Laplace Pole-Zero Plots
+%================================================================================
 
-%% All Poles
-figure(1); 
-pzmap(SS_hi, 'r', SS_lo, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nAll Poles\n Blue = lofi Red = hifi.', altitude, velocity);
-title(title_string);
-sgrid;
+if exist("PlotPoles") == 0 || isempty(PlotPoles)
+    flag_poles = input('Do you want to display the Pole-Zero plots for the system (y/n):  ','s'); 
+else
+    flag_poles = PlotPoles;
+end
 
-%% Long. Poles
-%%
-figure(2); 
-pzmap(SS_long_hi, 'r', SS_long_lo, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLongitudal Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
-title(title_string);
-sgrid;
+if flag_poles == "y"
 
-%% Lat. Poles
-%%
-figure(3); 
-pzmap(SS_lat_hi, 'r', SS_lat_lo, 'b');
-title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLateral Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
-title(title_string);
-sgrid;
+    % Display the real, imaginary, frequency (magnitude) and damping ratios
+    rifd(lat_poles_lo)
+
+    %% All Poles
+    figure(1); 
+    pzmap(SS_hi, 'r', SS_lo, 'b');
+    title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nAll Poles\n Blue = lofi Red = hifi.', altitude, velocity);
+    title(title_string);
+    sgrid;
+
+    %% Long. Poles
+    %%
+    figure(2); 
+    pzmap(SS_long_hi, 'r', SS_long_lo, 'b');
+    title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLongitudal Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
+    title(title_string);
+    sgrid;
+
+    %% Lat. Poles
+    %%
+    figure(3); 
+    pzmap(SS_lat_hi, 'r', SS_lat_lo, 'b');
+    title_string = sprintf('Altitude = %.2f ft Velocity = %.2f ft/s\nLateral Directional Poles\n Blue = lofi Red = hifi.', altitude, velocity);
+    title(title_string);
+    sgrid;
+else
+    disp("Pole-Zero Plots are not being plotted...")
+end
+
+%================================================================================
+% Bode Plots
+%================================================================================
 
 % Create Bode Plots
 
-omega = logspace(-2,2,100);
-
-sysg_lat_hi = frsp(sys_lat_hi,omega);
-sysg_lat_lo = frsp(sys_lat_lo,omega);
-
-sysg_long_hi = frsp(sys_long_hi,omega);
-sysg_long_lo = frsp(sys_long_lo,omega);
-
-figure;
-BodeCount = 0;
-for state = 1:1:5
-    for control = 1:1:2
-        BodeCount = BodeCount +1;
-        title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
-        vplot('bode', sel(sysg_long_hi,state,control), 'b--', sel(sysg_long_lo,state,control), 'r');
-        disp(title_string);
-        legend('hifi', 'lofi');
-        pause;
-    end
+if exist("PlotBode") == 0 || isempty(PlotBode)
+    flag_bode = input('Do you want to display the Bode plots for the system (y/n):  ','s'); 
+else
+    flag_bode = PlotBode;
 end
 
-for state = 1:1:6
-    for control = 1:1:3
-        BodeCount = BodeCount + 1;
-        title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
-        vplot('bode', sel(sysg_lat_hi,state,control), 'b--', sel(sysg_lat_lo,state,control), 'r');
-        disp(title_string);
-        legend('hifi', 'lofi');
-        pause;
+if flag_bode == "y"
+
+    omega = logspace(-2,2,100);
+
+    sysg_lat_hi = frsp(sys_lat_hi,omega);
+    sysg_lat_lo = frsp(sys_lat_lo,omega);
+
+    sysg_long_hi = frsp(sys_long_hi,omega);
+    sysg_long_lo = frsp(sys_long_lo,omega);
+
+    figure;
+    BodeCount = 0;
+    for state = 1:1:5
+        for control = 1:1:2
+            BodeCount = BodeCount +1;
+            title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
+            vplot('bode', sel(sysg_long_hi,state,control), 'b--', sel(sysg_long_lo,state,control), 'r');
+            disp(title_string);
+            legend('hifi', 'lofi');
+            pause;
+        end
     end
+
+    for state = 1:1:6
+        for control = 1:1:3
+            BodeCount = BodeCount + 1;
+            title_string = sprintf('Bode Plot #%d\n State = %d\n Control = %d', BodeCount,state,control);
+            vplot('bode', sel(sysg_lat_hi,state,control), 'b--', sel(sysg_lat_lo,state,control), 'r');
+            disp(title_string);
+            legend('hifi', 'lofi');
+            pause;
+        end
+    end
+else
+    disp("Bode Plots are not being plotted...")
 end

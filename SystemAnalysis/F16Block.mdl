@@ -433,7 +433,7 @@ Model {
 	  BlockType		  MATLABFcn
 	  Name			  "F16 nlsim\nnlplant"
 	  Position		  [280, 100, 340, 130]
-	  MATLABFcn		  "nlplant"
+	  MATLABFcn		  "F16Sim_IU"
 	  OutputDimensions	  "18"
 	  OutputSignalType	  "real"
 	}

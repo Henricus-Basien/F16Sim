@@ -21,7 +21,6 @@ Email: Henricus@Basien.de
 // Boolean
 //----------------------------------------
 
-
 typedef int bool_;
 #define true 1
 #define false 0
@@ -82,6 +81,8 @@ char *OutputFile = "F16Sim_output.csv";
 //================================================================================
 
 #define NrStates 18
+
+// double *xu, *xdot;
 double xu    [NrStates] = {0.0};
 double xdot  [NrStates] = {0.0};
 
@@ -122,13 +123,13 @@ void Init_xu_IU_to_SI(){
 
 }
 
-void Convert_xu_IU_to_SI(){
+void Convert_xu_IU_to_SI(double *xu){
 	for (int i=0;i<NrStates;i++){
 		xu[i]*=xu_IU_to_SI[i];
 	}
 }
 
-void Convert_xu_SI_to_IU(){
+void Convert_xu_SI_to_IU(double *xu){
 	for (int i=0;i<NrStates;i++){
 		xu[i]/=xu_IU_to_SI[i];
 	}
@@ -149,23 +150,26 @@ void Init_xdot_IU_to_SI(){
 	for (int i=0;i<NrStates;i++){
 		xdot_IU_to_SI[i] = xu_IU_to_SI[i];
 	}
-	//--- Accelerations/Load Factors ---
-	for (int i=12;i<15;i++){
-		xu_IU_to_SI[i] = 9.81;//1; // [g/g]
+
+	if (1){
+		//--- Accelerations/Load Factors ---
+		// for (int i=12;i<15;i++){
+		//     xdot_IU_to_SI[i] = 9.81;//1; // [g/g]
+		// }
+		//--- Dynamic Pressure ---
+		xdot_IU_to_SI[16] = lb_ft2_to_Pa;
+		//--- Static Pressure ---
+		xdot_IU_to_SI[17] = lb_ft2_to_Pa;
 	}
-	//--- Dynamic Pressure ---
-	xu_IU_to_SI[16] = lb_ft2_to_Pa;
-	//--- Static Pressure ---
-	xu_IU_to_SI[17] = lb_ft2_to_Pa;
 }	
 
-void Convert_xdot_IU_to_SI(){
+void Convert_xdot_IU_to_SI(double *xdot){
 	for (int i=0;i<NrStates;i++){
 		xdot[i]*=xdot_IU_to_SI[i];
 	}
 }
 
-void Convert_xdot_SI_to_IU(){
+void Convert_xdot_SI_to_IU(double *xdot){
 	for (int i=0;i<NrStates;i++){
 		xdot[i]/=xdot_IU_to_SI[i];
 	}
@@ -175,14 +179,14 @@ void Convert_xdot_SI_to_IU(){
 // Combined
 //----------------------------------------
 
-void Convert_IU_to_SI(){
-	Convert_xu_IU_to_SI();
-	Convert_xdot_IU_to_SI();
+void Convert_IU_to_SI(double *xu, double *xdot){
+	Convert_xu_IU_to_SI(xu);
+	Convert_xdot_IU_to_SI(xdot);
 }
 
-void Convert_SI_to_IU(){
-	Convert_xu_SI_to_IU();
-	Convert_xdot_SI_to_IU();
+void Convert_SI_to_IU(double *xu, double *xdot){
+	Convert_xu_SI_to_IU(xu);
+	Convert_xdot_SI_to_IU(xdot);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -243,7 +247,7 @@ void InitState(){
 // Print
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void PrintState(){
+void PrintState(double *xu, double *xdot){
 	printf("****************************************************\n");
 	for (int i=0;i<NrStates;i++){
 		printf("State (+Der) # %d '%s [%s]' \t %f \t %f \n",i,xnames[i],xunits[i],xu[i],xdot[i]);
@@ -254,7 +258,7 @@ void PrintState(){
 // Export
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ExportState(){
+void ExportState(double *xu, double *xdot){
 	FILE *f = fopen(OutputFile, "w");
 	if (f == NULL){
 	    printf("Error opening file!\n");
@@ -279,13 +283,13 @@ void ExportState(){
 	fclose(f);
 }
 
-void Export_plus(){
+void Export_plus(double *xu, double *xdot){
 	//--- Convert ---
-	if (Convert) Convert_IU_to_SI();
+	if (Convert) Convert_IU_to_SI(xu,xdot);
 	//--- Print ---
-	if (Print) PrintState();
+	if (Print) PrintState(xu,xdot);
 	//--- Export ---
-	ExportState();
+	ExportState(xu,xdot);
 }
 
 //================================================================================
@@ -307,19 +311,21 @@ void UpdateSimulation(double *xu, double *xdot){
 	// Print Output
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	if (PrintData) PrintState();
+	if (PrintData) PrintState(xu, xdot);
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Export Output
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	if (ExportData) ExportState();
+	if (ExportData) ExportState(xu, xdot);
 
 }
 
 void UpdateSimulation_plus(double *xu, double *xdot){
+
+	// printf("Running UpdateSimulation_plus %d...\n",Convert);
 	//--- Convert ---
-	if (Convert) Convert_SI_to_IU();
+	if (Convert) Convert_SI_to_IU(xu,xdot);
 	//--- Update ---	
 	UpdateSimulation(xu,xdot);
 }
@@ -375,7 +381,7 @@ void RunSimulation(){
 			xu[i]+=xdot[i]*dt;
 		}
 
-		Export_plus();
+		Export_plus(xu,xdot);
 	}
 }
 
@@ -445,7 +451,7 @@ int main(int argc, char **argv){
 		// Export
 		//----------------------------------------
 		
-		Export_plus();
+		Export_plus(xu,xdot);
 		
 	}
 
@@ -464,17 +470,22 @@ int main(int argc, char **argv){
 // Matlab Mex
 //****************************************************************************************************
 
-#ifdef USE_SI_UNITS
-	void nlplant(double *xu, double *xdot){
-		#pragma message "INFO: Using SI Units!"
-		UpdateSimulation_plus(xu,xdot);
-	}
-#else
-	void nlplant(double *xu, double *xdot){
-		#pragma message "INFO: Using Imperial Units!"
-		nlplant_(             xu,xdot);
-	}
-#endif
+void nlplant(double *xu, double *xdot){
+	#pragma message "INFO: Using SI Units!"
+	UpdateSimulation_plus(xu,xdot);
+}
+
+// #ifdef USE_SI_UNITS
+// 	void nlplant(double *xu, double *xdot){
+// 		#pragma message "INFO: Using SI Units!"
+// 		UpdateSimulation_plus(xu,xdot);
+// 	}
+// #else
+// 	void nlplant(double *xu, double *xdot){
+// 		#pragma message "INFO: Using Imperial Units!"
+// 		nlplant_(             xu,xdot);
+// 	}
+// #endif
 
 #ifdef COMPILE_TO_MEX
 
@@ -492,6 +503,8 @@ int main(int argc, char **argv){
 	               int nrhs, const mxArray *prhs[])
 	{
 
+	// mexPrintf("Running F16-mex with SI Units: %d\n",Convert);
+
 	#define XU prhs[0]
 	#define XDOTY plhs[0]
 
@@ -501,10 +514,11 @@ int main(int argc, char **argv){
 	if (mxGetM(XU)==18 && mxGetN(XU)==1){ 
 
 	    /* Calling Program */
-	    xup = mxGetPr(XU);
+	    xup   = mxGetPr(XU);
 	    XDOTY = mxCreateDoubleMatrix(18, 1, mxREAL);
 	    xdotp = mxGetPr(XDOTY);
 
+	    // nlplant(xu,xdot);
 	    nlplant(xup,xdotp);
 
 	    /* debug

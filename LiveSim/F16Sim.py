@@ -381,7 +381,7 @@ class F16Sim(object):
             self.vel[i] = self.xu[6+i]
             self.rps[i] = self.xu[9+i]
 
-            self.acc[i] = self.xdot[12+i]*g
+            self.acc[i] = self.xdot[12+i]#*g
 
         #--- Fix East-West ---
         self.pos[1]*=-1
@@ -468,7 +468,7 @@ class F16Sim(object):
         self.rps_vector.axis = rps
         acc = copy(self.acc)
         if 1:
-            acc[2]-=g
+            acc[2]-=1#g
         acc[1]*=-1
         acc[2]*=-1
 
@@ -495,7 +495,7 @@ if __name__=="__main__":
     vel = [150,np.radians(1),0] # [Vt,AoA,AoS]
     att = np.zeros(3)#[0  ,np.radians(4),0]
     rps = np.zeros(3)
-    Trim_per= {"Elevator":-0.65}
+    Trim_per= {"Elevator":-0.05}
     HighFidelity = False#True
 
     Controlled = True#False#True

@@ -28,12 +28,27 @@ function [cost, Xdot, xu] = trimfun(UX0)
 global phi psi p q r phi_weight theta_weight psi_weight
 global altitude velocity fi_flag_Simulink
 
+global USE_SI_UNITS feet_to_m lbf_to_N
+
+% USE_SI_UNITS = 1;
+% feet_to_m    = 0.3048;
+% lbf_to_N     = 4.448222;
+% lb_ft2_to_Pa = 47.880258888889;
+
 % Implementing limits:
 % Thrust limits
-if UX0(1) > 19000
-    UX0(1) = 19000;
-elseif UX0(1) < 1000
-    UX0(1) = 1000;
+tl_l = 1000;
+tl_u = 19000;
+
+if (USE_SI_UNITS == 1)
+    tl_l = tl_l*lbf_to_N
+    tl_u = tl_u*lbf_to_N
+end
+
+if UX0(1) > tl_u
+    UX0(1) = tl_u;
+elseif UX0(1) < tl_l
+    UX0(1) = tl_l;
 end;
 
 % elevator limits
@@ -75,12 +90,21 @@ end;
 if (fi_flag_Simulink == 1)
     % Calculating qbar, ps and steady state leading edge flap deflection:
     % (see pg. 43 NASA report)
-    rho0 = 2.377e-3; tfac = 1 - 0.703e-5*altitude;
-    temp = 519*tfac; if (altitude >= 35000) temp = 390; end;
+
+    alt_ = altitude;
+    vel_ = velocity;
+
+    if (USE_SI_UNITS == 1)
+        alt_ = alt_/feet_to_m;
+        vel_ = vel_/feet_to_m;
+    end
+
+    rho0 = 2.377e-3; tfac = 1 - 0.703e-5*alt_;
+    temp = 519*tfac; if (alt_ >= 35000) temp = 390; end;
     rho = rho0*tfac^4.14;
-    qbar = 0.5*rho*velocity^2;
+    qbar = 0.5*rho*vel_^2;
     ps = 1715*rho*temp;
-    
+
     dLEF = 1.38*UX0(3)*180/pi - 9.05*qbar/ps + 1.45;
     
 elseif (fi_flag_Simulink == 0)
@@ -95,13 +119,13 @@ elseif (dLEF < 0)
     dLEF = 0;
 end;
 
-xu = [  0             ... %npos (ft)
-        0             ... %epos (ft)
-        altitude      ... %altitude (ft)
+xu = [  0             ... %npos (ft|m)
+        0             ... %epos (ft|m)
+        altitude      ... %altitude (ft|m)
         phi*(pi/180)  ... %phi (rad)
         UX0(3)        ... %theta (rad)
         psi*(pi/180)  ... %psi (rad)
-        velocity      ... %velocity (ft/s)
+        velocity      ... %velocity (ft|m/s)
         UX0(3)        ... %alpha (rad)
         0             ... %beta (rad)
         p*(pi/180)    ... %p (rad/s)
@@ -115,7 +139,12 @@ xu = [  0             ... %npos (ft)
         fi_flag_Simulink ...% fidelity flag
         ]';
 
-OUT = feval('nlplant',xu);
+OUT = feval('F16Sim',xu);
+% if (USE_SI_UNITS == 1)
+%     OUT = feval('F16Sim_SI',xu);
+% else
+%     OUT = feval('F16Sim_IU',xu);%feval('nlplant',xu);
+% end
 
 Xdot = OUT(1:12,1);
 

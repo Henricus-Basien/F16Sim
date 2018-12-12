@@ -4,6 +4,7 @@
 //#include"mex.h"
 
 #include "mexndinterp.h"
+#include "settings.h"
 
 /*******************************************/
 /*    Creation of integer vector 	   */
@@ -73,8 +74,11 @@ void freeDoubleMat(double **mat,int n,int m){
 /*    Print out error and exit program       */
 /*********************************************/
 void ErrMsg(char *m){
-printf("Error: %s\n",m);
-//mexErrMsgTxt(m);
+	#ifdef COMPILE_TO_MEX
+		mexErrMsgTxt(m);
+	#else
+		printf("Error: %s\n",m);
+	#endif
 }
 
 /************************************************/

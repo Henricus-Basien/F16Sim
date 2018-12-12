@@ -23,6 +23,9 @@ function [trim_state, trim_thrust, trim_control, dLEF, xu] = trim_F16(thrust, el
 global altitude velocity fi_flag_Simulink
 global phi psi p q r phi_weight theta_weight psi_weight
 
+global lu fu
+global AcceptFirstIteration FlightCondition
+
 altitude = alt;
 velocity = vel;
 alpha = alpha*pi/180;  %convert to radians
@@ -39,12 +42,16 @@ phi = 0; psi = 0;
 p = 0; q = 0; r = 0;
 phi_weight = 10; theta_weight = 10; psi_weight = 10;
 
-disp('At what flight condition would you like to trim the F-16?');
-disp('1.  Steady Wings-Level Flight.');
-disp('2.  Steady Turning Flight.');
-disp('3.  Steady Pull-Up Flight.');
-disp('4.  Steady Roll Flight.');
-FC_flag = input('Your Selection:  ');
+if exist("FlightCondition") == 0 || isempty(FlightCondition)
+    disp('At what flight condition would you like to trim the F-16?');
+    disp('1.  Steady Wings-Level Flight.');
+    disp('2.  Steady Turning Flight.');
+    disp('3.  Steady Pull-Up Flight.');
+    disp('4.  Steady Roll Flight.');
+    FC_flag = input('Your Selection:  ');
+else
+    FC_flag = FlightCondition;
+end
 
 switch FC_flag
     case 1
@@ -73,17 +80,23 @@ while iter == 1
    
     [cost, Xdot, xu] = trimfun(UX);
     
-    disp('Trim Values and Cost:');
-    disp(['cost   = ' num2str(cost)])
-    disp(['thrust = ' num2str(xu(13)) ' lb'])
-    disp(['elev   = ' num2str(xu(14)) ' deg'])
-    disp(['ail    = ' num2str(xu(15)) ' deg'])
-    disp(['rud    = ' num2str(xu(16)) ' deg'])
-    disp(['alpha  = ' num2str(xu(8)*180/pi) ' deg'])
-    disp(['dLEF   = ' num2str(xu(17)) ' deg'])
-    disp(['Vel.   = ' num2str(velocity) 'ft/s']) 
-    flag = input('Continue trim rountine iterations? (y/n):  ','s'); 
-    if flag == 'n'
+    fprintf('Trim Values and Cost:  \n'            );
+    fprintf('cost   = %f \t         \n' ,cost         );
+    fprintf('thrust = %f \t '+fu+'      \n' ,xu(13)       );
+    fprintf('elev   = %f \t deg     \n' ,xu(14)       );
+    fprintf('ail    = %f \t deg     \n' ,xu(15)       );
+    fprintf('rud    = %f \t deg     \n' ,xu(16)       );
+    fprintf('alpha  = %f \t deg     \n' ,xu(8)*180/pi );
+    fprintf('dLEF   = %f \t deg     \n' ,xu(17)       );
+    fprintf('Vel.   = %f \t '+lu+'/s\n' ,velocity     );
+
+
+    if exist("AcceptFirstIteration") == 0 || isempty(AcceptFirstIteration)
+        flag = input('Continue trim routine iterations? (y/n):  ','s'); 
+        if flag == 'n'
+            iter = 0;
+        end
+    else
         iter = 0;
     end
     UX0 = UX;

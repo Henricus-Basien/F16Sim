@@ -64,6 +64,9 @@ Thumbs.db
 #       Matlab       #
 ######################
 
+*.mdl.r*
+*.slxc
+
 # Windows default autosave extension
 *.asv
 
