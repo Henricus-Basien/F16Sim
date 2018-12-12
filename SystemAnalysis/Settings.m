@@ -14,6 +14,13 @@ global AcceptFirstIteration
 AcceptFirstIteration = 1;
 
 %----------------------------------------
+% Printing
+%----------------------------------------
+
+global PrintDynamicsResults
+PrintDynamicsResults = "n";%"y";
+
+%----------------------------------------
 % Plotting
 %----------------------------------------
 

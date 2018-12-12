@@ -11,7 +11,7 @@ Settings
 % Author: Richard S. Russell
 % 
 %================================================
-clear;
+%clear;
 
 addpath obsmutoolsfornewermatlabversions -END % required for some new MATLAB versions
 
@@ -19,7 +19,7 @@ global fi_flag_Simulink
 
 global USE_SI_UNITS lbf_to_N lu
 global altitude0 velocity0
-global PlotPoles PlotBode
+global PrintDynamicsResults PlotPoles PlotBode
 
 newline = sprintf('\n');
 
@@ -173,119 +173,132 @@ lat_poles_lo = spoles(sys_lat_lo);
 %% Display results
 
 
-clc;
+% clc;
 
-disp(sprintf('Altitude: %.3f ft.', altitude));
-disp(sprintf('Velocity: %.3f ft/s\n\n', velocity));
+if exist("PrintDynamicsResults") == 0 || isempty(PrintDynamicsResults)
+    flag_dynamics = input('Do you want to display the Dynamic StateSpaces for the system (y/n):  ','s'); 
+else
+    flag_dynamics = PrintDynamicsResults;
+end
 
-disp('For HIFI Model:  ');
-disp('Longitudal Direction:  ');
-disp(newline);
+if flag_dynamics == "y"
 
-disp('A =')
-for i=1:length( A_longitude_hi(:,1) )
-    mprintf([ A_longitude_hi(i,:) ],'  %.3e ')
-end %for
 
-disp('B =')
-for i=1:length( B_longitude_hi(:,1) )
-    mprintf([ B_longitude_hi(i,:) ],'  %.3e ')
-end %for
+    disp(sprintf('Altitude: %.3f ft.', altitude));
+    disp(sprintf('Velocity: %.3f ft/s\n\n', velocity));
 
-disp('C =')
-for i=1:length( C_longitude_hi(:,1) )
-    mprintf([ C_longitude_hi(i,:) ],'  %.3e ')
-end %for
+    disp('For HIFI Model:  ');
+    disp('Longitudal Direction:  ');
+    disp(newline);
 
-disp('D =')
-for i=1:length( D_longitude_hi(:,1) )
-    mprintf([ D_longitude_hi(i,:) ],'  %.3e ')
-end %for
+    disp('A =')
+    for i=1:length( A_longitude_hi(:,1) )
+        mprintf([ A_longitude_hi(i,:) ],'  %.3e ')
+    end %for
 
-rifd(long_poles_hi)
+    disp('B =')
+    for i=1:length( B_longitude_hi(:,1) )
+        mprintf([ B_longitude_hi(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
+    disp('C =')
+    for i=1:length( C_longitude_hi(:,1) )
+        mprintf([ C_longitude_hi(i,:) ],'  %.3e ')
+    end %for
 
-disp('Lateral Direaction:  ');
+    disp('D =')
+    for i=1:length( D_longitude_hi(:,1) )
+        mprintf([ D_longitude_hi(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
+    rifd(long_poles_hi)
 
-disp('A =')
-for i=1:length( A_lateral_hi(:,1) )
-    mprintf([ A_lateral_hi(i,:) ],'  %.3e ')
-end %for
+    disp(newline);
 
-disp('B =')
-for i=1:length( B_lateral_hi(:,1) )
-    mprintf([ B_lateral_hi(i,:) ],'  %.3e ')
-end %for
+    disp('Lateral Direaction:  ');
 
-disp('C =')
-for i=1:length( C_lateral_hi(:,1) )
-    mprintf([ C_lateral_hi(i,:) ],'  %.3e ')
-end %for
+    disp(newline);
 
-disp('D =')
-for i=1:length( D_lateral_hi(:,1) )
-    mprintf([ D_lateral_hi(i,:) ],'  %.3e ')
-end %for
+    disp('A =')
+    for i=1:length( A_lateral_hi(:,1) )
+        mprintf([ A_lateral_hi(i,:) ],'  %.3e ')
+    end %for
 
-rifd(lat_poles_hi)
+    disp('B =')
+    for i=1:length( B_lateral_hi(:,1) )
+        mprintf([ B_lateral_hi(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
-disp(newline);
-disp('For LOFI Model:  ');
-disp('Longitudal Direction:  ');
-disp(newline);
+    disp('C =')
+    for i=1:length( C_lateral_hi(:,1) )
+        mprintf([ C_lateral_hi(i,:) ],'  %.3e ')
+    end %for
 
-disp('A =')
-for i=1:length( A_longitude_lo(:,1) )
-    mprintf([ A_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    disp('D =')
+    for i=1:length( D_lateral_hi(:,1) )
+        mprintf([ D_lateral_hi(i,:) ],'  %.3e ')
+    end %for
 
-disp('B =')
-for i=1:length( B_longitude_lo(:,1) )
-    mprintf([ B_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    rifd(lat_poles_hi)
 
-disp('C =')
-for i=1:length( C_longitude_lo(:,1) )
-    mprintf([ C_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    disp(newline);
+    disp(newline);
+    disp('For LOFI Model:  ');
+    disp('Longitudal Direction:  ');
+    disp(newline);
 
-disp('D =')
-for i=1:length( D_longitude_lo(:,1) )
-    mprintf([ D_longitude_lo(i,:) ],'  %.3e ')
-end %for
+    disp('A =')
+    for i=1:length( A_longitude_lo(:,1) )
+        mprintf([ A_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-% Display the real, imaginary, frequency (magnitude) and damping ratios
-rifd(long_poles_lo)
+    disp('B =')
+    for i=1:length( B_longitude_lo(:,1) )
+        mprintf([ B_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
+    disp('C =')
+    for i=1:length( C_longitude_lo(:,1) )
+        mprintf([ C_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp('Lateral Direaction:  ');
+    disp('D =')
+    for i=1:length( D_longitude_lo(:,1) )
+        mprintf([ D_longitude_lo(i,:) ],'  %.3e ')
+    end %for
 
-disp(newline);
+    % Display the real, imaginary, frequency (magnitude) and damping ratios
+    rifd(long_poles_lo)
 
-disp('A =')
-for i=1:length( A_lateral_lo(:,1) )
-    mprintf([ A_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    disp(newline);
 
-disp('B =')
-for i=1:length( B_lateral_lo(:,1) )
-    mprintf([ B_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    disp('Lateral Direaction:  ');
 
-disp('C =')
-for i=1:length( C_lateral_lo(:,1) )
-    mprintf([ C_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    disp(newline);
 
-disp('D =')
-for i=1:length( D_lateral_lo(:,1) )
-    mprintf([ D_lateral_lo(i,:) ],'  %.3e ')
-end %for
+    disp('A =')
+    for i=1:length( A_lateral_lo(:,1) )
+        mprintf([ A_lateral_lo(i,:) ],'  %.3e ')
+    end %for
+
+    disp('B =')
+    for i=1:length( B_lateral_lo(:,1) )
+        mprintf([ B_lateral_lo(i,:) ],'  %.3e ')
+    end %for
+
+    disp('C =')
+    for i=1:length( C_lateral_lo(:,1) )
+        mprintf([ C_lateral_lo(i,:) ],'  %.3e ')
+    end %for
+
+    disp('D =')
+    for i=1:length( D_lateral_lo(:,1) )
+        mprintf([ D_lateral_lo(i,:) ],'  %.3e ')
+    end %for
+
+else
+    disp(">>>StateSpace Dynamics are not being printed...")
+end
 
 %================================================================================
 % Laplace Pole-Zero Plots
@@ -325,7 +338,7 @@ if flag_poles == "y"
     title(title_string);
     sgrid;
 else
-    disp("Pole-Zero Plots are not being plotted...")
+    disp(">>>Pole-Zero Plots are not being plotted...")
 end
 
 %================================================================================
@@ -374,5 +387,5 @@ if flag_bode == "y"
         end
     end
 else
-    disp("Bode Plots are not being plotted...")
+    disp(">>>Bode Plots are not being plotted...")
 end
