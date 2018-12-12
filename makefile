@@ -42,7 +42,8 @@ OBJ = $(SRC:$(SRC_DIR)/%.$(EXT)=$(OBJ_DIR)/%.o)
 #+++++++++++++++++++++
 
 # Compiler Flags
-STD = -std=gnu11
+#STD = -std=gnu11
+STD = -std=gnu99
 #STD = -std=c99
 CFLAGS   += $(STD) -Wall -Wno-implicit-function-declaration -Wno-unused-variable -Wno-unused-but-set-variable -Wno-int-conversion -Wno-comment # some warnings about bad code
 # Preprocessor Flags

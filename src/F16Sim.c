@@ -30,8 +30,9 @@ typedef int bool_;
 // Timing
 //----------------------------------------
 
+//#define _POSIX_C_SOURCE 199309L
 #include <time.h>
-// #include <sys\time.h>
+#include <sys\time.h>
 
 #define s_to_ms 1000.0
 #define s_to_us 1000000.0
@@ -59,6 +60,7 @@ time_t getTime_us(){
 // Internal
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include "settings.h"
 #include "nlplant.h"
 
 //****************************************************************************************************
@@ -68,7 +70,11 @@ time_t getTime_us(){
 //#define TrackTimeInSingleRun
 
 bool_ Print = false;//true;
-bool_ Convert = true;
+#ifdef USE_SI_UNITS
+	bool_ Convert = true;
+#else
+	bool_ Convert = false;
+#endif
 char *OutputFile = "F16Sim_output.csv";
 
 //================================================================================
@@ -295,7 +301,7 @@ void UpdateSimulation(double *xu, double *xdot){
 	// Run Simulation
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	
-	nlplant(xu, xdot);
+	nlplant_(xu, xdot);
 
 	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	// Print Output
@@ -458,7 +464,22 @@ int main(int argc, char **argv){
 // Matlab Mex
 //****************************************************************************************************
 
+#ifdef USE_SI_UNITS
+	void nlplant(double *xu, double *xdot){
+		#pragma message "INFO: Using SI Units!"
+		UpdateSimulation_plus(xu,xdot);
+	}
+#else
+	void nlplant(double *xu, double *xdot){
+		#pragma message "INFO: Using Imperial Units!"
+		nlplant_(             xu,xdot);
+	}
+#endif
+
 #ifdef COMPILE_TO_MEX
+
+	#pragma message "WARNING: Compile to MEX (Matlab) is activated! For 'conventional' build, please deactivate the COMPILE_TO_MEX proprocessor macro in the 'settings.h' file!"
+
 	#include "mex.h"
 	/*########################################*/
 	/*### Added for mex function in matlab ###*/
@@ -484,7 +505,6 @@ int main(int argc, char **argv){
 	    XDOTY = mxCreateDoubleMatrix(18, 1, mxREAL);
 	    xdotp = mxGetPr(XDOTY);
 
-	    //UpdateSimulation_plus(xup,xdotp);
 	    nlplant(xup,xdotp);
 
 	    /* debug

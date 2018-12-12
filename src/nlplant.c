@@ -85,7 +85,7 @@
 //   /*########################################*/
 // #endif
 
-void nlplant(double *xu, double *xdot){
+void nlplant_(double *xu, double *xdot){
 
   int fi_flag;
 
