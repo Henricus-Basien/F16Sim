@@ -30,6 +30,7 @@ FindF16Dynamics
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 s = tf('s');
+e_minreal = 0.001; %Tolerance of Minreal commands for pole-zero cancellations
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Aliases
@@ -121,7 +122,7 @@ StateNames = [
 % Excercises
 %================================================================================
 
-a = input("Press ENTER to run Full Analysis...");
+%a = input('Press ENTER to run Full Analysis...');
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Remove almost zeros!
@@ -156,12 +157,7 @@ if 1
         end
     end
 end
-
-fprintf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-fprintf("                          Q5                                \n")
-fprintf("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n")
-
-fprintf("--- 5.3 ---\n")
+fprintf('--- 5.3 ---\n')
 
 %C_lo
 %D_lo
@@ -173,7 +169,7 @@ D_Ue = D_lo(:,Ue);
 C_Nz
 D_Ue
 
-fprintf("--- 5.4 ---\n")
+fprintf('--- 5.4 ---\n')
 Nz_index = find(C_Nz,NrOutputs)
 fprintf('Elements Nz depends on: ')
 for i = Nz_index
@@ -181,7 +177,16 @@ for i = Nz_index
 end
 fprintf('\n');
 
-fprintf("--- 5.5 ---\n")
-tf_Ue_Nz = minreal(tf(C_Nz * (inv((s*eye(18)-A_lo))*B_Ue)))
-step(tf_Ue_Nz)
+fprintf('--- 5.5 ---\n')
+tf_Ue_Nz = minreal(tf(C_Nz * (inv((s*eye(18)-A_lo))*B_Ue)),e_minreal)
+
+fprintf('--- 5.6 ---\n')
+opt = stepDataOptions('StepAmplitude', -1);
+T = 0:0.01:6;
+[y,t] = step(tf_Ue_Nz, T, opt);
+figure(1);
+plot(t,y)
+xlabel('Time [s]');
+ylabel('Normal acceleration in z [g]');
+
 
