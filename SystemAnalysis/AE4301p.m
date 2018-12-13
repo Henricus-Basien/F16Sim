@@ -121,7 +121,7 @@ StateNames = [
 % Excercises
 %================================================================================
 
-a = input("Press ENTER to run Full Analysis...");
+%a = input("Press ENTER to run Full Analysis...");
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Remove almost zeros!
@@ -183,5 +183,17 @@ fprintf('\n');
 
 fprintf("--- 5.5 ---\n")
 tf_Ue_Nz = minreal(tf(C_Nz * (inv((s*eye(18)-A_lo))*B_Ue)))
-step(tf_Ue_Nz)
+fprintf('--- 5.6 ---\n')
+%step(tf_Ue_Nz)
 
+opt = stepDataOptions('StepAmplitude',-1);
+[y,t] = step(tf_Ue_Nz,opt);
+figure(1)
+plot(t, y)
+
+
+fprintf('--- 5.7 ---\n')
+fprintf('');
+
+fprintf('--- 5.8 ---\n')
+fprintf('When performing a pull-up maneuver the aircraft pitch moment is created due to the negative lift on the horizontal tail surface; this negative lift initially pushes the aircraft downwards slightly before the increase lift of the main wing due to the increase in AoA can take effect. \n');
