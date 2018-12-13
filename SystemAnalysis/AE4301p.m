@@ -14,155 +14,32 @@ Email: Henricus@Basien.de
 %================================================================================
 
 Settings
-
-%================================================================================
-% Linearize Model
-%================================================================================
-
-FindF16Dynamics
-
-%================================================================================
-% Initialization
-%================================================================================
-
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Preliminaries
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-s = tf('s');
-e_minreal = 0.001; %Tolerance of Minreal commands for pole-zero cancellations
-
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Aliases
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-%----------------------------------------
-% Input
-%----------------------------------------
-
-NrInputs = 4;
-
-Ut = 1;
-Ue = 2;
-Ua = 3;
-Ur = 4;
-
-%----------------------------------------
-% State
-%----------------------------------------
-
-NrStates = 18;
-
-Xnpos  = 1 ;
-Xepos  = 2 ;
-Xh     = 3 ;
-Xphi   = 4 ;
-Xtheta = 5 ;
-Xpsi   = 6 ;
-Xv     = 7 ;
-Xalpha = 8 ;
-Xbeta  = 9 ;
-Xp     = 10;
-Xq     = 11;
-Xr     = 12;
-
-%----------------------------------------
-% Output
-%----------------------------------------
-
-NrOutputs = 19;
-
-Ynpos  = Xnpos  ;
-Yepos  = Xepos  ;
-Yh     = Xh     ;
-Yphi   = Xphi   ;
-Ytheta = Xtheta ;
-Ypsi   = Xpsi   ;
-Yv     = Xv     ;
-Yalpha = Xalpha ;
-Ybeta  = Xbeta  ;
-Yp     = Xp     ;
-Yq     = Xq     ;
-Yr     = Xr     ;
-Yanx   = 13     ;
-Yany   = 14     ;
-Yanz   = 15     ;
-YM     = 16     ;
-Yqp    = 17     ;
-Ysp    = 18     ;
-
-YNz    = 19     ;
-
-%----------------------------------------
-% Names
-%----------------------------------------
-
-StateNames = [
-	'npos ', 
-	'epos ', 
-	'h    ', 
-	'phi  ', 
-	'theta', 
-	'psi  ', 
-	'v    ', 
-	'alpha', 
-	'beta ', 
-	'p    ', 
-	'q    ', 
-	'r    ', 
-	'anx  ', 
-	'any  ', 
-	'anz  ', 
-	'M    ', 
-	'qp   ', 
-	'sp   '
-];
+StateAliases
 
 %================================================================================
 % Excercises
 %================================================================================
 
-%a = input('Press ENTER to run Full Analysis...');
-
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Remove almost zeros!
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-e = 0.0001;
-if 1
-    for i = 1:NrStates
-    	% --- A ---
-        for j = 1:NrStates
-            if abs(A_lo(i,j))<e
-                A_lo(i,j) = 0;
-            end
-        end
-        % --- B ---
-        for j = 1:NrInputs
-            if abs(B_lo(i,j))<e
-                B_lo(i,j) = 0;
-            end
-        end
-        % --- C ---
-        for j = 1:NrOutputs
-        	if abs(C_lo(j,i))<e
-                C_lo(j,i) = 0;
-            end
-        end
-        % --- D ---
-        for j = 1:NrInputs
-            if abs(D_lo(i,j))<e
-                D_lo(i,j) = 0;
-            end
-        end
-    end
-end
+%input('Press ENTER to run Full Analysis...');
 
 fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 fprintf('                          Q5                                \n')
 fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 
-fprintf('--- 5.3 ---\n')
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.2                  \n')
+fprintf('----------------------------------------\n')
+
+fprintf('Trimming Linearized Model\n')
+FindF16Dynamics
+
+if ApplyStateSpaceSimplification == 1
+	SimplifyStatespace
+end
+
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.3                  \n')
+fprintf('----------------------------------------\n')
 
 %C_lo
 %D_lo
@@ -174,7 +51,10 @@ D_Ue = D_lo(:,Ue);
 C_Nz
 D_Ue
 
-fprintf('--- 5.4 ---\n')
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.4                  \n')
+fprintf('----------------------------------------\n')
+
 Nz_index = find(C_Nz,NrOutputs)
 fprintf('Elements Nz depends on: ')
 for i = Nz_index
@@ -182,22 +62,79 @@ for i = Nz_index
 end
 fprintf('\n');
 
-fprintf('--- 5.5 ---\n')
-tf_Ue_Nz = minreal(tf(C_Nz * (inv((s*eye(18)-A_lo))*B_Ue)),e_minreal)
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.5                  \n')
+fprintf('----------------------------------------\n')
 
-fprintf('--- 5.6 ---\n')
-opt = stepDataOptions('StepAmplitude', -1);
-T = 0:0.01:6;
-[y,t] = step(tf_Ue_Nz, T, opt);
+tf_Ue_Nz = minreal(tf(C_lo(YNz,:) * (inv((s*eye(18)-A_lo))*B_lo(:,Ue))),e_minreal)
+
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.6                  \n')
+fprintf('----------------------------------------\n')
+
+fprintf('Negative Elevator step input output Nz\n');
+
 figure(1);
-plot(t,y)
-xlabel('Time [s]');
-ylabel('Normal acceleration in z [g]');
+PlotElevatorStepInput(tf_Ue_Nz)
 
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.7                  \n')
+fprintf('----------------------------------------\n')
 
+tf_Ue_Nz_zeros = zero(tf_Ue_Nz)
+tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
-fprintf('--- 5.7 ---\n')
-fprintf('');
+figure(2);
+grid on
+pzmap(tf_Ue_Nz)
+title('Ue->YNz Pole-Zero Map');
 
-fprintf('--- 5.8 ---\n')
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.8                  \n')
+fprintf('----------------------------------------\n')
+
 fprintf('When performing a pull-up maneuver the aircraft pitch moment is created due to the negative lift on the horizontal tail surface; this negative lift initially pushes the aircraft downwards slightly before the increase lift of the main wing due to the increase in AoA can take effect. \n');
+
+fprintf('----------------------------------------\n')
+fprintf('                  Q5.9                  \n')
+fprintf('----------------------------------------\n')
+
+xa_ = [0,5,5.9,6,7,15];
+
+figure(3);
+for xa = xa_
+	fprintf('Analyzing xa_ %f\n: ',xa)
+	FindF16Dynamics
+	if ApplyStateSpaceSimplification == 1
+		SimplifyStatespace
+	end
+	tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(18)-A_lo))*B_lo(:,Ue))),e_minreal);
+
+	PlotElevatorStepInput(tf_Ue_Nz_)
+
+end
+
+%================================================================================
+% Addendum
+%================================================================================
+
+input('Press ENTER to close the Analysis...');
+close all
+
+%****************************************************************************************************
+% Functions
+%****************************************************************************************************
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Plot Elevator Step Input
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function PlotElevatorStepInput(tf_)
+	opt = stepDataOptions('StepAmplitude', -1);
+	T = 0:0.01:6;   
+	grid on
+	step(tf_, T, opt);
+	title('Negative Elevator step input');
+	xlabel('Time [s]');
+	ylabel('Normal acceleration in z [g]');
+end

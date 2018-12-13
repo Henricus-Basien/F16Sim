@@ -30,6 +30,15 @@ PlotPoles = "n";%"y";
 PlotBode  = "n";%"y";
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Tolerances
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ApplyStateSpaceSimplification = 1;
+
+e         = 0.0001; %Tolerance used by SimplifyStatespace
+e_minreal = 0.001 ; %Tolerance of Minreal commands for pole-zero cancellations
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % SI Functionality
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
