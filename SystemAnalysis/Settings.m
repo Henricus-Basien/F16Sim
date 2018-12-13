@@ -1,73 +1,80 @@
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Default Conditions
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+if exist("SettingSet") == 0 || isempty(SettingSet)
 
-global altitude0
-global velocity0
-altitude0 = 15000;
-velocity0 = 500;
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	% Default Conditions
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-global FlightCondition
-FlightCondition = 1;
+	global altitude0
+	global velocity0
+	altitude0 = 15000;
+	velocity0 = 500;
 
-global AcceptFirstIteration
-AcceptFirstIteration = 1;
+	global xa
+	xa = 0;
 
-%----------------------------------------
-% Printing
-%----------------------------------------
+	global FlightCondition
+	FlightCondition = 1;
 
-global PrintDynamicsResults
-PrintDynamicsResults = "n";%"y";
+	global AcceptFirstIteration
+	AcceptFirstIteration = 1;
 
-%----------------------------------------
-% Plotting
-%----------------------------------------
+	%----------------------------------------
+	% Printing
+	%----------------------------------------
 
-global PlotPoles
-global PlotBode
-PlotPoles = "n";%"y";
-PlotBode  = "n";%"y";
+	global PrintDynamicsResults
+	PrintDynamicsResults = "n";%"y";
 
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Exercises
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	%----------------------------------------
+	% Plotting
+	%----------------------------------------
 
-RunQ5 = 0;
-RunQ6 = 1;
+	global PlotPoles
+	global PlotBode
+	PlotPoles = "n";%"y";
+	PlotBode  = "n";%"y";
 
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Tolerances
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	% Exercises
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ApplyStateSpaceSimplification = 1;
+	RunQ5 = 1;
+	RunQ6 = 0;%1;
 
-e         = 0.0001; %Tolerance used by SimplifyStatespace
-e_minreal = 0.001 ; %Tolerance of Minreal commands for pole-zero cancellations
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	% Tolerances
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% SI Functionality
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ApplyStateSpaceSimplification = 1;
 
-global USE_SI_UNITS
-global feet_to_m   
-global lbf_to_N    
-global lb_ft2_to_Pa
-global lu
-global fu
+	e         = 0.0001; %Tolerance used by SimplifyStatespace
+	e_minreal = 0.001 ; %Tolerance of Minreal commands for pole-zero cancellations
 
-USE_SI_UNITS = 0;%1;
-feet_to_m    = 0.3048;
-lbf_to_N     = 4.448222;
-lb_ft2_to_Pa = 47.880258888889;
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	% SI Functionality
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-if (USE_SI_UNITS == 1)
-    lu = "m";
-    fu = "N";
-else
-    lu = "ft";
-    fu = "lbf";
+	global USE_SI_UNITS
+	global feet_to_m   
+	global lbf_to_N    
+	global lb_ft2_to_Pa
+	global lu
+	global fu
+
+	USE_SI_UNITS = 0;%1;
+	feet_to_m    = 0.3048;
+	lbf_to_N     = 4.448222;
+	lb_ft2_to_Pa = 47.880258888889;
+
+	if (USE_SI_UNITS == 1)
+	    lu = "m";
+	    fu = "N";
+	else
+	    lu = "ft";
+	    fu = "lbf";
+	end
+
+	SettingSet = 1;
+	disp("Settings are set!")
 end
 
-
-% disp("Settings are set!")

@@ -56,7 +56,7 @@ if RunQ5
     fprintf('----------------------------------------\n')
 
     Nz_index = find(C_Nz,NrOutputs)
-    PrintStateNames(NZindex,'Elements Nz depends on: ')
+    PrintStateNames(Nz_index,'Elements Nz depends on: ')
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.5                  \n')
@@ -97,24 +97,32 @@ if RunQ5
 
     xa_ = [0,5,5.9,6,7,15];
 
-    figure(3);
+    figure(3);  
     for xa = xa_
-        fprintf('Analyzing xa_ %f\n: ',xa)
-        FindF16Dynamics
+        
+        fprintf('Analyzing xa: %f %s\n',xa,lu)
+        if 0%1
+			FindF16Dynamics
+		else
+			[A_lo,B_lo,C_lo,D_lo] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3);dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
+            C_lo
+        end
         if ApplyStateSpaceSimplification == 1
             SimplifyStatespace
         end
         tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(NrStates)-A_lo))*B_lo(:,Ue))),e_minreal);
 
         PlotElevatorStepInput(tf_Ue_Nz_)
+        hold on
     end
+    hold off
 end
 
-fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
-fprintf('                             Q6                             \n')
-fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
-
 if RunQ6
+    
+    fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+    fprintf('                             Q6                             \n')
+    fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 
 	fprintf('----------------------------------------\n')
     fprintf('                  Q6.1                  \n')
@@ -137,57 +145,132 @@ if RunQ6
    
     %A_lo
     
-    if 0%1
+    longitudinal_states
+    PrintStateNames(longitudinal_states,"longitudinal_states: ")
+    lateral_states
+    PrintStateNames(lateral_states     ,"lateral_states: ")
+    
+    if 0%1 % Omits Input Dynamics!
         %--- Longitudinal ---
         A_long = A_lo(longitudinal_states,longitudinal_states);
-        longitudinal_states
-        PrintStateNames(longitudinal_states,"longitudinal_states: ")
-        A_long
+        B_long = B_lo(longitudinal_states,:);
+        C_long = C_lo(longitudinal_states,longitudinal_states);
+        D_long = B_lo(longitudinal_states,:);
 
         %--- Lateral---
         A_lat = A_lo(lateral_states,lateral_states);
-        lateral_states
-        PrintStateNames(lateral_states,"lateral_states: ")
+        B_lat = B_lo(lateral_states,:);
+        C_lat = C_lo(lateral_states,lateral_states);
+        D_lat = B_lo(lateral_states,:);
+        
     else
-        A_long = A_longitude_lo
-        A_lat  = A_lateral_lo
-        B_long = B_longitude_lo
-        B_lat  = B_lateral_lo
-        C_long = C_longitude_lo
-        C_lat  = C_lateral_lo
-        D_long = D_longitude_lo
-        D_lat  = D_lateral_lo
+        %--- Longitudinal ---
+        A_long = A_longitude_lo;
+        A_lat  = A_lateral_lo;
+        B_long = B_longitude_lo;
+        B_lat  = B_lateral_lo;
+        %--- Lateral---
+        C_long = C_longitude_lo;
+        C_lat  = C_lateral_lo;
+        D_long = D_longitude_lo;
+        D_lat  = D_lateral_lo;
     end
     
     %..............................
-    % Get Transfer Functions
+    % Show Simplified Matrics
     %..............................
     
-    tf_long = minreal(tf(C_long * (inv((s*eye(size(A_long,1))-A_long))*B_long)),e_minreal)
-    tf_lat  = minreal(tf(C_lat  * (inv((s*eye(size(A_lat ,1))-A_lat ))*B_lat )),e_minreal)
+    if 1
+        %--- Longitudinal ---
+        A_long
+		B_long
+		C_long
+		D_long
+        %--- Lateral---
+        A_lat
+		B_lat
+		C_lat
+		D_lat
+    end 
+    
+    %------------------------- Full System --------------------------------
+    if 0%1
+    
+        %..............................
+        % Get Transfer Functions
+        %..............................
 
+        tf_long = minreal(tf(C_long * (inv((s*eye(size(A_long,1))-A_long))*B_long)),e_minreal)
+        tf_lat  = minreal(tf(C_lat  * (inv((s*eye(size(A_lat ,1))-A_lat ))*B_lat )),e_minreal)
+
+        %..............................
+        % Get Poles & Zeros
+        %..............................
+
+        tf_long_zeros = zero(tf_long)
+        tf_long_poles = pole(tf_long)
+        tf_lat_zeros  = zero(tf_lat )
+        tf_lat_poles  = pole(tf_lat )
+
+        %..............................
+        % Plot Pole-Zero maps
+        %..............................
+
+        figure(4);
+        grid on
+        pzmap(tf_long)
+        title('Longitudinal Pole-Zero Map')
+
+        figure(5);
+        grid on
+        pzmap(tf_lat)
+        title('Lateral Pole-Zero Map')
+    end
+    
+    %------------------------ Eigen Motions -------------------------------
+    
     %..............................
-    % Get Poles & Zeros
+    % Extract Eigen-Motions
     %..............................
     
-    tf_long_zeros = zero(tf_long)
-    tf_long_poles = pole(tf_long)
-    tf_lat_zeros  = zero(tf_lat )
-    tf_lat_poles  = pole(tf_lat )
-
+    %--- Temporary Aliases ---
+    Ut_     = 1;
+    Ue_     = 2;
+    Yh_     = 1;
+    Ytheta_ = 2;
+    Yv_     = 3;
+    Yalpha_ = 4;
+    
+    %--- Short Period + Phugoid ---
+    tf_long_Ue_theta = minreal(tf(C_long(Ytheta_,:) * (inv((s*eye(size(A_long,1))-A_long))*B_long(:,Ue_))),e_minreal)
+    tf_long_Ue_theta_poles = esort(pole(tf_long_Ue_theta));
+    
+    pole_phugoid     = tf_long_Ue_theta_poles(1)
+    pole_shortperiod = tf_long_Ue_theta_poles(3)
+    
+    %.. Phugoid ..
+    AnalyzePole(pole_phugoid    ,'Phugoid')
+    %.. Short Period ..
+    AnalyzePole(pole_shortperiod,'Short Period')
+    	
     %..............................
-    % Plot Pole-Zero maps
+    % Plot Eigen-Motions
     %..............................
-
-    figure(4);
+    
+    figure(6);
     grid on
-    pzmap(tf_long)
-    title('Longitudinal Pole-Zero Map')
-
-    figure(5);
-    grid on
-    pzmap(tf_lat)
+    pzmap(tf_long_Ue_theta)
     title('Lateral Pole-Zero Map')
+
+    figure(7);
+    grid on
+    impulse(zpk([],tf_long_Ue_theta_poles(1:2),1)) %(tf_long_Ue_theta)
+    title('Phugoid')
+    
+    figure(8);
+    grid on
+    impulse(zpk([],tf_long_Ue_theta_poles(3:4),1)) %(tf_long_Ue_theta)
+    title('Short Period')
 
 end
 
@@ -223,8 +306,21 @@ function PlotElevatorStepInput(tf_)
 	opt = stepDataOptions('StepAmplitude', -1);
 	T = 0:0.01:6;   
 	grid on
-	step(tf_, T, opt);
+	[y,t] = step(tf_, T, opt);
+	plot(t,y);
 	title('Negative Elevator step input');
 	xlabel('Time [s]');
 	ylabel('Normal acceleration in z [g]');
+end
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Analyze Pole
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function AnalyzePole(pole,name) 
+	fprintf("Analysis of %s\n",name)
+	wn     = abs(pole)              % Natural frequency
+    dr     = -(cos(angle(pole)))    % Dampening ratio
+    P      = 2*pi/(wn*sqrt(1-dr^2)) % Period
+    T_half = log(2)/(wn*dr)         % Time to damp to half amplitude
 end
