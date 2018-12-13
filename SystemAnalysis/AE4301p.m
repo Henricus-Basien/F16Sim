@@ -157,6 +157,11 @@ if 1
         end
     end
 end
+
+fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+fprintf('                          Q5                                \n')
+fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+
 fprintf('--- 5.3 ---\n')
 
 %C_lo
@@ -190,3 +195,9 @@ xlabel('Time [s]');
 ylabel('Normal acceleration in z [g]');
 
 
+
+fprintf('--- 5.7 ---\n')
+fprintf('');
+
+fprintf('--- 5.8 ---\n')
+fprintf('When performing a pull-up maneuver the aircraft pitch moment is created due to the negative lift on the horizontal tail surface; this negative lift initially pushes the aircraft downwards slightly before the increase lift of the main wing due to the increase in AoA can take effect. \n');
