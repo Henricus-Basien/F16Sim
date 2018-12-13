@@ -7,6 +7,12 @@ global velocity0
 altitude0 = 15000;
 velocity0 = 500;
 
+%global xa
+%xa = 20;
+
+global g0
+g0 = 9.80665;
+
 global FlightCondition
 FlightCondition = 1;
 

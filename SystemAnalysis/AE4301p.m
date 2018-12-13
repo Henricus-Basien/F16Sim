@@ -31,7 +31,7 @@ fprintf('                  Q5.2                  \n')
 fprintf('----------------------------------------\n')
 
 fprintf('Trimming Linearized Model\n')
-FindF16Dynamics
+%FindF16Dynamics
 
 if ApplyStateSpaceSimplification == 1
 	SimplifyStatespace
@@ -102,17 +102,29 @@ fprintf('----------------------------------------\n')
 xa_ = [0,5,5.9,6,7,15];
 
 figure(3);
-for xa = xa_
-	fprintf('Analyzing xa_ %f\n: ',xa)
+lines = [];
+opt = stepDataOptions('StepAmplitude', -1);
+T = 0:0.01:6;   
+for xa__ = xa_
+    hold on
+    xa = xa__
+	fprintf('Analyzing xa: %f \n',xa)
 	FindF16Dynamics
 	if ApplyStateSpaceSimplification == 1
 		SimplifyStatespace
 	end
-	tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(18)-A_lo))*B_lo(:,Ue))),e_minreal);
-
-	PlotElevatorStepInput(tf_Ue_Nz_)
+	tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(18)-A_lo))*B_lo(:,Ue))),e_minreal)
+    [y,t] = step(tf_Ue_Nz, T, opt);
+    plot(t,y);
+	%PlotElevatorStepInput(tf_Ue_Nz_)
 
 end
+grid on
+title('Negative Elevator step input');
+xlabel('Time [s]');
+ylabel('Normal acceleration in z [g]');
+hold off
+    
 
 %================================================================================
 % Addendum
@@ -129,12 +141,15 @@ close all
 % Plot Elevator Step Input
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
 function PlotElevatorStepInput(tf_)
 	opt = stepDataOptions('StepAmplitude', -1);
 	T = 0:0.01:6;   
 	grid on
-	step(tf_, T, opt);
+	[y,t] = step(tf_, T, opt);
+    plot(t,y);
 	title('Negative Elevator step input');
 	xlabel('Time [s]');
 	ylabel('Normal acceleration in z [g]');
 end
+
