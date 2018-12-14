@@ -1,4 +1,4 @@
-if exist("SettingSet") == 0 || isempty(SettingSet)
+%if exist("SettingSet") == 0 || isempty(SettingSet)
 
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	% Default Conditions
@@ -8,9 +8,6 @@ if exist("SettingSet") == 0 || isempty(SettingSet)
 	global velocity0
 	altitude0 = 15000;
 	velocity0 = 500;
-
-	global xa
-	xa = 0;
 
 	global FlightCondition
 	FlightCondition = 1;
@@ -38,7 +35,7 @@ if exist("SettingSet") == 0 || isempty(SettingSet)
 	% Exercises
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	RunQ5 = 0%;1;
+	RunQ5 = 1;
 	RunQ6 = 1;
 
 	figpath ='OutputFigures';
@@ -81,5 +78,8 @@ if exist("SettingSet") == 0 || isempty(SettingSet)
 
 	SettingSet = 1;
 	disp("Settings are set!")
-end
+%end
 
+global xa
+xa = 0;
+% disp("Settings are set!")
