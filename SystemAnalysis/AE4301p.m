@@ -71,8 +71,9 @@ if RunQ5
     fprintf('Negative Elevator step input output Nz\n');
 
     figure(1);
-    PlotElevatorStepInput(tf_Ue_Nz)
-
+    PlotElevatorStepInput(tf_Ue_Nz, '')
+    grid on
+    
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.7                  \n')
     fprintf('----------------------------------------\n')
@@ -80,10 +81,10 @@ if RunQ5
     tf_Ue_Nz_zeros = zero(tf_Ue_Nz)
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
-    figure(2);
-    grid on
-    pzmap(tf_Ue_Nz)
-    title('Ue->YNz Pole-Zero Map');
+%     figure(2);
+%     grid on
+%     pzmap(tf_Ue_Nz)
+%     title('Ue->YNz Pole-Zero Map');
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.8                  \n')
@@ -111,10 +112,11 @@ if RunQ5
             SimplifyStatespace
         end
         tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(NrStates)-A_lo))*B_lo(:,Ue))),e_minreal);
-
-        PlotElevatorStepInput(tf_Ue_Nz_)
+        name = 'xa = ' + string(xa);
+        PlotElevatorStepInput(tf_Ue_Nz_, name)
         hold on
     end
+    legend('Location','southeast')
     hold off
 end
 
@@ -302,12 +304,16 @@ end
 % Plot Elevator Step Input
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function PlotElevatorStepInput(tf_)
+function PlotElevatorStepInput(tf_, name)
 	opt = stepDataOptions('StepAmplitude', -1);
 	T = 0:0.01:6;   
 	grid on
 	[y,t] = step(tf_, T, opt);
-	plot(t,y);
+    if (name == '')
+        plot(t,y);
+    else
+        plot(t,y, 'DisplayName',name);
+    end
 	title('Negative Elevator step input');
 	xlabel('Time [s]');
 	ylabel('Normal acceleration in z [g]');
@@ -315,7 +321,7 @@ end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Analyze Pole
-%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+%++++++++++++++++++++the ++++++++++++++++++++++++++++++++++++++++
 
 function AnalyzePole(pole,name) 
 	fprintf("Analysis of %s\n",name)
