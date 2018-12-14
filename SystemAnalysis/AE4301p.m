@@ -70,7 +70,7 @@ if RunQ5
 
     fprintf('Negative Elevator step input output Nz\n');
 
-    figure(1);
+    figure(51);
     PlotElevatorStepInput(tf_Ue_Nz)
 
     fprintf('----------------------------------------\n')
@@ -80,10 +80,11 @@ if RunQ5
     tf_Ue_Nz_zeros = zero(tf_Ue_Nz)
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
-    figure(2);
+    figure(52);
     grid on
     pzmap(tf_Ue_Nz)
-    title('Ue->YNz Pole-Zero Map');
+    t = title('Ue-YNz Pole-Zero Map');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.8                  \n')
@@ -97,14 +98,14 @@ if RunQ5
 
     xa_ = [0,5,5.9,6,7,15];
 
-    figure(3);  
+    figure(53);  
     for xa = xa_
         
         fprintf('Analyzing xa: %f %s\n',xa,lu)
         if 0%1
-			FindF16Dynamics
-		else
-			[A_lo,B_lo,C_lo,D_lo] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3);dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
+            FindF16Dynamics
+        else
+            [A_lo,B_lo,C_lo,D_lo] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3);dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
             C_lo
         end
         if ApplyStateSpaceSimplification == 1
@@ -115,6 +116,8 @@ if RunQ5
         PlotElevatorStepInput(tf_Ue_Nz_)
         hold on
     end
+    t = title('xa Shift');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
     hold off
 end
 
@@ -123,10 +126,6 @@ if RunQ6
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
     fprintf('                             Q6                             \n')
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
-
-	fprintf('----------------------------------------\n')
-    fprintf('                  Q6.1                  \n')
-    fprintf('----------------------------------------\n')
 
     FindF16Dynamics
     if 0%1
@@ -183,18 +182,18 @@ if RunQ6
     if 1
         %--- Longitudinal ---
         A_long
-		B_long
-		C_long
-		D_long
+        B_long
+        C_long
+        D_long
         %--- Lateral---
         A_lat
-		B_lat
-		C_lat
-		D_lat
+        B_lat
+        C_lat
+        D_lat
     end 
     
     %------------------------- Full System --------------------------------
-    if 0%1
+    if 1
     
         %..............................
         % Get Transfer Functions
@@ -216,61 +215,142 @@ if RunQ6
         % Plot Pole-Zero maps
         %..............................
 
-        figure(4);
+        figure(61);
         grid on
         pzmap(tf_long)
-        title('Longitudinal Pole-Zero Map')
+        t = title('Full Longitudinal Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
 
-        figure(5);
+        figure(62);
         grid on
         pzmap(tf_lat)
-        title('Lateral Pole-Zero Map')
+        t = title('Full Lateral Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
     end
     
     %------------------------ Eigen Motions -------------------------------
-    
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q6.1                  \n')
+    fprintf('----------------------------------------\n')
+
     %..............................
-    % Extract Eigen-Motions
+    % Extract Longitudinal Eigen-Motions
     %..............................
     
     %--- Temporary Aliases ---
+    % Inputs
     Ut_     = 1;
     Ue_     = 2;
+    % Outputs
     Yh_     = 1;
     Ytheta_ = 2;
     Yv_     = 3;
     Yalpha_ = 4;
     
     %--- Short Period + Phugoid ---
-    tf_long_Ue_theta = minreal(tf(C_long(Ytheta_,:) * (inv((s*eye(size(A_long,1))-A_long))*B_long(:,Ue_))),e_minreal)
+    tf_long_Ue_theta       = minreal(tf(C_long(Ytheta_,:) * (inv((s*eye(size(A_long,1))-A_long))*B_long(:,Ue_))),e_minreal)
     tf_long_Ue_theta_poles = esort(pole(tf_long_Ue_theta));
+    tf_long_Ue_theta_poles = unique_complex(tf_long_Ue_theta_poles,e)
     
-    pole_phugoid     = tf_long_Ue_theta_poles(1)
-    pole_shortperiod = tf_long_Ue_theta_poles(3)
+    poles_phugoid     = tf_long_Ue_theta_poles(1:2)
+    poles_shortperiod = tf_long_Ue_theta_poles(3:4)
     
     %.. Phugoid ..
-    AnalyzePole(pole_phugoid    ,'Phugoid')
+    AnalyzePeriodicPoles(poles_phugoid    ,'Phugoid')
     %.. Short Period ..
-    AnalyzePole(pole_shortperiod,'Short Period')
-    	
+    AnalyzePeriodicPoles(poles_shortperiod,'Short Period')
+        
     %..............................
-    % Plot Eigen-Motions
+    % Plot Longitudinal Eigen-Motions
     %..............................
     
-    figure(6);
-    grid on
-    pzmap(tf_long_Ue_theta)
-    title('Lateral Pole-Zero Map')
+    if 0
+        figure(63);
+        grid on
+        pzmap(tf_long_Ue_theta)
+        t = title('Longitudinal Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    end
 
-    figure(7);
+    %.. Phugoid ..
+    figure(64);
     grid on
-    impulse(zpk([],tf_long_Ue_theta_poles(1:2),1)) %(tf_long_Ue_theta)
-    title('Phugoid')
+    impulse(zpk([],poles_phugoid,1))
+    t = title('Phugoid');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+
+    %.. Short Period ..
+    figure(65);
+    grid on
+    impulse(zpk([],poles_shortperiod,1))
+    t = title('Short Period');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+
+    %..............................
+    % Extract Lateral Eigen-Motions
+    %..............................
     
-    figure(8);
+    % Inputs
+    Ut_     = 1;
+    Ua_     = 2;
+    Ur_     = 3;
+    % % Outputs 4 6 7 9 10 12
+    Xphi_  = 1;
+    Xpsi_  = 2;
+    Xv_    = 3;
+    Xbeta_ = 4;
+    Xp_    = 5;
+    Xr_    = 6;
+
+    %--- Aperiodic roll + Spiral ---
+    tf_lat_Ua       = minreal(tf(C_lat * (inv((s*eye(size(A_lat,1))-A_lat))*B_lat(:,Ua_))),e_minreal)
+    tf_lat_Ua_poles = esort(pole(tf_lat_Ua));
+    tf_lat_Ua_poles = unique_complex(tf_lat_Ua_poles,e)
+    
+    poles_dutchroll     = tf_lat_Ua_poles(5:6)
+    pole_aperiodicroll  = tf_lat_Ua_poles(4)
+    pole_spiral         = tf_lat_Ua_poles(1) % or 2?
+    
+    %.. Dutch roll ..
+    AnalyzePeriodicPoles(poles_dutchroll   ,'Dutch roll')
+    %.. Aperiodic roll ..
+    AnalyzeAperiodicPole(pole_aperiodicroll,'Aperiodic roll')
+    %.. Spiral ..
+    AnalyzeAperiodicPole(pole_spiral       ,'Spiral')
+        
+    %..............................
+    % Plot Lateral Eigen-Motions
+    %..............................
+    
+    if 1
+        figure(66);
+        grid on
+        pzmap(tf_lat_Ua)
+        t = title('Lateral Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    end
+
+    %.. Dutch roll ..
+    figure(67);
     grid on
-    impulse(zpk([],tf_long_Ue_theta_poles(3:4),1)) %(tf_long_Ue_theta)
-    title('Short Period')
+    impulse(zpk([],poles_dutchroll,1))
+    t = title('Dutch roll');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+
+    %.. Aperiodic roll ..
+    figure(68);
+    grid on
+    step(zpk([],pole_aperiodicroll,1))
+    t = title('Aperiodic roll');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    
+    %.. Spiral ..
+    figure(69);
+    grid on
+    step(zpk([],pole_spiral,1))
+    t = title('Spiral');
+    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
 
 end
 
@@ -303,24 +383,42 @@ end
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 function PlotElevatorStepInput(tf_)
-	opt = stepDataOptions('StepAmplitude', -1);
-	T = 0:0.01:6;   
-	grid on
-	[y,t] = step(tf_, T, opt);
-	plot(t,y);
-	title('Negative Elevator step input');
-	xlabel('Time [s]');
-	ylabel('Normal acceleration in z [g]');
+    opt = stepDataOptions('StepAmplitude', -1);
+    T = 0:0.01:6;   
+    grid on
+    [y,t] = step(tf_, T, opt);
+    plot(t,y);
+    t = title('Negative Elevator step input');
+    xlabel('Time [s]');
+    ylabel('Normal acceleration in z [g]');
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 % Analyze Pole
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function AnalyzePole(pole,name) 
-	fprintf("Analysis of %s\n",name)
-	wn     = abs(pole)              % Natural frequency
-    dr     = -(cos(angle(pole)))    % Dampening ratio
+function AnalyzePeriodicPoles(poles,name) 
+    fprintf("Analysis of poles %s\n",name)
+    pole = poles(2);
+    wn     = abs(pole)              % Natural frequency
+    dr     = (cos(angle(pole)))     % Dampening ratio
     P      = 2*pi/(wn*sqrt(1-dr^2)) % Period
     T_half = log(2)/(wn*dr)         % Time to damp to half amplitude
+end
+
+function AnalyzeAperiodicPole(pole,name) 
+    fprintf("Analysis of pole %s\n",name)
+    wn     = abs(pole)           % Natural frequency
+    dr     = (cos(angle(pole))); % Dampening ratio
+    TC     = 1./real(pole)       % Time Constant
+    T_half = log(2)/(wn*dr)      % Time to damp to half amplitude
+end
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Unique Complex Array
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function X = unique_complex(X,e)
+    [b, ind] = unique(round(X / (e * (1 + i))));
+    X = X(ind);
 end

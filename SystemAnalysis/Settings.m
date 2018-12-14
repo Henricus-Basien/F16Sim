@@ -38,8 +38,13 @@ if exist("SettingSet") == 0 || isempty(SettingSet)
 	% Exercises
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	RunQ5 = 1;
-	RunQ6 = 0;%1;
+	RunQ5 = 0%;1;
+	RunQ6 = 1;
+
+	figpath ='OutputFigures';
+	mkdir(figpath)
+	figext  = '.png';
+	dpi = '-r300';
 
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	% Tolerances
