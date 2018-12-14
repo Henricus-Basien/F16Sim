@@ -123,6 +123,25 @@ if RunQ5
     t = title('xa Shift');
     print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
     hold off
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q5.10                 \n')
+    fprintf('----------------------------------------\n')
+    
+    fprintf('The initial response of $x_a=0$ being negative indicates that the instanteneous centre of rotation is on a line perpendicular to the $x$ axis between $x_a=0$ and $x_a=5$, somewhere above the aircraft. At around $t=1.25, 4$ and $5.75$, all values of $x_a$ experience the same acceleration, indicating that there is no rotation at those times, meaning that the instant centre lies at infinity. Each time this happens, the instant centre switches from above and below the aircraft.')
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q5.11                 \n')
+    fprintf('----------------------------------------\n')
+    
+    fprintf('As being in the instant centre would not be possible due to it being out of plane, being in line with it would be better. The closer the pilot is to the instant centre, the less g loads the pilot will experience, decreasing the change of fainting spells.')
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q5.12                 \n')
+    fprintf('----------------------------------------\n')
+    
+    fprintf('By placing the accelerometer close to the nodes of the most important bending mode, the accelerometer experiences reduced oscillations, and has a more accurate reading.')
+    
 end
 
 if RunQ6
