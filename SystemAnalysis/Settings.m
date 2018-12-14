@@ -9,9 +9,6 @@ if exist("SettingSet") == 0 || isempty(SettingSet)
 	altitude0 = 15000;
 	velocity0 = 500;
 
-	global xa
-	xa = 0;
-
 	global FlightCondition
 	FlightCondition = 1;
 
@@ -78,5 +75,6 @@ if exist("SettingSet") == 0 || isempty(SettingSet)
 	disp("Settings are set!")
 end
 
-
+global xa
+xa = 0;
 % disp("Settings are set!")
