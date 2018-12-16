@@ -167,35 +167,85 @@ if RunQ6
    
     %A_lo
     
-    longitudinal_states
-    PrintStateNames(longitudinal_states,"longitudinal_states: ")
-    lateral_states
+    longitudinal_states_ =[longitudinal_states 13 14];
+    PrintStateNames(longitudinal_states_,"longitudinal_states: ")
+    lateral_states_ = [lateral_states 13 15 16];
     PrintStateNames(lateral_states     ,"lateral_states: ")
     
-    if 0%1 % Omits Input Dynamics!
+    if 1 % Omits Input Dynamics!
         %--- Longitudinal ---
-        A_long = A_lo(longitudinal_states,longitudinal_states);
-        B_long = B_lo(longitudinal_states,:);
-        C_long = C_lo(longitudinal_states,longitudinal_states);
-        D_long = B_lo(longitudinal_states,:);
+        A_los   = A_lo(longitudinal_states_,longitudinal_states_);
+        A_long = A_los(1:4,1:4);
+        B_long = A_los(1:4,5:6);
+        C_los   = C_lo(longitudinal_states_,longitudinal_states_);
+        C_long = C_los(1:4,1:4);
+        D_long = C_los(1:4,5:6);
+
+        %.. Temporary Aliases ..
+        % Inputs
+        Ut_long     = 1;
+        Ue_long     = 2;
+        % States
+        Xv_long     = 1;
+        Xalpha_long = 2;
+        Xtheta_long = 3;
+        Xq_long     = 4;
 
         %--- Lateral---
-        A_lat = A_lo(lateral_states,lateral_states);
-        B_lat = B_lo(lateral_states,:);
-        C_lat = C_lo(lateral_states,lateral_states);
-        D_lat = B_lo(lateral_states,:);
+        A_las  = A_lo(lateral_states_,lateral_states_);
+        A_lat = A_las(1:4,1:4);
+        B_lat = A_las(1:4,5:6);
+        C_las  = C_lo(lateral_states_,lateral_states_);
+        C_lat = C_las(1:4,1:4);
+        D_lat = C_las(1:4,5:6);
+
+        %.. Temporary Aliases ..
+        % Inputs
+        Ut_lat     = 1;
+        Ua_lat     = 2;
+        Ur_lat     = 2;
+        % Outputs
+        Ybeta_lat = 1;
+        Yphi_lat  = 2;
+        Yp_lat    = 3;
+        Yr_lat    = 4;
         
     else
         %--- Longitudinal ---
         A_long = A_longitude_lo;
-        A_lat  = A_lateral_lo;
         B_long = B_longitude_lo;
-        B_lat  = B_lateral_lo;
-        %--- Lateral---
         C_long = C_longitude_lo;
-        C_lat  = C_lateral_lo;
         D_long = D_longitude_lo;
+
+        %.. Temporary Aliases ..
+        % Inputs
+        Ut_long     = 1;
+        Ue_long     = 2;
+        % Outputs
+        Xh_long     = 1;
+        Xtheta_long = 2;
+        Xv_long     = 3;
+        Xalpha_long = 4;
+
+        %--- Lateral---
+        A_lat  = A_lateral_lo;
+        B_lat  = B_lateral_lo;
+        C_lat  = C_lateral_lo;
         D_lat  = D_lateral_lo;
+
+        %.. Temporary Aliases ..
+        % Inputs
+        Ut_lat     = 1;
+        Ua_lat     = 2;
+        Ur_lat     = 3;
+        % States
+        Xphi_lat  = 1;
+        Xpsi_lat  = 2;
+        Xv_lat    = 3;
+        Xbeta_lat = 4;
+        Xp_lat    = 5;
+        Xr_lat    = 6;
+
     end
     
     %..............................
@@ -261,18 +311,8 @@ if RunQ6
     % Extract Longitudinal Eigen-Motions
     %..............................
     
-    %--- Temporary Aliases ---
-    % Inputs
-    Ut_     = 1;
-    Ue_     = 2;
-    % Outputs
-    Yh_     = 1;
-    Ytheta_ = 2;
-    Yv_     = 3;
-    Yalpha_ = 4;
-    
     %--- Short Period + Phugoid ---
-    tf_long_Ue_theta       = minreal(tf(C_long(Ytheta_,:) * (inv((s*eye(size(A_long,1))-A_long))*B_long(:,Ue_))),e_minreal)
+    tf_long_Ue_theta       = minreal(tf(C_long(Xtheta_long,:) * (inv((s*eye(size(A_long,1))-A_long))*B_long(:,Ue_long))),e_minreal)
     tf_long_Ue_theta_poles = esort(pole(tf_long_Ue_theta));
     tf_long_Ue_theta_poles = unique_complex(tf_long_Ue_theta_poles,e)
     
@@ -313,27 +353,15 @@ if RunQ6
     %..............................
     % Extract Lateral Eigen-Motions
     %..............................
-    
-    % Inputs
-    Ut_     = 1;
-    Ua_     = 2;
-    Ur_     = 3;
-    % States
-    Xphi_  = 1;
-    Xpsi_  = 2;
-    Xv_    = 3;
-    Xbeta_ = 4;
-    Xp_    = 5;
-    Xr_    = 6;
 
     %--- Aperiodic roll + Spiral ---
-    tf_lat_Ua       = minreal(tf(C_lat * (inv((s*eye(size(A_lat,1))-A_lat))*B_lat(:,Ua_))),e_minreal)
+    tf_lat_Ua       = minreal(tf(C_lat * (inv((s*eye(size(A_lat,1))-A_lat))*B_lat(:,Ua_lat))),e_minreal)
     tf_lat_Ua_poles = esort(pole(tf_lat_Ua));
     tf_lat_Ua_poles = unique_complex(tf_lat_Ua_poles,e)
     
-    poles_dutchroll     = tf_lat_Ua_poles(5:6)
-    pole_aperiodicroll  = tf_lat_Ua_poles(4)
-    pole_spiral         = tf_lat_Ua_poles(1) % or 2?
+    poles_dutchroll     = tf_lat_Ua_poles(3:4)
+    pole_aperiodicroll  = tf_lat_Ua_poles(1)
+    pole_spiral         = tf_lat_Ua_poles(2)
     
     %.. Dutch roll ..
     AnalyzePeriodicPoles(poles_dutchroll   ,'Dutch roll')
@@ -418,8 +446,8 @@ if RunQ7
     fprintf('                  Q7.2                  \n')
     fprintf('----------------------------------------\n')
 
-    tf_long_Ue_q   = minreal(tf(C_alphaq(Xq__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
-    tf_long_Ue_q_4 = minreal(tf(C_long  (Xq_ ,:) * (inv((s*eye(size(A_long  ,1))-A_long  ))*B_long  (:,Ue_ ))),e_minreal)
+    tf_long_Ue_q   = minreal(tf(C_alphaq(Xq__    ,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__    ))),e_minreal)
+    tf_long_Ue_q_4 = minreal(tf(C_long  (Xq_long ,:) * (inv((s*eye(size(A_long  ,1))-A_long  ))*B_long  (:,Ue_long ))),e_minreal)
 
 	T = 0:0.01:7;
     
