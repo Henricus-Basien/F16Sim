@@ -35,7 +35,7 @@
 	% Exercises
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	RunQ5 = 1;
+	RunQ5 = 0;
 	RunQ6 = 1;
 
 	figpath ='OutputFigures';

@@ -167,23 +167,27 @@ if RunQ6
    
     %A_lo
     
-    longitudinal_states
-    PrintStateNames(longitudinal_states,"longitudinal_states: ")
-    lateral_states
+    longitudinal_states_ =[longitudinal_states 13 14];
+    PrintStateNames(longitudinal_states_,"longitudinal_states: ")
+    lateral_states_ = [lateral_states 13 15 16];
     PrintStateNames(lateral_states     ,"lateral_states: ")
     
-    if 0%1 % Omits Input Dynamics!
+    if 1 % Omits Input Dynamics!
         %--- Longitudinal ---
-        A_long = A_lo(longitudinal_states,longitudinal_states);
-        B_long = B_lo(longitudinal_states,:);
-        C_long = C_lo(longitudinal_states,longitudinal_states);
-        D_long = B_lo(longitudinal_states,:);
+        A_los = A_lo(longitudinal_states_,longitudinal_states_);
+        A_long = A_los(1:4,1:4);
+        B_long = A_los(1:4,5:6);
+        C_los = C_lo(longitudinal_states_,longitudinal_states_);
+        C_long = C_los(1:4,1:4);
+        D_long = C_los(1:4,5:6);
 
         %--- Lateral---
-        A_lat = A_lo(lateral_states,lateral_states);
-        B_lat = B_lo(lateral_states,:);
-        C_lat = C_lo(lateral_states,lateral_states);
-        D_lat = B_lo(lateral_states,:);
+        A_las = A_lo(lateral_states_,lateral_states_);
+        A_lat = A_las(1:4,1:4);
+        B_lat = A_las(1:4,5:6);
+        C_las = C_lo(lateral_states_,lateral_states_);
+        C_lat = C_las(1:4,1:4);
+        D_lat = C_las(1:4,5:6);
         
     else
         %--- Longitudinal ---
@@ -331,9 +335,9 @@ if RunQ6
     tf_lat_Ua_poles = esort(pole(tf_lat_Ua));
     tf_lat_Ua_poles = unique_complex(tf_lat_Ua_poles,e)
     
-    poles_dutchroll     = tf_lat_Ua_poles(5:6)
-    pole_aperiodicroll  = tf_lat_Ua_poles(4)
-    pole_spiral         = tf_lat_Ua_poles(1) % or 2?
+    poles_dutchroll     = tf_lat_Ua_poles(3:4)
+    pole_aperiodicroll  = tf_lat_Ua_poles(1)
+    pole_spiral         = tf_lat_Ua_poles(2)
     
     %.. Dutch roll ..
     AnalyzePeriodicPoles(poles_dutchroll   ,'Dutch roll')
