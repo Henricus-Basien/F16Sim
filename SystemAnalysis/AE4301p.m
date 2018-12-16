@@ -85,8 +85,8 @@ if RunQ5
     	figure(52);
     	grid on
     	pzmap(tf_Ue_Nz)
-    	t = title('Ue-YNz Pole-Zero Map');
-    	print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    	ti = title('Ue-YNz Pole-Zero Map');
+    	print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
     fprintf('----------------------------------------\n')
@@ -120,8 +120,8 @@ if RunQ5
         hold on
     end
     legend('Location','southeast')
-    t = title('xa Shift');
-    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    ti = title('xa Shift');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     hold off
 
     fprintf('----------------------------------------\n')
@@ -241,14 +241,14 @@ if RunQ6
         figure(61);
         grid on
         pzmap(tf_long)
-        t = title('Full Longitudinal Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+        ti = title('Full Longitudinal Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
         figure(62);
         grid on
         pzmap(tf_lat)
-        t = title('Full Lateral Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+        ti = title('Full Lateral Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
     
     %------------------------ Eigen Motions -------------------------------
@@ -292,23 +292,23 @@ if RunQ6
         figure(63);
         grid on
         pzmap(tf_long_Ue_theta)
-        t = title('Longitudinal Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+        ti = title('Longitudinal Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
     %.. Phugoid ..
     figure(64);
     grid on
     impulse(zpk([],poles_phugoid,1))
-    t = title('Phugoid');
-    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    ti = title('Phugoid');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
     %.. Short Period ..
     figure(65);
     grid on
     impulse(zpk([],poles_shortperiod,1))
-    t = title('Short Period');
-    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    ti = title('Short Period');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
     %..............................
     % Extract Lateral Eigen-Motions
@@ -318,7 +318,7 @@ if RunQ6
     Ut_     = 1;
     Ua_     = 2;
     Ur_     = 3;
-    % % Outputs 4 6 7 9 10 12
+    % States
     Xphi_  = 1;
     Xpsi_  = 2;
     Xv_    = 3;
@@ -350,30 +350,141 @@ if RunQ6
         figure(66);
         grid on
         pzmap(tf_lat_Ua)
-        t = title('Lateral Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+        ti = title('Lateral Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
     %.. Dutch roll ..
     figure(67);
     grid on
     impulse(zpk([],poles_dutchroll,1))
-    t = title('Dutch roll');
-    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    ti = title('Dutch roll');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
     %.. Aperiodic roll ..
     figure(68);
     grid on
     step(zpk([],pole_aperiodicroll,1))
-    t = title('Aperiodic roll');
-    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    ti = title('Aperiodic roll');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     
     %.. Spiral ..
     figure(69);
     grid on
     step(zpk([],pole_spiral,1))
-    t = title('Spiral');
-    print(gcf, '-dpng', strcat(figpath,'/',t.String,figext), dpi)
+    ti = title('Spiral');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+end
+
+if RunQ7
+    
+    fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+    fprintf('                             Q7                             \n')
+    fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+
+    FindF16Dynamics
+    if 0%1
+        tf_long_Ue_q = minreal(tf(C_lo(Yq,:) * (inv((s*eye(size(A_lo,1))-A_lo))*B_lo(:,Ue))),e_minreal)
+        tf_long_Ue_q_poles = esort(pole(tf_long_Ue_q));
+        tf_long_Ue_q_poles = unique_complex(tf_long_Ue_q_poles,e)
+
+        figure(71)
+        pzmap(  tf_long_Ue_q)
+        figure(72)
+        impulse(tf_long_Ue_q)
+        figure(73)
+        step(   tf_long_Ue_q)
+    end
+    
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q7.1                  \n')
+    fprintf('----------------------------------------\n')
+    
+    %--- Aliases ---
+    alphaq_states = [8,11];
+    Ue__    = 1;
+    Xalha__ = 1;
+    Xq__    = 2;
+
+    %--- State space Matrices ---
+    PrintStateNames(alphaq_states,"alphaq_states: ")
+    A_alphaq = A_lo(alphaq_states,alphaq_states)
+    B_alphaq = [0;,-2*pi] %-20.2000]%-1]
+    C_alphaq = eye(2)
+    D_alphaq = zeros(2,1)
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q7.2                  \n')
+    fprintf('----------------------------------------\n')
+
+    tf_long_Ue_q   = minreal(tf(C_alphaq(Xq__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
+    tf_long_Ue_q_4 = minreal(tf(C_long  (Xq_ ,:) * (inv((s*eye(size(A_long  ,1))-A_long  ))*B_long  (:,Ue_ ))),e_minreal)
+
+	T = 0:0.01:7;
+    
+    figure(74)
+    grid on
+    [y1,t] = step(tf_long_Ue_q,T);
+    plot(t,y1)
+    ti = title('2-State Ue-q Step');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+    figure(75)
+    grid on
+    [y2,t] = step(tf_long_Ue_q_4,T);
+    plot(t,y2)
+    ti = title('4-State Ue-q Step');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+    figure(76)
+    grid on
+    ydiff = y2-y1;
+    plot(t,ydiff)
+    ti = title('2-4-State Ue-q Step Difference');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q7.3                  \n')
+    fprintf('----------------------------------------\n')
+
+    tf_long_Ue_q_poles = esort(pole(tf_long_Ue_q));
+    tf_long_Ue_q_poles = unique_complex(tf_long_Ue_q_poles,e)
+
+    if 1
+        figure(77)
+        pzmap(  tf_long_Ue_q)
+        % figure(78)
+        % impulse(tf_long_Ue_q)
+    end 
+    
+    %.. Short Period ..
+    [wn,dr,P,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_poles,'Short Period')
+
+    TC = 1./real(tf_long_Ue_q_poles(1))
+
+    v = velocity0;
+    if ~USE_SI_UNITS
+        v = v*feet_to_m; 
+    end
+    
+    wn_design = 0.03*v
+    TC_design = 1./0.75*wn_design
+    dr_design = 0.5
+
+    wn_diff = wn_design-wn
+    TC_diff = TC_design-TC
+    dr_diff = dr_design-dr
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q7.4                  \n')
+    fprintf('----------------------------------------\n')
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q7.5                  \n')
+    fprintf('----------------------------------------\n')
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q7.6                  \n')
+    fprintf('----------------------------------------\n')
 
 end
 
@@ -424,16 +535,16 @@ end
 % Analyze Pole
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function AnalyzePeriodicPoles(poles,name) 
+function [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles,name) 
     fprintf("Analysis of poles %s\n",name)
-    pole = poles(2);
+    pole = poles(1);
     wn     = abs(pole)              % Natural frequency
-    dr     = (cos(angle(pole)))     % Dampening ratio
+    dr     = -(cos(angle(pole)))     % Dampening ratio
     P      = 2*pi/(wn*sqrt(1-dr^2)) % Period
     T_half = log(2)/(wn*dr)         % Time to damp to half amplitude
 end
 
-function AnalyzeAperiodicPole(pole,name) 
+function [wn,dr,TC,T_half] = AnalyzeAperiodicPole(pole,name) 
     fprintf("Analysis of pole %s\n",name)
     wn     = abs(pole)           % Natural frequency
     dr     = (cos(angle(pole))); % Dampening ratio
