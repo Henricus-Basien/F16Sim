@@ -83,4 +83,7 @@
 
 global xa
 xa = 0;
+
+global g0
+g0 = 9.80665
 % disp("Settings are set!")

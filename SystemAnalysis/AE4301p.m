@@ -9,6 +9,10 @@ Email: Henricus@Basien.de
 % AE4301P
 %****************************************************************************************************
 
+clear all
+clc
+close all
+
 %================================================================================
 % Settings
 %================================================================================
@@ -510,6 +514,9 @@ if RunQ7
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.5                  \n')
     fprintf('----------------------------------------\n')
+    
+    fprintf('The lead-lag prefilter must be located outside the loop, as it has to modify the zero of the closed loop system. The zero that is being forced has no place inside the denominator of the overal transfer function, since that changes the dynamics. Instead, it is outside the loop to modify the reference signal to something that the closed loop can quickly follow.')
+       
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.6                  \n')
     fprintf('----------------------------------------\n')
@@ -587,4 +594,9 @@ end
 function X = unique_complex(X,e)
     [b, ind] = unique(round(X / (e * (1 + i))));
     X = X(ind);
+end
+
+
+function drawCAP(wn, dr, TC)
+   CAP =  g0 * wn^2 * TC / velocity0;
 end
