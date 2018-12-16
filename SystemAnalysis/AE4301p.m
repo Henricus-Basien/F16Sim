@@ -320,9 +320,9 @@ if RunQ6
     poles_shortperiod = tf_long_Ue_theta_poles(3:4)
     
     %.. Phugoid ..
-    AnalyzePeriodicPoles(poles_phugoid    ,'Phugoid')
+    PrintAnalyzePeriodicPoles(poles_phugoid    ,'Phugoid')
     %.. Short Period ..
-    AnalyzePeriodicPoles(poles_shortperiod,'Short Period')
+    PrintAnalyzePeriodicPoles(poles_shortperiod,'Short Period')
         
     %..............................
     % Plot Longitudinal Eigen-Motions
@@ -364,11 +364,11 @@ if RunQ6
     pole_spiral         = tf_lat_Ua_poles(2)
     
     %.. Dutch roll ..
-    AnalyzePeriodicPoles(poles_dutchroll   ,'Dutch roll')
+    PrintAnalyzePeriodicPoles(poles_dutchroll   ,'Dutch roll')
     %.. Aperiodic roll ..
-    AnalyzeAperiodicPole(pole_aperiodicroll,'Aperiodic roll')
+    PrintAnalyzeAperiodicPole(pole_aperiodicroll,'Aperiodic roll')
     %.. Spiral ..
-    AnalyzeAperiodicPole(pole_spiral       ,'Spiral')
+    PrintAnalyzeAperiodicPole(pole_spiral       ,'Spiral')
         
     %..............................
     % Plot Lateral Eigen-Motions
@@ -479,7 +479,7 @@ if RunQ7
     tf_long_Ue_q_poles = esort(pole(tf_long_Ue_q));
     tf_long_Ue_q_poles = unique_complex(tf_long_Ue_q_poles,e)
 
-    if 1
+    if 0%1
         figure(77)
         pzmap(  tf_long_Ue_q)
         % figure(78)
@@ -487,26 +487,76 @@ if RunQ7
     end 
     
     %.. Short Period ..
-    [wn,dr,P,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_poles,'Short Period')
 
-    TC = 1./real(tf_long_Ue_q_poles(1))
-
-    v = velocity0;
-    if ~USE_SI_UNITS
-        v = v*feet_to_m; 
-    end
-    
-    wn_design = 0.03*v
-    TC_design = 1./0.75*wn_design
-    dr_design = 0.5
-
-    wn_diff = wn_design-wn
-    TC_diff = TC_design-TC
-    dr_diff = dr_design-dr
+    CheckShortPeriodDesign(tf_long_Ue_q,tf_long_Ue_q_poles,'Short Period - Original')
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.4                  \n')
     fprintf('----------------------------------------\n')
+
+    %..............................
+    % Find Design Poles
+    %..............................
+
+    %--- Pole Placement ---
+
+    [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria
+    a = acos(dr_design);
+    real_design = -wn_design*cos(a);
+    imag_design =  wn_design*sin(a);
+
+    poles_design = [real_design+1i*imag_design,real_design-1i*imag_design]
+    Compensator_1  = zpk(tf_long_Ue_q_poles,poles_design,1)
+
+    %--- Time constant ---
+    TC = GetTC(tf_long_Ue_q);
+    
+    Compensator_2 = (1+s*TC_design)/(1+s*TC)
+
+    %--- Combine ---
+    Compensator = Compensator_1*Compensator_2
+
+    %..............................
+    % Analyze Design Poles
+    %..............................
+
+    figure(78)
+    grid on
+    [y_design,t] = step(Compensator ,T);
+    plot(t,y_design)
+    ti = title('Short Period - Compensator');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+    if 1
+        figure(79)
+        pzmap(Compensator)
+        ti = title('Short Period - Compensator Pole-Zero Map');
+    end
+
+    CheckShortPeriodDesign(Compensator,poles_design,'Short Period - Compensator')
+
+    %..............................
+    % Apply Compensator
+    %..............................
+    
+    tf_long_Ue_q_design = minreal(tf_long_Ue_q*Compensator,e_minreal)
+
+    tf_long_Ue_q_design_poles = esort(pole(tf_long_Ue_q_design));
+    tf_long_Ue_q_design_poles = unique_complex(tf_long_Ue_q_design_poles,e)
+
+    figure(712)
+    step(tf_long_Ue_q_design)
+    ti = title('Short Period - Design');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+    if 1
+        figure(713)
+        pzmap(tf_long_Ue_q_design)
+        ti = title('Short Period - Design Pole-Zero Map');
+    end
+
+    CheckShortPeriodDesign(tf_long_Ue_q_design,tf_long_Ue_q_design_poles,'Short Period - Design')
+
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.5                  \n')
     fprintf('----------------------------------------\n')
@@ -563,21 +613,39 @@ end
 % Analyze Pole
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles,name) 
-    fprintf("Analysis of poles %s\n",name)
+function [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles) 
     pole = poles(1);
-    wn     = abs(pole)              % Natural frequency
-    dr     = -(cos(angle(pole)))     % Dampening ratio
-    P      = 2*pi/(wn*sqrt(1-dr^2)) % Period
-    T_half = log(2)/(wn*dr)         % Time to damp to half amplitude
+    wn     = abs(pole);              % Natural frequency
+    dr     = -(cos(angle(pole)));    % Dampening ratio
+    P      = 2*pi/(wn*sqrt(1-dr^2)); % Period
+    T_half = log(2)/(wn*dr);         % Time to damp to half amplitude
 end
 
-function [wn,dr,TC,T_half] = AnalyzeAperiodicPole(pole,name) 
-    fprintf("Analysis of pole %s\n",name)
-    wn     = abs(pole)           % Natural frequency
+function PrintAnalyzePeriodicPoles(poles,name)
+    fprintf("Analysis of Periodic pole %s\n",name) 
+    [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles)
+
+    fprintf('wn    : %f \n',wn)
+    fprintf('dr    : %f \n',dr)
+    fprintf('P     : %f \n',P)
+    fprintf('T_half: %f \n',T_half)    
+end
+
+function [wn,dr,TC,T_half] = AnalyzeAperiodicPole(pole) 
+    wn     = abs(pole);           % Natural frequency
     dr     = (cos(angle(pole))); % Dampening ratio
-    TC     = 1./real(pole)       % Time Constant
-    T_half = log(2)/(wn*dr)      % Time to damp to half amplitude
+    TC     = 1./real(pole);       % Time Constant
+    T_half = log(2)/(wn*dr);      % Time to damp to half amplitude
+end
+
+function PrintAnalyzeAperiodicPole(pole,name)
+    fprintf("Analysis of Aperiodic pole %s\n",name) 
+    [wn,dr,TC,T_half] = AnalyzeAperiodicPole(pole)
+
+    fprintf('wn    : %f \n',wn)
+    fprintf('dr    : %f \n',dr)
+    fprintf('TC    : %f \n',TC)
+    fprintf('T_half: %f \n',T_half)    
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -587,4 +655,67 @@ end
 function X = unique_complex(X,e)
     [b, ind] = unique(round(X / (e * (1 + i))));
     X = X(ind);
+end
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Get TC
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function TC = GetTC(tf)
+    [num_, den_] = tfdata(tf);
+    num = num_{1};
+    kq  = num(3);
+    TC  = num(2)/kq; 
+end
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Check Short Period Design Criteria
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria()
+    %----------------------------------------
+    % Get Design Criteria
+    %----------------------------------------
+    global velocity0 USE_SI_UNITS feet_to_m
+    v = velocity0;
+    if ~USE_SI_UNITS
+        v = v*feet_to_m; 
+    end
+    
+    wn_design = 0.03*v;
+    TC_design = 1./0.75*wn_design;
+    dr_design = 0.5;
+end
+
+function CheckShortPeriodDesign(sys,poles,name)
+
+    [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria;
+
+    %----------------------------------------
+    % Analyze System
+    %----------------------------------------
+    
+    [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
+    TC = GetTC(sys);
+
+    %----------------------------------------
+    % Compare
+    %----------------------------------------
+    
+    wn_diff = wn_design-wn;
+    TC_diff = TC_design-TC;
+    dr_diff = dr_design-dr;
+
+    %----------------------------------------
+    % Print differences
+    %----------------------------------------
+    fprintf('wn_org   : %f \n',wn)
+    fprintf('TC_org   : %f \n',TC)
+    fprintf('dr_org   : %f \n',dr)
+    fprintf('wn_design: %f \n',wn_design)
+    fprintf('TC_design: %f \n',TC_design)
+    fprintf('dr_design: %f \n',dr_design)
+    fprintf('wn_diff  : %f \n',wn_diff  )
+    fprintf('TC_diff  : %f \n',TC_diff  )
+    fprintf('dr_diff  : %f \n',dr_diff  )
 end
