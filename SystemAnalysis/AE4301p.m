@@ -527,7 +527,7 @@ if RunQ7
     ti = title('Short Period - Compensator');
     print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-    if 1
+    if 0%1
         figure(79)
         pzmap(Compensator)
         ti = title('Short Period - Compensator Pole-Zero Map');
@@ -549,7 +549,7 @@ if RunQ7
     ti = title('Short Period - Design');
     print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-    if 1
+    if 0%1
         figure(713)
         pzmap(tf_long_Ue_q_design)
         ti = title('Short Period - Design Pole-Zero Map');
