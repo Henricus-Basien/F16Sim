@@ -25,6 +25,9 @@ StateAliases
 %================================================================================
 
 %input('Press ENTER to run Full Analysis...');
+
+%...........................................................................................................................
+
 if RunQ5
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
     fprintf('                             Q5                             \n')
@@ -147,6 +150,8 @@ if RunQ5
     fprintf('By placing the accelerometer close to the nodes of the most important bending mode, the accelerometer experiences reduced oscillations, and has a more accurate reading.')
     
 end
+
+%...........................................................................................................................
 
 if RunQ6
     
@@ -409,6 +414,8 @@ if RunQ6
 
 end
 
+%...........................................................................................................................
+
 if RunQ7
     
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
@@ -607,6 +614,79 @@ if RunQ7
        
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.6                  \n')
+    fprintf('----------------------------------------\n')
+
+end
+
+%...........................................................................................................................
+
+if RunQ8
+    
+    fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+    fprintf('                             Q8                             \n')
+    fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.1                  \n')
+    fprintf('----------------------------------------\n')
+
+    altitude0 = 5000; % [ft]
+    velocity0 = 300;  % [ft/s]
+
+    if USE_SI_UNITS
+        altitude0 = altitude0 * feet_to_m;
+        velocity0 = velocity0 * feet_to_m;
+    end
+
+    FindF16Dynamics
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.2                  \n')
+    fprintf('----------------------------------------\n')
+
+    terrainfollow_inputs = [1,2];
+    terrainfollow_states = [3,7,8,5,11 , 13,14];
+    PrintStateNames(terrainfollow_states,"TerrainFollowing States: ")
+    A_terrainfollow = A_lo(terrainfollow_states,terrainfollow_states)
+    B_terrainfollow = B_lo(terrainfollow_states,terrainfollow_inputs)
+    C_terrainfollow = C_lo(terrainfollow_states,terrainfollow_states)
+    D_terrainfollow = D_lo(terrainfollow_states,terrainfollow_inputs)
+    
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.3                  \n')
+    fprintf('----------------------------------------\n')
+    
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.4                  \n')
+    fprintf('----------------------------------------\n')
+    
+    h_terrainfollowing0 = 1500 % [m]
+    if ~USE_SI_UNITS
+        h_terrainfollowing0 = h_terrainfollowing0/feet_to_m
+    end
+
+    dh0 = h_terrainfollowing0-altitude0;
+
+    x_terrainfollow0 = [dh0,0,0,0,0 , 0,0]
+    
+    % thrust_terrainfollowing0
+
+    simOut = sim('TerrainFollowing','SimulationMode','normal','AbsTol','1e-5',...
+            'SaveState','on','StateSaveName','xout',...
+            'SaveOutput','on','OutputSaveName','yout',...
+            'SaveFormat', 'Dataset');
+    outputs = simOut.get('yout')
+
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.5                  \n')
+    fprintf('----------------------------------------\n')
+    
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.6                  \n')
+    fprintf('----------------------------------------\n')
+    
+    fprintf('----------------------------------------\n')
+    fprintf('                  Q8.7                  \n')
     fprintf('----------------------------------------\n')
 
 end
