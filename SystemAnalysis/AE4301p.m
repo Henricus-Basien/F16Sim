@@ -77,10 +77,12 @@ if RunQ5
 
     fprintf('Negative Elevator step input output Nz\n');
 
-    figure(51);
-    PlotElevatorStepInput(tf_Ue_Nz, '')
-    grid on
-    
+    if PlotQ5
+        figure(51);
+        PlotElevatorStepInput(tf_Ue_Nz, '')
+        grid on
+    end
+        
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.7                  \n')
     fprintf('----------------------------------------\n')
@@ -88,7 +90,7 @@ if RunQ5
     tf_Ue_Nz_zeros = zero(tf_Ue_Nz)
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
-    if 0
+    if PlotQ5
     	figure(52);
     	grid on
     	pzmap(tf_Ue_Nz)
@@ -108,6 +110,7 @@ if RunQ5
 
     xa_ = [0,5,5.9,6,7,15];
 
+    
     figure(53);  
     for xa = xa_
         
@@ -296,18 +299,19 @@ if RunQ6
         %..............................
         % Plot Pole-Zero maps
         %..............................
+        if PlotQ6
+            figure(61);
+            grid on
+            pzmap(tf_long)
+            ti = title('Full Longitudinal Pole-Zero Map');
+            print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-        figure(61);
-        grid on
-        pzmap(tf_long)
-        ti = title('Full Longitudinal Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-
-        figure(62);
-        grid on
-        pzmap(tf_lat)
-        ti = title('Full Lateral Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+            figure(62);
+            grid on
+            pzmap(tf_lat)
+            ti = title('Full Lateral Pole-Zero Map');
+            print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        end
     end
     
     %------------------------ Eigen Motions -------------------------------
@@ -337,7 +341,7 @@ if RunQ6
     % Plot Longitudinal Eigen-Motions
     %..............................
     
-    if 0
+    if PlotQ6
         figure(63);
         grid on
         pzmap(tf_long_Ue_theta)
@@ -346,18 +350,21 @@ if RunQ6
     end
 
     %.. Phugoid ..
-    figure(64);
-    grid on
-    impulse(zpk([],poles_phugoid,1))
-    ti = title('Phugoid');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-
+    if PlotQ6
+        figure(64);
+        grid on
+        impulse(zpk([],poles_phugoid,1))
+        ti = title('Phugoid');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    
+    
     %.. Short Period ..
-    figure(65);
-    grid on
-    impulse(zpk([],poles_shortperiod,1))
-    ti = title('Short Period');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        figure(65);
+        grid on
+        impulse(zpk([],poles_shortperiod,1))
+        ti = title('Short Period');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    end
 
     %..............................
     % Extract Lateral Eigen-Motions
@@ -383,34 +390,35 @@ if RunQ6
     % Plot Lateral Eigen-Motions
     %..............................
     
-    if 1
+    if PlotQ6
         figure(66);
         grid on
         pzmap(tf_lat_Ua)
         ti = title('Lateral Pole-Zero Map');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-    end
+    
 
     %.. Dutch roll ..
-    figure(67);
-    grid on
-    impulse(zpk([],poles_dutchroll,1))
-    ti = title('Dutch roll');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        figure(67);
+        grid on
+        impulse(zpk([],poles_dutchroll,1))
+        ti = title('Dutch roll');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
     %.. Aperiodic roll ..
-    figure(68);
-    grid on
-    step(zpk([],pole_aperiodicroll,1))
-    ti = title('Aperiodic roll');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        figure(68);
+        grid on
+        step(zpk([],pole_aperiodicroll,1))
+        ti = title('Aperiodic roll');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     
     %.. Spiral ..
-    figure(69);
-    grid on
-    step(zpk([],pole_spiral,1))
-    ti = title('Spiral');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        figure(69);
+        grid on
+        step(zpk([],pole_spiral,1))
+        ti = title('Spiral');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    end
 
 end
 
@@ -462,27 +470,29 @@ if RunQ7
 
 	T = 0:0.01:7;
     
-    figure(74)
-    grid on
-    [y1,t] = step(tf_long_Ue_q,T);
-    plot(t,y1)
-    ti = title('2-State Ue-q Step');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    if PlotQ7
+        figure(74)
+        grid on
+        [y1,t] = step(tf_long_Ue_q,T);
+        plot(t,y1)
+        ti = title('2-State Ue-q Step');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-    figure(75)
-    grid on
-    [y2,t] = step(tf_long_Ue_q_4,T);
-    plot(t,y2)
-    ti = title('4-State Ue-q Step');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        figure(75)
+        grid on
+        [y2,t] = step(tf_long_Ue_q_4,T);
+        plot(t,y2)
+        ti = title('4-State Ue-q Step');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-    figure(76)
-    grid on
-    ydiff = y2-y1;
-    plot(t,ydiff)
-    ti = title('2-4-State Ue-q Step Difference');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-
+        figure(76)
+        grid on
+        ydiff = y2-y1;
+        plot(t,ydiff)
+        ti = title('2-4-State Ue-q Step Difference');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    end
+        
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.3                  \n')
     fprintf('----------------------------------------\n')
@@ -490,7 +500,7 @@ if RunQ7
     tf_long_Ue_q_poles = esort(pole(tf_long_Ue_q));
     tf_long_Ue_q_poles = unique_complex(tf_long_Ue_q_poles,e)
 
-    if 0%1
+    if PlotQ7
         figure(77)
         pzmap(  tf_long_Ue_q)
         % figure(78)
@@ -531,14 +541,14 @@ if RunQ7
     % Analyze Design Poles
     %..............................
 
-    figure(78)
-    grid on
-    [y_design,t] = step(Compensator ,T);
-    plot(t,y_design)
-    ti = title('Short Period - Compensator');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    if PlotQ7
+        figure(78)
+        grid on
+        [y_design,t] = step(Compensator ,T);
+        plot(t,y_design)
+        ti = title('Short Period - Compensator');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-    if 0%1
         figure(79)
         pzmap(Compensator)
         ti = title('Short Period - Compensator Pole-Zero Map');
@@ -555,12 +565,12 @@ if RunQ7
     tf_long_Ue_q_design_poles = esort(pole(tf_long_Ue_q_design));
     tf_long_Ue_q_design_poles = unique_complex(tf_long_Ue_q_design_poles,e)
 
-    figure(712)
-    step(tf_long_Ue_q_design)
-    ti = title('Short Period - Design');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    if PlotQ7
+        figure(712)
+        step(tf_long_Ue_q_design)
+        ti = title('Short Period - Design');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-    if 0%1
         figure(713)
         pzmap(tf_long_Ue_q_design)
         ti = title('Short Period - Design Pole-Zero Map');
@@ -616,6 +626,46 @@ if RunQ7
     fprintf('                  Q7.6                  \n')
     fprintf('----------------------------------------\n')
 
+    %-------
+    % Calc CAP and Gibson
+    [wn,dr,TC,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_design_poles);
+    CAP = g0 * wn^2 * TC / velocity0;
+    DBqss = TC - 2*dr / wn;
+    
+    opt = stepDataOptions('StepAmplitude', -1);
+    [y,t] = step(tf_long_Ue_q_design, T, opt);
+    S = stepinfo(y,t);
+    qmqs = S.Peak / y(end);
+    
+    if PlotQ7
+        figure(761)
+        hold on
+        grid on
+        title('Flight Phase Category A');
+        set(gca, 'XScale', 'log');
+        set(gca, 'YScale', 'log');
+        xlim([0.01 10]);
+        ylim([0.01 10]);
+        loglog([0.13 0.13],[0.01 10], 'k');
+        rectangle('Position', [0.25 0.16 1.75 9.84]);
+        rectangle('Position', [0.3 0.28 0.9 3.32]);
+        loglog(dr, CAP, ".");
+        hold off
+
+        figure(762)
+        hold on
+        grid on
+        title('Flight Phase Category B');
+        set(gca, 'XScale', 'log');
+        set(gca, 'YScale', 'log');
+        xlim([0.01 10]);
+        ylim([0.01 10]);
+        loglog([0.15 0.15],[0.01 10], 'k');
+        rectangle('Position', [0.2 0.038 1.8 9.962]);
+        rectangle('Position', [0.3 0.085 0.9 3.515]);
+        loglog(dr, CAP, ".");
+        hold off
+    end
 end
 
 %...........................................................................................................................
@@ -747,7 +797,7 @@ function [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles)
 end
 
 function PrintAnalyzePeriodicPoles(poles,name)
-    fprintf("Analysis of Periodic pole %s\n",name) 
+    fprintf("Analysis of Periodic pole %s\n",name)
     [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles)
 
     fprintf('wn    : %f \n',wn)
@@ -843,8 +893,4 @@ function CheckShortPeriodDesign(sys,poles,name)
     fprintf('wn_diff  : %f \n',wn_diff  )
     fprintf('TC_diff  : %f \n',TC_diff  )
     fprintf('dr_diff  : %f \n',dr_diff  )
-end
-
-function drawCAP(wn, dr, TC)
-   CAP =  g0 * wn^2 * TC / velocity0;
 end
