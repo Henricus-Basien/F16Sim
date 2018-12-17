@@ -35,9 +35,11 @@
 	% Exercises
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	RunQ5 = 0;%1;
-	RunQ6 = 1;
-	RunQ7 = 1;
+	RunQ5  = 0;%1;
+	RunQ6  = 1;
+    PlotQ6 = 0;
+	RunQ7  = 1;
+    PlotQ7 = 0;
 
 	figpath ='OutputFigures';
 	mkdir(figpath)
