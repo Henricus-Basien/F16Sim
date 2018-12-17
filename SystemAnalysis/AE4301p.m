@@ -443,9 +443,9 @@ if RunQ7
     
     %--- Aliases ---
     alphaq_states = [8,11];
-    Ue__    = 1;
-    Xalha__ = 1;
-    Xq__    = 2;
+    Ue__     = 1;
+    Xalpha__ = 1;
+    Xq__     = 2;
 
     %--- State space Matrices ---
     PrintStateNames(alphaq_states,"alphaq_states: ")
@@ -523,12 +523,12 @@ if RunQ7
     Compensator_1  = zpk(tf_long_Ue_q_poles,poles_design,1)
 
     %--- Time constant ---
-    TC = GetTC(tf_long_Ue_q);
+    [k,TC] = GetTC(tf_long_Ue_q);
     
     Compensator_2 = (1+s*TC_design)/(1+s*TC)
 
     %--- Combine ---
-    Compensator = Compensator_1*Compensator_2
+    Compensator = minreal(Compensator_1*Compensator_2,e_minreal)
 
     %..............................
     % Analyze Design Poles
@@ -571,6 +571,44 @@ if RunQ7
 
     CheckShortPeriodDesign(tf_long_Ue_q_design,tf_long_Ue_q_design_poles,'Short Period - Design')
 
+    % tf_long = minreal(tf(C_alphaq * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq)),e_minreal)
+    % tf_long_design = tf_long * Compensator
+
+    %..............................
+    % Check Gains
+    %..............................
+    
+    [k,TC] = GetTC(tf_long_Ue_q_design);
+    kq = k % [deg/(rad/s)]
+
+    tf_long_Ue_alpha        = minreal(tf(C_alphaq(Xalpha__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
+    tf_long_Ue_alpha_design = minreal(tf_long_Ue_alpha * Compensator,e_minreal)
+
+    [k,TC] = GetTC(tf_long_Ue_alpha_design);
+    kalpha = k % [deg/rad]
+
+    %..............................
+    % Gust Case
+    %..............................
+    
+    v_gust = 4.572; % [m/s]
+
+    if ~USE_SI_UNITS
+        v_gust = v_gust/feet_to_m;
+    end
+
+    d_alpha        = atan(v_gust/velocity0); % [rad]
+    d_alpha_deg    = d_alpha*180/pi
+    d_elevator     = d_alpha_deg/kalpha; %kalpha*d_alpha
+    d_elevator_deg = d_elevator*180/pi
+    
+    figure(714)
+    opt = stepDataOptions('StepAmplitude', d_elevator);
+    T = 0:0.01:10;  
+    step(tf_long_Ue_q_design,T,opt)
+    ti = title('Short Period - Gust');
+    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.5                  \n')
     fprintf('----------------------------------------\n')
@@ -718,11 +756,11 @@ end
 % Get TC
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function TC = GetTC(tf)
+function [k ,TC] = GetTC(tf)
     [num_, den_] = tfdata(tf);
     num = num_{1};
-    kq  = num(3);
-    TC  = num(2)/kq; 
+    k   = num(3);
+    TC  = num(2)/k; 
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -753,7 +791,7 @@ function CheckShortPeriodDesign(sys,poles,name)
     %----------------------------------------
     
     [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
-    TC = GetTC(sys);
+    [k,TC] = GetTC(sys);
 
     %----------------------------------------
     % Compare
