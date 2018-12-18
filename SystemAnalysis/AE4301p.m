@@ -2,6 +2,7 @@
 Created on Tuesday 11.12.2018
 Copyright (??) Henricus N. Basien
 Author: Henricus N. Basien
+        Raoul A. A. Mink
 Email: Henricus@Basien.de
 %}
 
@@ -609,12 +610,14 @@ if RunQ7
     d_elevator     = d_alpha_deg/kalpha; %kalpha*d_alpha
     d_elevator_deg = d_elevator*180/pi
     
-    figure(714)
-    opt = stepDataOptions('StepAmplitude', d_elevator);
-    T = 0:0.01:10;  
-    step(tf_long_Ue_q_design,T,opt)
-    ti = title('Short Period - Gust');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    if PlotQ7
+        figure(714)
+        opt = stepDataOptions('StepAmplitude', d_elevator);
+        T = 0:0.01:10;  
+        step(tf_long_Ue_q_design,T,opt)
+        ti = title('Short Period - Gust');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    end
     
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.5                  \n')
@@ -628,7 +631,8 @@ if RunQ7
 
     %-------
     % Calc CAP and Gibson
-    [wn,dr,TC,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_design_poles);
+    [wn,dr,P,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_design_poles);
+    [k,TC] = GetTC(tf_long_Ue_q_design);
     CAP = g0 * wn^2 * TC / velocity0;
     DBqss = TC - 2*dr / wn;
     
@@ -637,7 +641,8 @@ if RunQ7
     S = stepinfo(y,t);
     qmqs = S.Peak / y(end);
     
-    if PlotQ7
+    if PlotQ7 %Plots of CAP criteria
+        %{
         figure(761)
         hold on
         grid on
@@ -651,6 +656,7 @@ if RunQ7
         rectangle('Position', [0.3 0.28 0.9 3.32]);
         loglog(dr, CAP, ".");
         hold off
+        %}
 
         figure(762)
         hold on
@@ -662,9 +668,30 @@ if RunQ7
         ylim([0.01 10]);
         loglog([0.15 0.15],[0.01 10], 'k');
         rectangle('Position', [0.2 0.038 1.8 9.962]);
-        rectangle('Position', [0.3 0.085 0.9 3.515]);
+        rectangle('Position', [0.3 0.085 1.7 3.515]);
         loglog(dr, CAP, ".");
         hold off
+    end
+    
+    if PlotQ7 %Plots of Gibson Criteria
+       figure(764)
+       hold on
+       grid on
+       title('Gibson Criteria');
+       v = [0 1; 0 3; 0.06 3; 0.3 1];
+       f = [1 2 3 4];
+       patch('Faces', f, 'Vertices', v, 'FaceColor', 'none');
+       plot(DBqss, qmqs, ".");
+       hold off
+    end
+    
+    if PlotQ7 %Time response of pitch rate and pitch attitude
+        figure(765)
+        step(tf_long_Ue_q_design, T, opt); %pitch rate
+        title('Pitch rate step response');
+        figure(766)
+        step(tf_long_Ue_q_design*(1/s), T, opt); %pitch attitude
+        title('Pitch attitude step response');
     end
 end
 
@@ -858,7 +885,7 @@ function [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria()
     end
     
     wn_design = 0.03*v;
-    TC_design = 1./0.75*wn_design;
+    TC_design = 1./(0.75*wn_design);
     dr_design = 0.5;
 end
 

@@ -36,8 +36,11 @@
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	RunQ5 = 1;
+    PlotQ5 = 0;
 	RunQ6 = 1;
+    PlotQ6 = 0;
 	RunQ7 = 1;
+    PlotQ7 = 0;
 	RunQ8 = 1;
 
 	figpath ='OutputFigures';
