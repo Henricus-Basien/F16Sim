@@ -35,15 +35,15 @@
     % Exercises
     %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    RunQ5 = 0%1;
-    RunQ6 = 0%1;
-    RunQ7 = 0%1;
+    RunQ5 = 1
+    RunQ6 = 1
+    RunQ7 = 1
     RunQ8 = 1
 
-    PlotQ5 = 0;
-    PlotQ6 = 0;
-    PlotQ7 = 0;
-    PlotQ8 = 0;
+    PlotQ5 = 1
+    PlotQ6 = 1
+    PlotQ7 = 1
+    PlotQ8 = 1
 
     figpath ='OutputFigures';
     if ~exist(figpath, 'dir')

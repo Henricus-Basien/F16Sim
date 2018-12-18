@@ -13,6 +13,7 @@ Email: Henricus@Basien.de
 clear all
 clc
 close all
+bdclose('all')
 
 %================================================================================
 % Settings
@@ -63,7 +64,7 @@ if RunQ5
     fprintf('                  Q5.4                  \n')
     fprintf('----------------------------------------\n')
 
-    Nz_index = find(C_Nz,NrOutputs)
+    Nz_index = find(C_Nz,NrOutputs);
     PrintStateNames(Nz_index,'Elements Nz depends on: ')
 
     fprintf('----------------------------------------\n')
@@ -816,7 +817,58 @@ if RunQ8
     % Evaluate Simulation
     %..............................
     
-    TerrainFollowingAltitude
+    % TerrainFollowing_Output_Altitude
+    % TerrainFollowing_Output_AltitudeError
+    % TerrainFollowing_Output_Thrust
+    % TerrainFollowing_Output_Elevator
+
+    t = TerrainFollowing_Output_Altitude.time;
+
+    if PlotQ8
+        %--- Altitude ---
+        [altitude,altitude_ref,altitude_ground] = TerrainFollowing_Output_Altitude.signals.values;
+
+        figure(81)
+        hold on
+        plot(t,altitude       , 'DisplayName','Altitude'        )
+        plot(t,altitude_ref   , 'DisplayName','Reference Height')
+        plot(t,altitude_ground, 'DisplayName','Ground Height'   )
+        legend('Location','southeast')
+        ti = title('TerrainFollowing - Flightpath');
+        xlabel('Time [s]');
+        ylabel('Altitude [m]');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        hold off
+
+        %--- Altitude-Error ---
+        [altitude_err,height_over_ground] = TerrainFollowing_Output_AltitudeError.signals.values;
+
+        figure(82)
+        plot(t,height_over_ground, 'DisplayName','Height over Ground')
+        ti = title('TerrainFollowing - Height over Ground');
+        xlabel('Time [s]');
+        ylabel('Height [m]');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+        %--- Inputs ---
+        [thrust_inputs]   = TerrainFollowing_Output_Thrust.signals.values;
+        [elevator_inputs] = TerrainFollowing_Output_Elevator.signals.values;
+
+        figure(83)
+        hold on
+        plot(t,thrust_inputs  +thrust0  , 'DisplayName','Thrust'  )
+        ylabel('Thrust [' + fu + ']');
+        yyaxis right
+        plot(t,elevator_inputs+elevator0, 'DisplayName','Elevator')
+        ylabel('Elevator [deg]'); ylim([elevator_min*1.05 elevator_max*1.05]);
+        legend('Location','southeast')
+        ti = title('TerrainFollowing - Control Inputs');
+        xlabel('Time [s]');
+        
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        hold off
+
+    end
 
 end
 
@@ -824,8 +876,9 @@ end
 % Addendum
 %================================================================================
 
-%input('Press ENTER to close the Analysis...');
+input('Press ENTER to close the Analysis...');
 close all
+bdclose('all')
 
 %****************************************************************************************************
 % Functions
