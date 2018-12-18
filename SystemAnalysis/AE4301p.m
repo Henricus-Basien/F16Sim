@@ -797,15 +797,8 @@ if RunQ8
 
     dh0 = h_terrainfollowing0-altitude0;
 
-    x_terrainfollow0 = [dh0,0,0,0,0 , 0,0]
-    
-    % thrust_terrainfollowing0
-
-    % simOut = sim('TerrainFollowing','SimulationMode','normal','AbsTol','1e-5',...
-    %         'SaveState','on','StateSaveName','xout',...
-    %         'SaveOutput','on','OutputSaveName','yout',...
-    %         'SaveFormat', 'Dataset');
-    % outputs = simOut.get('yout')
+    x_terrainfollow0 = zeros(1,n_states);
+    x_terrainfollow0(1) = dh0;
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.5                  \n')
@@ -898,7 +891,7 @@ if RunQ8
             if ~Ref_reached
                 if ~ (sign(altitude_err(i)) - sign(Pre_ref) == 0)
                     Ref_reached = true;
-                    fprintf('Comstant Reference Reached @ t=%f \n',t(i));
+                    fprintf('Constant Reference Reached @ t=%f \n',t(i));
                 end
             else
                 if abs(altitude_err(i))>c_overshoot_max
