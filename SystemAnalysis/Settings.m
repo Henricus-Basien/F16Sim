@@ -35,15 +35,20 @@
 	% Exercises
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	RunQ5 = 0;%1;
-	RunQ6 = 0;%1;
-	RunQ7 = 0;%1;
+	RunQ5 = 1;
+	RunQ6 = 1;
+	RunQ7 = 1;
 	RunQ8 = 1;
 
+        PlotQ5 = 0;
+        PlotQ6 = 0;
+        PlotQ7 = 0;
+        PlotQ8 = 0;
+
 	figpath ='OutputFigures';
-    if ~exist(figpath, 'dir')
-        mkdir(figpath)
-    end
+        if ~exist(figpath, 'dir')
+            mkdir(figpath)
+        end
 	figext  = '.png';
 	dpi = '-r300';
 
