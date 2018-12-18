@@ -83,6 +83,8 @@ if RunQ5
         figure(51);
         PlotElevatorStepInput(tf_Ue_Nz, '')
         grid on
+        ti = title('Neg. Elevator step input - n_a');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
         
     fprintf('----------------------------------------\n')
@@ -92,7 +94,7 @@ if RunQ5
     tf_Ue_Nz_zeros = zero(tf_Ue_Nz)
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
-    if PlotQ5
+    if 0%PlotQ5
         figure(52);
         grid on
         pzmap(tf_Ue_Nz)
