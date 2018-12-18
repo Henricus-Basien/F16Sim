@@ -112,28 +112,30 @@ if RunQ5
     xa_ = [0,5,5.9,6,7,15];
 
     
-    figure(53);  
-    for xa = xa_
-        
-        fprintf('Analyzing xa: %f %s\n',xa,lu)
-        if 0%1
-            FindF16Dynamics
-        else
-            [A_lo,B_lo,C_lo,D_lo] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3);dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
-            C_lo
+    if PlotQ5
+        figure(53);  
+        for xa = xa_
+            
+            fprintf('Analyzing xa: %f %s\n',xa,lu)
+            if 0%1
+                FindF16Dynamics
+            else
+                [A_lo,B_lo,C_lo,D_lo] = linmod('LIN_F16Block', [trim_state_lin; trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3);dLEF; -trim_state_lin(8)*180/pi], [trim_thrust_lin; trim_control_lin(1); trim_control_lin(2); trim_control_lin(3)]);
+                %C_lo
+            end
+            if ApplyStateSpaceSimplification == 1
+                SimplifyStatespace
+            end
+            tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(NrStates)-A_lo))*B_lo(:,Ue))),e_minreal);
+            name = 'xa = ' + string(xa);
+            PlotElevatorStepInput(tf_Ue_Nz_, name)
+            hold on
         end
-        if ApplyStateSpaceSimplification == 1
-            SimplifyStatespace
-        end
-        tf_Ue_Nz_ = minreal(tf(C_lo(YNz,:) * (inv((s*eye(NrStates)-A_lo))*B_lo(:,Ue))),e_minreal);
-        name = 'xa = ' + string(xa);
-        PlotElevatorStepInput(tf_Ue_Nz_, name)
-        hold on
+        legend('Location','southeast')
+        ti = title('xa Shift');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        hold off
     end
-    legend('Location','southeast')
-    ti = title('xa Shift');
-    print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-    hold off
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.10                 \n')
@@ -725,12 +727,27 @@ if RunQ8
     fprintf('----------------------------------------\n')
 
     terrainfollow_inputs = [1,2];
-    terrainfollow_states = [3,7,8,5,11 , 13,14];
+    terrainfollow_states = [3,7,8,5,11];
     PrintStateNames(terrainfollow_states,"TerrainFollowing States: ")
-    A_terrainfollow = A_lo(terrainfollow_states,terrainfollow_states)
-    B_terrainfollow = B_lo(terrainfollow_states,terrainfollow_inputs)
-    C_terrainfollow = C_lo(terrainfollow_states,terrainfollow_states)
-    D_terrainfollow = D_lo(terrainfollow_states,terrainfollow_inputs)
+    
+    terrainfollow_states_ = [terrainfollow_states,13,14];
+    n_inputs = size(terrainfollow_inputs,2);
+    n_states = size(terrainfollow_states,2);
+    if 0%1
+        A_terrainfollow = A_lo(terrainfollow_states_,terrainfollow_states_)
+        B_terrainfollow = B_lo(terrainfollow_states_,terrainfollow_inputs)
+        C_terrainfollow = C_lo(terrainfollow_states_,terrainfollow_states_)
+        D_terrainfollow = D_lo(terrainfollow_states_,terrainfollow_inputs)
+    else
+        A_temp = A_lo(terrainfollow_states_,terrainfollow_states_);
+        A_terrainfollow = A_temp(1:n_states,1:n_states)
+        B_terrainfollow = A_temp(1:n_states,n_states+1:n_states+n_inputs)
+        C_temp = C_lo(terrainfollow_states_,terrainfollow_states_);
+        C_terrainfollow = C_temp(1:n_states,1:n_states)
+        D_terrainfollow = C_temp(1:n_states,n_states+1:n_states+n_inputs)
+    end
+
+    C_terrainfollow_inv = inv(C_terrainfollow);
     
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.3                  \n')
@@ -747,27 +764,13 @@ if RunQ8
 
     dh0 = h_terrainfollowing0-altitude0;
 
-    x_terrainfollow0 = [dh0,0,0,0,0 , 0,0]
-    
-    % thrust_terrainfollowing0
-
-    % simOut = sim('TerrainFollowing','SimulationMode','normal','AbsTol','1e-5',...
-    %         'SaveState','on','StateSaveName','xout',...
-    %         'SaveOutput','on','OutputSaveName','yout',...
-    %         'SaveFormat', 'Dataset');
-    % outputs = simOut.get('yout')
+    x_terrainfollow0    = zeros(1,n_states); %[dh0,0,0,0,0 , 0,0]
+    x_terrainfollow0(1) = dh0;
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.5                  \n')
     fprintf('----------------------------------------\n')
     
-    Q = eye(size(A_terrainfollow,1))
-    R = eye(size(B_terrainfollow,2))
-
-    [K,S,e] = lqr(A_terrainfollow,B_terrainfollow,Q,R)%N)
-    
-    UseOptimalControl = 0%1;
-
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.6                  \n')
     fprintf('----------------------------------------\n')
@@ -776,13 +779,52 @@ if RunQ8
     fprintf('                  Q8.7                  \n')
     fprintf('----------------------------------------\n')
 
+    %..............................
+    % Design Controller
+    %..............................
+    
+    UseOptimalControl = 1;%0;
+
+    Q = eye(size(A_terrainfollow,1));
+    R = eye(size(B_terrainfollow,2));
+
+    %--- Set Design Gains ---
+    Q(1,1) = 2; % h
+    Q(2,2) = 0.0001; % v
+    Q(3,3) = 0.0001; % alpha
+    Q(4,4) = 0.00001; % theta
+    Q(5,5) = 0.01; % q
+
+    R(1,1) = 0.01; % thrust
+    R(2,2) = 0.05; % elevator
+
+    %--- Show Matrices ---
+    Q
+    R
+
+    %--- Calculate LQR Gains ---
+    [K,S,e] = lqr(A_terrainfollow,B_terrainfollow,Q,R);
+    K
+    
+    %..............................
+    % Run Simulation
+    %..............................
+    
+    sim('TerrainFollowing')
+    
+    %..............................
+    % Evaluate Simulation
+    %..............................
+    
+    TerrainFollowingAltitude
+
 end
 
 %================================================================================
 % Addendum
 %================================================================================
 
-input('Press ENTER to close the Analysis...');
+%input('Press ENTER to close the Analysis...');
 close all
 
 %****************************************************************************************************
