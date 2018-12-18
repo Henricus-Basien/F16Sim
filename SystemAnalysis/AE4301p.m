@@ -93,11 +93,11 @@ if RunQ5
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
     if PlotQ5
-        figure(52);
-        grid on
-        pzmap(tf_Ue_Nz)
-        ti = title('Ue-YNz Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    	figure(52);
+    	grid on
+    	pzmap(tf_Ue_Nz)
+    	ti = title('Ue-YNz Pole-Zero Map');
+    	print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
     fprintf('----------------------------------------\n')
@@ -112,11 +112,10 @@ if RunQ5
 
     xa_ = [0,5,5.9,6,7,15];
 
-    
     if PlotQ5
         figure(53);  
         for xa = xa_
-            
+        
             fprintf('Analyzing xa: %f %s\n',xa,lu)
             if 0%1
                 FindF16Dynamics
@@ -137,7 +136,6 @@ if RunQ5
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         hold off
     end
-
     fprintf('----------------------------------------\n')
     fprintf('                  Q5.10                 \n')
     fprintf('----------------------------------------\n')
@@ -453,18 +451,21 @@ if RunQ7
     fprintf('----------------------------------------\n')
     
     %--- Aliases ---
-    alphaq_states = [8,11];
+
     Ue__     = 1;
     Xalpha__ = 1;
     Xq__     = 2;
-
-    %--- State space Matrices ---
-    PrintStateNames(alphaq_states,"alphaq_states: ")
-    A_alphaq = A_lo(alphaq_states,alphaq_states)
-    B_alphaq = [0;,-2*pi] %-20.2000]%-1]
-    C_alphaq = eye(2)
-    D_alphaq = zeros(2,1)
-
+    reduce2_states = [2 4];
+    reduce2_inputs = [2];
+    A_2state = A_long(reduce2_states,reduce2_states)
+    B_2state = B_long(reduce2_states,reduce2_inputs)
+    C_2state = C_long(reduce2_states,reduce2_states)
+    D_2state = D_long(reduce2_states,reduce2_inputs)
+    A_alphaq = A_2state;
+    B_alphaq = B_2state;
+    C_alphaq = C_2state;
+    D_alphaq = D_2state;
+        
     fprintf('----------------------------------------\n')
     fprintf('                  Q7.2                  \n')
     fprintf('----------------------------------------\n')
@@ -476,21 +477,23 @@ if RunQ7
     
     if PlotQ7
         figure(74)
-        grid on
+        hold on
+        %grid on
         [y1,t] = step(tf_long_Ue_q,T);
         plot(t,y1)
-        xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         ti = title('2-State Ue-q Step');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-        figure(75)
-        grid on
+        %figure(75)
+        %grid on
         [y2,t] = step(tf_long_Ue_q_4,T);
         plot(t,y2)
         xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
-        ti = title('4-State Ue-q Step');
+        ti = title('n-State Ue-q Step');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-
+        legend('2-State', '4-State')
+        hold off
+        
         figure(76)
         grid on
         ydiff = y2-y1;
@@ -535,11 +538,19 @@ if RunQ7
 
     poles_design = [real_design+1i*imag_design,real_design-1i*imag_design]
     Compensator_1  = zpk(tf_long_Ue_q_poles,poles_design,1)
-
-    %--- Time constant ---
-    [k,TC] = GetTC(tf_long_Ue_q);
     
-    Compensator_2 = (1+s*TC_design)/(1+s*TC)
+    K = place(A_alphaq, B_alphaq, poles_design);
+    kq = K(2);
+    kalpha = K(1);
+    [y1 t] = step(tf_long_Ue_q);
+    [y2 t] = step(tf_long_Ue_q * Compensator_1);
+    KComp = y1(end)/y2(end)
+    Compensator_1 = Compensator_1 * KComp
+    
+    %--- Time constant ---
+    T_theta = GetT_theta(tf_long_Ue_q*Compensator_1);
+    
+    Compensator_2 = (1+s*TC_design)/(1+s*T_theta)
 
     %--- Combine ---
     Compensator = minreal(Compensator_1*Compensator_2,e_minreal)
@@ -592,15 +603,13 @@ if RunQ7
     % Check Gains
     %..............................
     
-    [k,TC] = GetTC(tf_long_Ue_q_design);
-    kq = k % [deg/(rad/s)]
+    TC = GetT_theta(tf_long_Ue_q * Compensator_1);
 
     tf_long_Ue_alpha        = minreal(tf(C_alphaq(Xalpha__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
-    tf_long_Ue_alpha_design = minreal(tf_long_Ue_alpha * Compensator,e_minreal)
+    tf_long_Ue_alpha_design = minreal(tf_long_Ue_alpha * Compensator_1,e_minreal)
 
-    [k,TC] = GetTC(tf_long_Ue_alpha_design);
-    kalpha = k % [deg/rad]
-
+    TC = GetT_theta(tf_long_Ue_alpha_design);
+    
     %..............................
     % Gust Case
     %..............................
@@ -639,9 +648,14 @@ if RunQ7
 
     %-------
     % Calc CAP and Gibson
+    v = velocity0;
+    if ~USE_SI_UNITS
+        v = v*feet_to_m; 
+    end
+    
     [wn,dr,P,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_design_poles);
     [k,TC] = GetTC(tf_long_Ue_q_design);
-    CAP = g0 * wn^2 * TC / velocity0;
+    CAP = g0 * wn^2 * TC / v;
     DBqss = TC - 2*dr / wn;
     
     opt = stepDataOptions('StepAmplitude', -1);
@@ -650,8 +664,8 @@ if RunQ7
     qmqs = S.Peak / y(end);
     
     if PlotQ7 %Plots of CAP criteria
-        %{
         figure(761)
+        subplot(2,2,1)
         hold on
         grid on
         title('Flight Phase Category A');
@@ -662,11 +676,10 @@ if RunQ7
         loglog([0.13 0.13],[0.01 10], 'k');
         rectangle('Position', [0.25 0.16 1.75 9.84]);
         rectangle('Position', [0.3 0.28 0.9 3.32]);
-        loglog(dr, CAP, ".");
+        loglog(dr, CAP, "x");
         hold off
-        %}
-
-        figure(762)
+        
+        subplot(2,2,2)
         hold on
         grid on
         title('Flight Phase Category B');
@@ -677,7 +690,21 @@ if RunQ7
         loglog([0.15 0.15],[0.01 10], 'k');
         rectangle('Position', [0.2 0.038 1.8 9.962]);
         rectangle('Position', [0.3 0.085 1.7 3.515]);
-        loglog(dr, CAP, ".");
+        loglog(dr, CAP, "x");
+        hold off
+        
+        subplot(2,2,3)
+        hold on
+        grid on
+        title('Flight Phase Category C');
+        set(gca, 'XScale', 'log');
+        set(gca, 'YScale', 'log');
+        xlim([0.01 10]);
+        ylim([0.01 10]);
+        loglog([0.15 0.15],[0.01 10], 'k');
+        rectangle('Position', [0.25 0.005 1.75 9.985]);
+        rectangle('Position', [0.35 0.16 0.95 3.44]);
+        loglog(dr, CAP, "x");
         hold off
     end
     
@@ -685,11 +712,11 @@ if RunQ7
        figure(764)
        hold on
        grid on
-       title('Gibson Criteria');
+       title('Gibson Criterion');
        v = [0 1; 0 3; 0.06 3; 0.3 1];
        f = [1 2 3 4];
        patch('Faces', f, 'Vertices', v, 'FaceColor', 'none');
-       plot(DBqss, qmqs, ".");
+       plot(DBqss, qmqs, "x");
        hold off
     end
     
@@ -770,8 +797,15 @@ if RunQ8
 
     dh0 = h_terrainfollowing0-altitude0;
 
-    x_terrainfollow0    = zeros(1,n_states); %[dh0,0,0,0,0 , 0,0]
-    x_terrainfollow0(1) = dh0;
+    x_terrainfollow0 = [dh0,0,0,0,0 , 0,0]
+    
+    % thrust_terrainfollowing0
+
+    % simOut = sim('TerrainFollowing','SimulationMode','normal','AbsTol','1e-5',...
+    %         'SaveState','on','StateSaveName','xout',...
+    %         'SaveOutput','on','OutputSaveName','yout',...
+    %         'SaveFormat', 'Dataset');
+    % outputs = simOut.get('yout')
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.5                  \n')
@@ -954,18 +988,18 @@ end
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 function PlotElevatorStepInput(tf_, name)
-    opt = stepDataOptions('StepAmplitude', -1);
-    T = 0:0.01:6;   
-    grid on
-    [y,t] = step(tf_, T, opt);
+	opt = stepDataOptions('StepAmplitude', -1);
+	T = 0:0.01:6;   
+	grid on
+	[y,t] = step(tf_, T, opt);
     if (name == '')
-    plot(t,y);
+	plot(t,y);
     else
-    plot(t,y, 'DisplayName',name);
+	plot(t,y, 'DisplayName',name);
     end
-    title('Negative Elevator step input');
-    xlabel('Time [s]');
-    ylabel('Normal acceleration in z [g]');
+	title('Negative Elevator step input');
+	xlabel('Time [s]');
+	ylabel('Normal acceleration in z [g]');
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1021,10 +1055,17 @@ end
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 function [k ,TC] = GetTC(tf)
-    [num_, den_] = tfdata(tf);
-    num = num_{1};
-    k   = num(3);
+    global e_minreal
+    [num_, den_] = tfdata(minreal(tf, e_minreal));
+    num = fliplr(num_{1});
+    k   = num(1);
     TC  = num(2)/k; 
+end
+
+function [T_theta] = GetT_theta(tf)
+    global e_minreal
+    tf_ = minreal(tf, e_minreal);
+    T_theta = -1 / zero(tf_)
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1055,8 +1096,8 @@ function CheckShortPeriodDesign(sys,poles,name)
     %----------------------------------------
     
     [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
-    [k,TC] = GetTC(sys);
-
+    TC = GetT_theta(sys);
+    
     %----------------------------------------
     % Compare
     %----------------------------------------
