@@ -479,6 +479,7 @@ if RunQ7
         grid on
         [y1,t] = step(tf_long_Ue_q,T);
         plot(t,y1)
+        xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         ti = title('2-State Ue-q Step');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
@@ -486,6 +487,7 @@ if RunQ7
         grid on
         [y2,t] = step(tf_long_Ue_q_4,T);
         plot(t,y2)
+        xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         ti = title('4-State Ue-q Step');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
@@ -493,6 +495,7 @@ if RunQ7
         grid on
         ydiff = y2-y1;
         plot(t,ydiff)
+        xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         ti = title('2-4-State Ue-q Step Difference');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
@@ -548,8 +551,7 @@ if RunQ7
     if PlotQ7
         figure(78)
         grid on
-        [y_design,t] = step(Compensator ,T);
-        plot(t,y_design)
+        step(Compensator ,T);
         ti = title('Short Period - Compensator');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
@@ -573,6 +575,7 @@ if RunQ7
         figure(712)
         step(tf_long_Ue_q_design)
         ti = title('Short Period - Design');
+        xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
         figure(713)
@@ -602,24 +605,26 @@ if RunQ7
     % Gust Case
     %..............................
     
-    v_gust = 4.572; % [m/s]
+    if 0
+        v_gust = 4.572; % [m/s]
 
-    if ~USE_SI_UNITS
-        v_gust = v_gust/feet_to_m;
-    end
+        if ~USE_SI_UNITS
+            v_gust = v_gust/feet_to_m;
+        end
 
-    d_alpha        = atan(v_gust/velocity0); % [rad]
-    d_alpha_deg    = d_alpha*180/pi
-    d_elevator     = d_alpha_deg/kalpha; %kalpha*d_alpha
-    d_elevator_deg = d_elevator*180/pi
-    
-    if PlotQ7
-        figure(714)
-        opt = stepDataOptions('StepAmplitude', d_elevator);
-        T = 0:0.01:10;  
-        step(tf_long_Ue_q_design,T,opt)
-        ti = title('Short Period - Gust');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        d_alpha        = atan(v_gust/velocity0); % [rad]
+        d_alpha_deg    = d_alpha*180/pi
+        d_elevator     = d_alpha_deg/kalpha; %kalpha*d_alpha
+        d_elevator_deg = d_elevator*180/pi
+        
+        if PlotQ7
+            figure(714)
+            opt = stepDataOptions('StepAmplitude', d_elevator);
+            T = 0:0.01:10;  
+            step(tf_long_Ue_q_design,T,opt)
+            ti = title('Short Period - Gust');
+            print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        end
     end
     
     fprintf('----------------------------------------\n')
@@ -845,6 +850,8 @@ if RunQ8
 
         figure(82)
         plot(t,height_over_ground, 'DisplayName','Height over Ground')
+        yline(40-1);
+        yline(40+1);    
         ti = title('TerrainFollowing - Height over Ground');
         xlabel('Time [s]');
         ylabel('Height [m]');
