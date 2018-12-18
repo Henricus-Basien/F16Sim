@@ -690,6 +690,9 @@ if RunQ8
 
     FindF16Dynamics
 
+    thrust0   = xu_lo(13)
+    elevator0 = xu_lo(14)
+
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.2                  \n')
     fprintf('----------------------------------------\n')
@@ -721,16 +724,23 @@ if RunQ8
     
     % thrust_terrainfollowing0
 
-    simOut = sim('TerrainFollowing','SimulationMode','normal','AbsTol','1e-5',...
-            'SaveState','on','StateSaveName','xout',...
-            'SaveOutput','on','OutputSaveName','yout',...
-            'SaveFormat', 'Dataset');
-    outputs = simOut.get('yout')
+    % simOut = sim('TerrainFollowing','SimulationMode','normal','AbsTol','1e-5',...
+    %         'SaveState','on','StateSaveName','xout',...
+    %         'SaveOutput','on','OutputSaveName','yout',...
+    %         'SaveFormat', 'Dataset');
+    % outputs = simOut.get('yout')
 
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.5                  \n')
     fprintf('----------------------------------------\n')
     
+    Q = eye(size(A_terrainfollow,1))
+    R = eye(size(B_terrainfollow,2))
+
+    [K,S,e] = lqr(A_terrainfollow,B_terrainfollow,Q,R)%N)
+    
+    UseOptimalControl = 0%1;
+
     fprintf('----------------------------------------\n')
     fprintf('                  Q8.6                  \n')
     fprintf('----------------------------------------\n')

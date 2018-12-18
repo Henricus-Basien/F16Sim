@@ -35,13 +35,13 @@
 	% Exercises
 	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-	RunQ5 = 1;
-	RunQ6 = 1;
-	RunQ7 = 1;
+	RunQ5 = 0;%1;
+	RunQ6 = 0;%1;
+	RunQ7 = 0;%1;
 	RunQ8 = 1;
 
 	figpath ='OutputFigures';
-    if exist(figpath, 'dir')
+    if ~exist(figpath, 'dir')
         mkdir(figpath)
     end
 	figext  = '.png';
@@ -81,6 +81,24 @@
 	end
 
 	SettingSet = 1;
+
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	% Limits
+	%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	
+	thrust_max = 19000 % [lbf]
+	thrust_min = 1000  % [lbf]
+
+	if USE_SI_UNITS
+		thrust_max = thrust_max*lbf_to_N
+		thrust_min = thrust_min*lbf_to_N
+	end
+
+	elevator_max =  25 % [deg]
+	elevator_min = -25 % [deg]
+
+	
+
 	disp("Settings are set!")
 %end
 
