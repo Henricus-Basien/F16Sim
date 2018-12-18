@@ -784,6 +784,11 @@ if RunQ8
         D_terrainfollow = C_temp(1:n_states,n_states+1:n_states+n_inputs)
     end
 
+    % ConvertToLaTeX(A_terrainfollow)
+    % ConvertToLaTeX(B_terrainfollow)
+    % ConvertToLaTeX(C_terrainfollow)
+    % ConvertToLaTeX(D_terrainfollow)
+
     C_terrainfollow_inv = inv(C_terrainfollow);
     
     fprintf('----------------------------------------\n')
