@@ -93,11 +93,11 @@ if RunQ5
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
     if PlotQ5
-    	figure(52);
-    	grid on
-    	pzmap(tf_Ue_Nz)
-    	ti = title('Ue-YNz Pole-Zero Map');
-    	print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        figure(52);
+        grid on
+        pzmap(tf_Ue_Nz)
+        ti = title('Ue-YNz Pole-Zero Map');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
     fprintf('----------------------------------------\n')
@@ -472,7 +472,7 @@ if RunQ7
     tf_long_Ue_q   = minreal(tf(C_alphaq(Xq__    ,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__    ))),e_minreal)
     tf_long_Ue_q_4 = minreal(tf(C_long  (Xq_long ,:) * (inv((s*eye(size(A_long  ,1))-A_long  ))*B_long  (:,Ue_long ))),e_minreal)
 
-	T = 0:0.01:7;
+    T = 0:0.01:7;
     
     if PlotQ7
         figure(74)
@@ -795,13 +795,13 @@ if RunQ8
     R = eye(size(B_terrainfollow,2));
 
     %--- Set Design Gains ---
-    Q(1,1) = 2; % h
-    Q(2,2) = 0.0001; % v
+    Q(1,1) = 1.8; % h
+    Q(2,2) = 0.17; % v
     Q(3,3) = 0.0001; % alpha
     Q(4,4) = 0.00001; % theta
     Q(5,5) = 0.01; % q
 
-    R(1,1) = 0.01; % thrust
+    R(1,1) = 0.005; % thrust
     R(2,2) = 0.05; % elevator
 
     %--- Show Matrices ---
@@ -822,17 +822,64 @@ if RunQ8
     % Evaluate Simulation
     %..............................
     
+    t = TerrainFollowing_Output_Altitude.time;
+    [altitude,altitude_ref,altitude_ground] = TerrainFollowing_Output_Altitude.signals.values;
+    [altitude_err,height_over_ground]       = TerrainFollowing_Output_AltitudeError.signals.values;
+    [thrust_inputs]                         = TerrainFollowing_Output_Thrust.signals.values;
+    [elevator_inputs]                       = TerrainFollowing_Output_Elevator.signals.values;
+    
     % TerrainFollowing_Output_Altitude
     % TerrainFollowing_Output_AltitudeError
     % TerrainFollowing_Output_Thrust
     % TerrainFollowing_Output_Elevator
+    
+    %--- Minimum Safety margin Criterion ---
+    d_alt_crit = 20 % [m]
 
-    t = TerrainFollowing_Output_Altitude.time;
+    dalt_min = min(height_over_ground)
+    if dalt_min<d_alt_crit
+       fprintf('WARNING: The height over ground is <%f m, please reconsider your design!\n',d_alt_crit) 
+    end
 
+    %--- Maximum Overshoot Criterion ---
+    c_overshoot_max = 1.0 % [m]
+
+    Constant_ref = false;
+    Ref_reached = false;
+    Pre_ref = 0;
+
+    for i = 1:(numel(t)-1)
+        %.. Constant Reference? ..
+        if altitude_ref(i)-altitude_ref(i+1) == 0
+            %fprintf('Constant Altitude %f\n',altitude_ref(i))
+            if ~Constant_ref
+                Ref_reached = false;
+                Pre_ref = altitude_err(i);
+            end
+            Constant_ref = true;
+        else
+            Constant_ref = false;
+        end
+        if Constant_ref
+            if ~Ref_reached
+                if ~ (sign(altitude_err(i)) - sign(Pre_ref) == 0)
+                    Ref_reached = true;
+                    fprintf('Comstant Reference Reached @ t=%f \n',t(i));
+                end
+            else
+                if abs(altitude_err(i))>c_overshoot_max
+                    fprintf('WARNING: The constant reference overshoot is %f>%f m (@t=%f), please reconsider your design!\n',altitude_err(i),c_overshoot_max,t(i))
+                end
+            end
+        end
+    end
+    
+    %..............................
+    % Plot Simulation
+    %..............................
+    
     if PlotQ8
         %--- Altitude ---
-        [altitude,altitude_ref,altitude_ground] = TerrainFollowing_Output_Altitude.signals.values;
-
         figure(81)
         hold on
         plot(t,altitude       , 'DisplayName','Altitude'        )
@@ -846,21 +893,19 @@ if RunQ8
         hold off
 
         %--- Altitude-Error ---
-        [altitude_err,height_over_ground] = TerrainFollowing_Output_AltitudeError.signals.values;
-
         figure(82)
         plot(t,height_over_ground, 'DisplayName','Height over Ground')
-        yline(40-1);
-        yline(40+1);    
+        yline(d_alt_crit);
+        yline(40- c_overshoot_max);
+        yline(40);
+        yline(40+c_overshoot_max);    
         ti = title('TerrainFollowing - Height over Ground');
         xlabel('Time [s]');
         ylabel('Height [m]');
+        ylim([d_alt_crit-1,max(height_over_ground)+1])
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
         %--- Inputs ---
-        [thrust_inputs]   = TerrainFollowing_Output_Thrust.signals.values;
-        [elevator_inputs] = TerrainFollowing_Output_Elevator.signals.values;
-
         figure(83)
         hold on
         plot(t,thrust_inputs  +thrust0  , 'DisplayName','Thrust'  )
@@ -909,18 +954,18 @@ end
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 function PlotElevatorStepInput(tf_, name)
-	opt = stepDataOptions('StepAmplitude', -1);
-	T = 0:0.01:6;   
-	grid on
-	[y,t] = step(tf_, T, opt);
+    opt = stepDataOptions('StepAmplitude', -1);
+    T = 0:0.01:6;   
+    grid on
+    [y,t] = step(tf_, T, opt);
     if (name == '')
-	plot(t,y);
+    plot(t,y);
     else
-	plot(t,y, 'DisplayName',name);
+    plot(t,y, 'DisplayName',name);
     end
-	title('Negative Elevator step input');
-	xlabel('Time [s]');
-	ylabel('Normal acceleration in z [g]');
+    title('Negative Elevator step input');
+    xlabel('Time [s]');
+    ylabel('Normal acceleration in z [g]');
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

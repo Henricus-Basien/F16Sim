@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.53"
+    ComputedModelVersion    "1.54"
     NumModelReferences	    1
     ModelReference {
       ModelRefBlockPath	      "TerrainFollowing/Reference Height [m]|canyongenerator"
@@ -116,8 +116,8 @@ Model {
 	ViewObjType		"SimulinkTopLevel"
 	LoadSaveID		"0"
 	Extents			[1882.0, 885.0]
-	ZoomFactor		[1.0]
-	Offset			[1103.1782806369843, -638.48963902310425]
+	ZoomFactor		[1.75]
+	Offset			[-376.26726295879763, -48.683429998656692]
       }
       Object {
 	$PropName		"DockComponentsInfo"
@@ -151,9 +151,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "Hyperion"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Dec 18 15:29:18 2018"
-  RTWModifiedTimeStamp	  467046915
-  ModelVersionFormat	  "1.%<AutoIncrement:53>"
+  LastModifiedDate	  "Tue Dec 18 22:25:16 2018"
+  RTWModifiedTimeStamp	  467072598
+  ModelVersionFormat	  "1.%<AutoIncrement:54>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
   LibraryLinkDisplay	  "disabled"
@@ -1302,9 +1302,9 @@ Model {
     TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
     TiledPageScale	    1
     ShowPageBoundaries	    off
-    ZoomFactor		    "100"
+    ZoomFactor		    "175"
     ReportName		    "simulink-default.rpt"
-    SIDHighWatermark	    "156"
+    SIDHighWatermark	    "157"
     Block {
       BlockType		      Sum
       Name		      "Add"
@@ -2150,6 +2150,34 @@ Model {
     }
     Block {
       BlockType		      Scope
+      Name		      "Scope"
+      SID		      "157"
+      Ports		      [1]
+      Position		      [15, -21, 45, 11]
+      ZOrder		      359
+      ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
+      "gr.Configuration('Core','General UI',true),extmgr.Configuration('Core','Source UI',true),extmgr.Configuration('S"
+      "ources','WiredSimulink',true,'DataLoggingVariableName','ScopeData1'),extmgr.Configuration('Visuals','Time Domain"
+      "',true,'SerializedDisplays',{struct('MinYLimReal','-61.29319','MaxYLimReal','70.74935','YLabelReal','','MinYLimM"
+      "ag','0.00000','MaxYLimMag','70.74935','LegendVisibility','off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'A"
+      "xesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.06"
+      "66666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.8"
+      "31372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215"
+      "686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLi"
+      "nes',5,'LineNames',{{'Recombine:1','Recombine:2','Recombine:3','Recombine:4','Recombine:5'}},'ShowContent',true,"
+      "'Placement',1)},'DisplayPropertyDefaults',struct('MinYLimReal','-61.29319','MaxYLimReal','70.74935','YLabelReal'"
+      ",'','MinYLimMag','0.00000','MaxYLimMag','70.74935','LegendVisibility','off','XGrid',true,'YGrid',true,'PlotMagPh"
+      "ase',false,'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrd"
+      "er',[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647"
+      "058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0."
+      "0745098039215686 0.650980392156863])),extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration("
+      "'Tools','Measurements',true,'Version','2018b')),'Version','2018b','Position',[1 38 1920 969],'VisibleAtModelOpen"
+      "','on')"
+      NumInputPorts	      "1"
+      Floating		      off
+    }
+    Block {
+      BlockType		      Scope
       Name		      "Scope:\nAlpha\nTheta\nq\nflightpath"
       SID		      "46"
       Ports		      [4]
@@ -2202,7 +2230,7 @@ Model {
       "921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.65"
       "0980392156863])),extmgr.Configuration('Tools','Plot Navigation',true,'OnceAtStop',false,'PreviousZoomMode','Pan'"
       "),extmgr.Configuration('Tools','Measurements',true,'Version','2018b')),'Version','2018b','Position',[-1915 -253 "
-      "952 959],'OpenAtMdlStart',true)"
+      "952 959],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
       NumInputPorts	      "3"
       Floating		      off
     }
@@ -2304,23 +2332,23 @@ Model {
       ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
       "gr.Configuration('Core','General UI',true),extmgr.Configuration('Core','Source UI',true),extmgr.Configuration('S"
       "ources','WiredSimulink',true,'DataLoggingVariableName','ScopeData8'),extmgr.Configuration('Visuals','Time Domain"
-      "',true,'SerializedDisplays',{struct('MinYLimReal','-34.77512','MaxYLimReal','312.97605','YLabelReal','','MinYLim"
-      "Mag','0.00000','MaxYLimMag','312.97605','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,"
+      "',true,'SerializedDisplays',{struct('MinYLimReal','-34.77499','MaxYLimReal','312.97495','YLabelReal','','MinYLim"
+      "Mag','0.00000','MaxYLimMag','312.97495','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,"
       "'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0."
       "0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0"
       ".831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.07450980392"
       "15686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'Num"
       "Lines',2,'LineNames',{{'Cost Total','Cost Average'}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults"
-      "',struct('MinYLimReal','-34.77512','MaxYLimReal','312.97605','YLabelReal','','MinYLimMag','0.00000','MaxYLimMag'"
-      ",'312.97605','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTi"
+      "',struct('MinYLimReal','-34.77499','MaxYLimReal','312.97495','YLabelReal','','MinYLimMag','0.00000','MaxYLimMag'"
+      ",'312.97495','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTi"
       "ckColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764"
       "706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156"
       "862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),"
       "extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration('Tools','Measurements',true,'Version',"
       "'2018b','Measurements',struct('traceselector',struct('Line',2),'peaks',struct('Threshold',0,'NumPeaks',3,'MinPea"
       "kDistance',1,'MinPeakHeight',-Inf,'SortByXAxis',false,'TextLabelFormat',1,'TextIndices',[],'SortAscending',false"
-      ",'SettingsPanelOpen',0,'PeaksPanelOpen',1)))),'Version','2018b','Position',[1 36 1920 941],'OpenAtMdlStart',true"
-      ")"
+      ",'SettingsPanelOpen',0,'PeaksPanelOpen',1)))),'Version','2018b','Position',[1 36 1920 941],'VisibleAtModelOpen',"
+      "'on','OpenAtMdlStart',true)"
       NumInputPorts	      "2"
       Floating		      off
     }
@@ -3455,9 +3483,19 @@ Model {
       ZOrder		      504
       SrcBlock		      "Recombine"
       SrcPort		      1
-      Points		      [20, 0; 0, 32; 78, 0; 0, -22]
-      DstBlock		      "LQR Input"
-      DstPort		      2
+      Points		      [16, 0]
+      Branch {
+	ZOrder			649
+	Points			[0, -180]
+	DstBlock		"Scope"
+	DstPort			1
+      }
+      Branch {
+	ZOrder			648
+	Points			[4, 0; 0, 32; 78, 0; 0, -22]
+	DstBlock		"LQR Input"
+	DstPort			2
+      }
     }
     Line {
       ZOrder		      507
@@ -3761,10 +3799,7 @@ Model {
       DropShadow	      on
       AnnotationType	      "area_annotation"
       ZOrder		      3861
-      FontName		      "Helvetica"
       FontSize		      12
-      FontWeight	      "normal"
-      FontAngle		      "normal"
     }
   }
 }
