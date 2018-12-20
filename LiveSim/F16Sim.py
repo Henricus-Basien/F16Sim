@@ -634,6 +634,9 @@ if __name__=="__main__":
 
     func = RunF16Sim
 
+    raw_input("Press ENTER to run Simulation...")
+    sim.Init_Time()
+
     if RunThreaded:
 
         t = Thread(target=func)#UpdateVisuals)
