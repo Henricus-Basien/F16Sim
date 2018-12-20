@@ -24,7 +24,7 @@ global altitude velocity fi_flag_Simulink
 global phi psi p q r phi_weight theta_weight psi_weight
 
 global lu fu
-global AcceptFirstIteration FlightCondition
+global NrIteration FlightCondition
 
 altitude = alt;
 velocity = vel;
@@ -73,16 +73,19 @@ end
 % Initializing optimization options and running optimization:
 OPTIONS = optimset('TolFun',1e-10,'TolX',1e-10,'MaxFunEvals',5e+04,'MaxIter',1e+04);
 
+iterNr = 0;
 iter = 1;
 while iter == 1
+    iterNr = iterNr+1;
+    fprintf('Running iteration #%d...\n',iterNr);
    
     [UX,FVAL,EXITFLAG,OUTPUT] = fminsearch('trimfun',UX0,OPTIONS);
    
     [cost, Xdot, xu] = trimfun(UX);
     
-    fprintf('Trim Values and Cost:  \n'            );
+    fprintf('Trim Values and Cost:  \n'               );
     fprintf('cost   = %f \t         \n' ,cost         );
-    fprintf('thrust = %f \t '+fu+'      \n' ,xu(13)       );
+    fprintf('thrust = %f \t '+fu+'  \n' ,xu(13)       );
     fprintf('elev   = %f \t deg     \n' ,xu(14)       );
     fprintf('ail    = %f \t deg     \n' ,xu(15)       );
     fprintf('rud    = %f \t deg     \n' ,xu(16)       );
@@ -91,14 +94,26 @@ while iter == 1
     fprintf('Vel.   = %f \t '+lu+'/s\n' ,velocity     );
 
 
-    if exist("AcceptFirstIteration") == 0 || isempty(AcceptFirstIteration)
+    if exist("NrIteration") == 0
         flag = input('Continue trim routine iterations? (y/n):  ','s'); 
         if flag == 'n'
             iter = 0;
         end
     else
-        iter = 0;
+        if iterNr<NrIteration 
+            iter = 1;
+        else
+            iter = 0;
+        end
     end
+    % if exist("AcceptFirstIteration") == 0 || isempty(AcceptFirstIteration)
+    %     flag = input('Continue trim routine iterations? (y/n):  ','s'); 
+    %     if flag == 'n'
+    %         iter = 0;
+    %     end
+    % else
+    %     iter = 0;
+    % end
     UX0 = UX;
 end
 

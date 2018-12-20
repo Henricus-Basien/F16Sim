@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.55"
+    ComputedModelVersion    "1.87"
     NumModelReferences	    1
     ModelReference {
       ModelRefBlockPath	      "TerrainFollowing/Reference Height [m]|canyongenerator"
@@ -20,7 +20,7 @@ Model {
     PreCompExecutionDomainType "Unset"
     IsExportFunctionModel   0
     NumParameterArguments   0
-    NumExternalFileReferences 4
+    NumExternalFileReferences 6
     ExternalFileReference {
       Reference		      "simulink/Sinks/XY Graph"
       Path		      "TerrainFollowing/Cost"
@@ -38,6 +38,18 @@ Model {
       Path		      "TerrainFollowing/Reference Height [m]"
       SID		      "1"
       Type		      "MODEL_BLOCK"
+    }
+    ExternalFileReference {
+      Reference		      "simulink/Continuous/PID Controller"
+      Path		      "TerrainFollowing/dalt PID"
+      SID		      "164"
+      Type		      "LIBRARY_BLOCK"
+    }
+    ExternalFileReference {
+      Reference		      "simulink/Continuous/PID Controller"
+      Path		      "TerrainFollowing/dfp PID"
+      SID		      "165"
+      Type		      "LIBRARY_BLOCK"
     }
     ExternalFileReference {
       Reference		      "simulink/Sinks/XY Graph"
@@ -116,8 +128,8 @@ Model {
 	ViewObjType		"SimulinkTopLevel"
 	LoadSaveID		"0"
 	Extents			[1882.0, 885.0]
-	ZoomFactor		[0.8]
-	Offset			[-261.04378286199085, -399.02093392935978]
+	ZoomFactor		[2.0]
+	Offset			[1219.2374607989134, 53.007153419225915]
       }
       Object {
 	$PropName		"DockComponentsInfo"
@@ -151,9 +163,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "Hyperion"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Dec 19 01:07:47 2018"
-  RTWModifiedTimeStamp	  467082453
-  ModelVersionFormat	  "1.%<AutoIncrement:55>"
+  LastModifiedDate	  "Thu Dec 20 16:56:01 2018"
+  RTWModifiedTimeStamp	  467225731
+  ModelVersionFormat	  "1.%<AutoIncrement:87>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
   LibraryLinkDisplay	  "disabled"
@@ -277,10 +289,10 @@ Model {
 	  MaxConsecutiveZCs	  "1000"
 	  ExtrapolationOrder	  4
 	  NumberNewtonIterations  1
-	  MaxStep		  "auto"
-	  MinStep		  "auto"
+	  MaxStep		  "0.01"
+	  MinStep		  "0.0000001"
 	  MaxConsecutiveMinStep	  "1"
-	  RelTol		  "1e-3"
+	  RelTol		  "1e-0"
 	  EnableMultiTasking	  off
 	  ConcurrentTasks	  off
 	  Solver		  "VariableStepAuto"
@@ -288,9 +300,9 @@ Model {
 	  SolverJacobianMethodControl "auto"
 	  ShapePreserveControl	  "DisableAll"
 	  ZeroCrossControl	  "UseLocalSettings"
-	  ZeroCrossAlgorithm	  "Nonadaptive"
+	  ZeroCrossAlgorithm	  "Adaptive"
 	  AlgebraicLoopSolver	  "TrustRegion"
-	  SolverInfoToggleStatus  off
+	  SolverInfoToggleStatus  on
 	  IsAutoAppliedInSIP	  off
 	  SolverResetMethod	  "Fast"
 	  PositivePriorityOrder	  off
@@ -443,7 +455,7 @@ Model {
 	  TimeAdjustmentMsg	  "none"
 	  MaxConsecutiveZCsMsg	  "error"
 	  MaskedZcDiagnostic	  "warning"
-	  IgnoredZcDiagnostic	  "warning"
+	  IgnoredZcDiagnostic	  "none"
 	  SolverPrmCheckMsg	  "none"
 	  InheritedTsInSrcMsg	  "warning"
 	  MultiTaskDSMMsg	  "error"
@@ -1302,15 +1314,15 @@ Model {
     TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
     TiledPageScale	    1
     ShowPageBoundaries	    off
-    ZoomFactor		    "80"
+    ZoomFactor		    "200"
     ReportName		    "simulink-default.rpt"
-    SIDHighWatermark	    "157"
+    SIDHighWatermark	    "167"
     Block {
       BlockType		      Sum
       Name		      "Add"
       SID		      "53"
       Ports		      [2, 1]
-      Position		      [1765, 142, 1795, 173]
+      Position		      [1810, 142, 1840, 173]
       ZOrder		      301
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -1350,21 +1362,30 @@ Model {
       SaturateOnIntegerOverflow	off
     }
     Block {
-      BlockType		      Gain
+      BlockType		      Sum
       Name		      "Alpha"
-      SID		      "47"
-      Position		      [745, 185, 775, 215]
-      ZOrder		      294
-      ParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      SID		      "158"
+      Ports		      [2, 1]
+      Position		      [785, 192, 815, 223]
+      ZOrder		      359
+      InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Alpha0"
+      SID		      "159"
+      Position		      [725, 230, 765, 260]
+      ZOrder		      360
+      Value		      "alpha0"
     }
     Block {
       BlockType		      Sum
       Name		      "Altitude"
       SID		      "44"
       Ports		      [2, 1]
-      Position		      [830, 42, 860, 73]
+      Position		      [785, 42, 815, 73]
       ZOrder		      291
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -1408,7 +1429,7 @@ Model {
       BlockType		      Constant
       Name		      "Altitude0"
       SID		      "43"
-      Position		      [770, 80, 810, 110]
+      Position		      [725, 80, 765, 110]
       ZOrder		      290
       Value		      "altitude0"
     }
@@ -1423,7 +1444,7 @@ Model {
       BlockType		      Constant
       Name		      "Constant"
       SID		      "153"
-      Position		      [565, 150, 655, 170]
+      Position		      [555, 150, 645, 170]
       ZOrder		      357
       BlockRotation	      270
       NamePlacement	      "alternate"
@@ -1475,7 +1496,7 @@ Model {
       Name		      "Demux"
       SID		      "20"
       Ports		      [1, 5]
-      Position		      [715, 9, 725, 391]
+      Position		      [680, 9, 690, 391]
       ZOrder		      20
       ShowName		      off
       Outputs		      "5"
@@ -1567,7 +1588,7 @@ Model {
       Name		      "F16 State-Space"
       SID		      "17"
       Ports		      [1, 1]
-      Position		      [580, 183, 640, 217]
+      Position		      [570, 183, 630, 217]
       ZOrder		      17
       A			      "A_terrainfollow"
       B			      "B_terrainfollow"
@@ -1602,6 +1623,7 @@ Model {
       Ports		      [2, 1]
       Position		      [970, 427, 1000, 458]
       ZOrder		      313
+      Inputs		      "+-"
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
@@ -1643,7 +1665,7 @@ Model {
       Name		      "Flightpath x-comp"
       SID		      "35"
       Ports		      [1, 1]
-      Position		      [905, 260, 935, 290]
+      Position		      [970, 270, 1000, 300]
       ZOrder		      282
       Operator		      "cos"
     }
@@ -2103,7 +2125,7 @@ Model {
 	port0			"on"
       }
       ContentPreviewEnabled   on
-      ModelReferenceVersion   "1.8"
+      ModelReferenceVersion   "1.9"
       List {
 	ListType		InputPortNames
 	port0			"x"
@@ -2159,20 +2181,20 @@ Model {
       ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
       "gr.Configuration('Core','General UI',true),extmgr.Configuration('Core','Source UI',true),extmgr.Configuration('S"
       "ources','WiredSimulink',true,'DataLoggingVariableName','ScopeData3'),extmgr.Configuration('Visuals','Time Domain"
-      "',true,'SerializedDisplays',{struct('MinYLimReal','-55.88225','MaxYLimReal','46.89003','YLabelReal','','MinYLimM"
-      "ag','0.00000','MaxYLimMag','55.88225','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'A"
-      "xesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.06"
-      "66666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.8"
-      "31372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215"
-      "686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLi"
-      "nes',4,'LineNames',{{'Alpha','Theta','q','Flightpath'}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefau"
-      "lts',struct('MinYLimReal','-55.88225','MaxYLimReal','46.89003','YLabelReal','','MinYLimMag','0.00000','MaxYLimMa"
-      "g','55.88225','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesT"
-      "ickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.62352941176"
-      "4706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.39215"
-      "6862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863]))"
-      ",extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration('Tools','Measurements',true,'Version'"
-      ",'2018b')),'Version','2018b','Position',[1 38 1920 969])"
+      "',true,'SerializedDisplays',{struct('MinYLimReal','-216.63312','MaxYLimReal','85.86494','YLabelReal','','MinYLim"
+      "Mag',' 0.00000','MaxYLimMag','216.63312','LegendVisibility','On','XGrid',true,'YGrid',true,'PlotMagPhase',false,"
+      "'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0."
+      "0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0"
+      ".831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.07450980392"
+      "15686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'Num"
+      "Lines',4,'LineNames',{{'Alpha','Theta','q','Flightpath'}},'ShowContent',true,'Placement',1)},'DisplayPropertyDef"
+      "aults',struct('MinYLimReal','-216.63312','MaxYLimReal','85.86494','YLabelReal','','MinYLimMag',' 0.00000','MaxYL"
+      "imMag','216.63312','LegendVisibility','On','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'A"
+      "xesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.6235294"
+      "11764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.3"
+      "92156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.65098039215686"
+      "3])),extmgr.Configuration('Tools','Plot Navigation',true,'OnceAtStop',false),extmgr.Configuration('Tools','Measu"
+      "rements',true,'Version','2018b')),'Version','2018b','Position',[1 38 1920 969],'VisibleAtModelOpen','on')"
       NumInputPorts	      "4"
       Floating		      off
     }
@@ -2189,19 +2211,20 @@ Model {
       "ources','WiredSimulink',true,'DataLoggingVariableName','TerrainFollowing_Output_Altitude','DataLogging',true,'Da"
       "taLoggingSaveFormat','StructureWithTime'),extmgr.Configuration('Visuals','Time Domain',true,'SerializedDisplays'"
       ",{struct('MinYLimReal','1286.24396','MaxYLimReal','1523.80433','YLabelReal','','MinYLimMag','1286.24396','MaxYLi"
-      "mMag','1523.80433','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'"
-      "AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.0666666666666667;0.07"
-      "45098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.831372549019608 0.07"
-      "45098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215686 0.6509803921568"
-      "63],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLines',0,'LineNames',"
-      "{{[]}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults',struct('MinYLimReal','1286.24396','MaxYLimRe"
-      "al','1523.80433','YLabelReal','','MinYLimMag','1286.24396','MaxYLimMag','1523.80433','LegendVisibility','Off','X"
-      "Grid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.6862745098"
-      "03922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.160784313725"
-      "49;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039"
-      "215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration('Tools','Plot Navig"
-      "ation',true,'OnceAtStop',false,'PreviousZoomMode','Pan'),extmgr.Configuration('Tools','Measurements',true,'Versi"
-      "on','2018b')),'Version','2018b','Position',[-1915 -253 952 959],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
+      "mMag','1523.80433','LegendVisibility','On','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'A"
+      "xesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.0666666666666667;0.074"
+      "5098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.831372549019608 0.074"
+      "5098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215686 0.65098039215686"
+      "3],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLines',3,'LineNames',{"
+      "{'Altitude [m]','Reference Height [m]','Ground Altitude [m]'}},'ShowContent',true,'Placement',1)},'DisplayProper"
+      "tyDefaults',struct('MinYLimReal','1286.24396','MaxYLimReal','1523.80433','YLabelReal','','MinYLimMag','1286.2439"
+      "6','MaxYLimMag','1523.80433','LegendVisibility','On','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',"
+      "[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686"
+      " 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.27450980392"
+      "1569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.6509"
+      "80392156863])),extmgr.Configuration('Tools','Plot Navigation',true,'OnceAtStop',false,'PreviousZoomMode','Pan'),"
+      "extmgr.Configuration('Tools','Measurements',true,'Version','2018b')),'Version','2018b','Position',[-1915 -253 95"
+      "2 959],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
       NumInputPorts	      "3"
       Floating		      off
     }
@@ -2259,7 +2282,7 @@ Model {
       ".0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0"
       ".0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration('Tools','Plot Navigation',t"
       "rue,'OnceAtStop',false),extmgr.Configuration('Tools','Measurements',true,'Version','2018b')),'Version','2018b','"
-      "Position',[-955 -253 952 959])"
+      "Position',[-955 -253 952 959],'VisibleAtModelOpen','on')"
       NumInputPorts	      "1"
       Floating		      off
     }
@@ -2303,22 +2326,23 @@ Model {
       ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
       "gr.Configuration('Core','General UI',true),extmgr.Configuration('Core','Source UI',true),extmgr.Configuration('S"
       "ources','WiredSimulink',true,'DataLoggingVariableName','ScopeData8'),extmgr.Configuration('Visuals','Time Domain"
-      "',true,'SerializedDisplays',{struct('MinYLimReal','-34.77499','MaxYLimReal','312.97495','YLabelReal','','MinYLim"
-      "Mag','0.00000','MaxYLimMag','312.97495','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,"
+      "',true,'SerializedDisplays',{struct('MinYLimReal','-23.92406','MaxYLimReal','215.31655','YLabelReal','','MinYLim"
+      "Mag','0.00000','MaxYLimMag','215.31655','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,"
       "'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0."
       "0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0"
       ".831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.07450980392"
       "15686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'Num"
-      "Lines',0,'LineNames',{{[]}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults',struct('MinYLimReal','-"
-      "34.77499','MaxYLimReal','312.97495','YLabelReal','','MinYLimMag','0.00000','MaxYLimMag','312.97495','LegendVisib"
-      "ility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTickColor',[0.6862745098039"
-      "22 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764706 1;1 0.411764705882353"
-      " 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.8313725490196"
-      "08 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration('Too"
-      "ls','Plot Navigation',true),extmgr.Configuration('Tools','Measurements',true,'Version','2018b','Measurements',st"
-      "ruct('peaks',struct('Threshold',0,'NumPeaks',3,'MinPeakDistance',1,'MinPeakHeight',-Inf,'SortByXAxis',false,'Tex"
-      "tLabelFormat',1,'TextIndices',[],'SortAscending',false,'SettingsPanelOpen',0,'PeaksPanelOpen',1)))),'Version','2"
-      "018b','Position',[1 36 1920 941],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
+      "Lines',2,'LineNames',{{'Cost Total','Cost Average'}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults"
+      "',struct('MinYLimReal','-23.92406','MaxYLimReal','215.31655','YLabelReal','','MinYLimMag','0.00000','MaxYLimMag'"
+      ",'215.31655','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTi"
+      "ckColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764"
+      "706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156"
+      "862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),"
+      "extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration('Tools','Measurements',true,'Version',"
+      "'2018b','Measurements',struct('traceselector',struct('Line',1),'peaks',struct('Threshold',0,'NumPeaks',3,'MinPea"
+      "kDistance',1,'MinPeakHeight',-Inf,'SortByXAxis',false,'TextLabelFormat',1,'TextIndices',[],'SortAscending',false"
+      ",'SettingsPanelOpen',0,'PeaksPanelOpen',1)))),'Version','2018b','Position',[1 36 1920 941],'OpenAtMdlStart',true"
+      ")"
       NumInputPorts	      "2"
       Floating		      off
     }
@@ -2333,20 +2357,20 @@ Model {
       ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
       "gr.Configuration('Core','General UI',true),extmgr.Configuration('Core','Source UI',true),extmgr.Configuration('S"
       "ources','WiredSimulink',true,'DataLoggingVariableName','ScopeData7'),extmgr.Configuration('Visuals','Time Domain"
-      "',true,'SerializedDisplays',{struct('MinYLimReal','-55.88225','MaxYLimReal','46.89003','YLabelReal','','MinYLimM"
-      "ag','0.00000','MaxYLimMag','55.88225','LegendVisibility','off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'A"
-      "xesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.06"
-      "66666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.8"
-      "31372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215"
-      "686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLi"
-      "nes',3,'LineNames',{{'Flightpath','Flightpath ref [deg]','Flightpath error'}},'ShowContent',true,'Placement',1)}"
-      ",'DisplayPropertyDefaults',struct('MinYLimReal','-55.88225','MaxYLimReal','46.89003','YLabelReal','','MinYLimMag"
-      "','0.00000','MaxYLimMag','55.88225','LegendVisibility','off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'Axe"
-      "sColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.07450980"
-      "39215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274"
-      "509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.074509803921568"
-      "6 0.650980392156863])),extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration('Tools','Measur"
-      "ements',true,'Version','2018b')),'Version','2018b','Position',[965 44 952 959])"
+      "',true,'SerializedDisplays',{struct('MinYLimReal','-18.04639','MaxYLimReal','20.18553','YLabelReal','','MinYLimM"
+      "ag','0.00000','MaxYLimMag','20.18553','LegendVisibility','On','XGrid',true,'YGrid',true,'PlotMagPhase',false,'Ax"
+      "esColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.066"
+      "6666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.83"
+      "1372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.07450980392156"
+      "86 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLin"
+      "es',3,'LineNames',{{'Flightpath','Flightpath ref [deg]','Flightpath error'}},'ShowContent',true,'Placement',1)},"
+      "'DisplayPropertyDefaults',struct('MinYLimReal','-18.04639','MaxYLimReal','20.18553','YLabelReal','','MinYLimMag'"
+      ",'0.00000','MaxYLimMag','20.18553','LegendVisibility','On','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesC"
+      "olor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039"
+      "215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.27450"
+      "9803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 "
+      "0.650980392156863])),extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration('Tools','Measurem"
+      "ents',true,'Version','2018b')),'Version','2018b','Position',[965 44 952 959],'VisibleAtModelOpen','on')"
       NumInputPorts	      "3"
       Floating		      off
     }
@@ -2419,12 +2443,13 @@ Model {
       SaturateOnIntegerOverflow	off
     }
     Block {
-      BlockType		      Gain
+      BlockType		      Sum
       Name		      "Theta"
-      SID		      "37"
-      Position		      [745, 260, 775, 290]
-      ZOrder		      284
-      ParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      SID		      "160"
+      Ports		      [2, 1]
+      Position		      [785, 267, 815, 298]
+      ZOrder		      361
+      InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
     }
@@ -2432,12 +2457,20 @@ Model {
       BlockType		      Gain
       Name		      "Theta [rad]"
       SID		      "50"
-      Position		      [800, 260, 845, 290]
+      Position		      [895, 270, 940, 300]
       ZOrder		      297
       Gain		      "pi/180"
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "Theta0"
+      SID		      "161"
+      Position		      [725, 305, 765, 335]
+      ZOrder		      362
+      Value		      "theta0"
     }
     Block {
       BlockType		      Constant
@@ -2460,7 +2493,7 @@ Model {
       Name		      "Velocity"
       SID		      "29"
       Ports		      [2, 1]
-      Position		      [830, 117, 860, 148]
+      Position		      [785, 117, 815, 148]
       ZOrder		      29
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -2481,16 +2514,36 @@ Model {
       BlockType		      Constant
       Name		      "Velocity0"
       SID		      "30"
-      Position		      [770, 155, 810, 185]
+      Position		      [725, 155, 765, 185]
       ZOrder		      30
       Value		      "velocity0"
     }
     Block {
       BlockType		      Gain
+      Name		      "dAlpha"
+      SID		      "47"
+      Position		      [700, 185, 730, 215]
+      ZOrder		      294
+      ParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+      SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      Gain
       Name		      "dAltitude"
       SID		      "25"
-      Position		      [745, 35, 775, 65]
+      Position		      [700, 35, 730, 65]
       ZOrder		      25
+      ParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+      SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      Gain
+      Name		      "dTheta"
+      SID		      "37"
+      Position		      [700, 260, 730, 290]
+      ZOrder		      284
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
@@ -2499,19 +2552,189 @@ Model {
       BlockType		      Gain
       Name		      "dVelocity"
       SID		      "26"
-      Position		      [745, 110, 775, 140]
+      Position		      [700, 110, 730, 140]
       ZOrder		      26
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
     }
     Block {
+      BlockType		      Reference
+      Name		      "dalt PID"
+      SID		      "164"
+      Ports		      [1, 1]
+      Position		      [1725, 132, 1765, 168]
+      ZOrder		      365
+      LibraryVersion	      "1.444"
+      SourceBlock	      "simulink/Continuous/PID Controller"
+      SourceType	      "PID 1dof"
+      SourceProductName	      "Simulink"
+      SourceProductBaseCode   "SL"
+      ContentPreviewEnabled   on
+      Controller	      "PID"
+      Form		      "Parallel"
+      TimeDomain	      "Continuous-time"
+      SampleTime	      "-1"
+      IntegratorMethod	      "Forward Euler"
+      FilterMethod	      "Forward Euler"
+      ControllerParametersSource "internal"
+      P			      "1"
+      I			      "0.05"
+      D			      "0.4"
+      UseFilter		      on
+      N			      "100"
+      TunerSelectOption	      "Transfer Function Based (PID Tuner App)"
+      ZeroCross		      off
+      InitialConditionSource  "internal"
+      InitialConditionForIntegrator "0"
+      InitialConditionForFilter	"0"
+      DifferentiatorICPrevScaledInput "0"
+      ExternalReset	      "none"
+      IgnoreLimit	      off
+      TrackingMode	      off
+      Kt		      "1"
+      LimitOutput	      off
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "-inf"
+      LinearizeAsGain	      on
+      AntiWindupMode	      "none"
+      Kb		      "1"
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	off
+      LockScale		      off
+      PGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      PProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      POutMin		      "[]"
+      POutMax		      "[]"
+      IGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      IProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      IOutMin		      "[]"
+      IOutMax		      "[]"
+      DGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      DProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      DOutMin		      "[]"
+      DOutMax		      "[]"
+      NGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      NProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      NOutMin		      "[]"
+      NOutMax		      "[]"
+      SumOutDataTypeStr	      "Inherit: Inherit via internal rule"
+      SumOutMin		      "[]"
+      SumOutMax		      "[]"
+      SaturationOutDataTypeStr "Inherit: Same as input"
+      SaturationOutMin	      "[]"
+      SaturationOutMax	      "[]"
+      PParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      PParamMin		      "[]"
+      PParamMax		      "[]"
+      IParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      IParamMin		      "[]"
+      IParamMax		      "[]"
+      DParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      DParamMin		      "[]"
+      DParamMax		      "[]"
+      NParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      NParamMin		      "[]"
+      NParamMax		      "[]"
+      KbParamDataTypeStr      "Inherit: Inherit via internal rule"
+      KbParamMin	      "[]"
+      KbParamMax	      "[]"
+      KtParamDataTypeStr      "Inherit: Inherit via internal rule"
+      KtParamMin	      "[]"
+      KtParamMax	      "[]"
+      KbOutDataTypeStr	      "Inherit: Inherit via internal rule"
+      KbOutMin		      "[]"
+      KbOutMax		      "[]"
+      KtOutDataTypeStr	      "Inherit: Inherit via internal rule"
+      KtOutMin		      "[]"
+      KtOutMax		      "[]"
+      IntegratorOutDataTypeStr "Inherit: Inherit via internal rule"
+      IntegratorOutMin	      "[]"
+      IntegratorOutMax	      "[]"
+      FilterOutDataTypeStr    "Inherit: Inherit via internal rule"
+      FilterOutMin	      "[]"
+      FilterOutMax	      "[]"
+      SumI1OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI1OutMin	      "[]"
+      SumI1OutMax	      "[]"
+      SumI2OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI2OutMin	      "[]"
+      SumI2OutMax	      "[]"
+      SumI3OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI3OutMin	      "[]"
+      SumI3OutMax	      "[]"
+      SumI4OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI4OutMin	      "[]"
+      SumI4OutMax	      "[]"
+      SumDOutDataTypeStr      "Inherit: Inherit via internal rule"
+      SumDOutMin	      "[]"
+      SumDOutMax	      "[]"
+      SumAccumDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI1AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumI2AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumI3AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumI4AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumDAccumDataTypeStr    "Inherit: Inherit via internal rule"
+      DifferentiatorOutDataTypeStr "Inherit: Inherit via internal rule"
+      DifferentiatorOutMin    "[]"
+      DifferentiatorOutMax    "[]"
+      FilterDiffNumProductOutputDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffDenProductOutputDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffNumAccumDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffDenAccumDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffOutCoefDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffOutCoefMin    "[]"
+      FilterDiffOutCoefMax    "[]"
+      ReciprocalOutDataTypeStr "Inherit: Inherit via internal rule"
+      ReciprocalOutMin	      "[]"
+      ReciprocalOutMax	      "[]"
+      SumDenOutDataTypeStr    "Inherit: Inherit via internal rule"
+      SumDenOutMin	      "[]"
+      SumDenOutMax	      "[]"
+      SumNumOutDataTypeStr    "Inherit: Inherit via internal rule"
+      SumNumOutMin	      "[]"
+      SumNumOutMax	      "[]"
+      SumDenAccumDataTypeStr  "Inherit: Inherit via internal rule"
+      SumNumAccumDataTypeStr  "Inherit: Inherit via internal rule"
+      DivideOutDataTypeStr    "Inherit: Inherit via internal rule"
+      DivideOutMin	      "[]"
+      DivideOutMax	      "[]"
+      IntegratorContinuousStateAttributes "''"
+      IntegratorStateMustResolveToSignalObject off
+      IntegratorRTWStateStorageClass "Auto"
+      FilterContinuousStateAttributes "''"
+      FilterStateMustResolveToSignalObject off
+      FilterRTWStateStorageClass "Auto"
+      ParallelPVariant	      "InternalParameters"
+      IdealPVariant	      "Disabled"
+      IVariant		      "InternalParameters"
+      DVariant		      "InternalParameters"
+      IntegratorVariant	      "Continuous"
+      SatVariant	      "Disabled"
+      AWVariant		      "Passthrough"
+      PCopyVariant	      "Disabled"
+      TRVariant		      "Disabled"
+      FdbkBlocksVariant	      "Forward"
+      IdealPFdbkVariant	      "Disabled"
+      SatFdbkVariant	      "Disabled"
+      DerivativeFilterVariant "ContFilter"
+      NVariant		      "InternalParameters"
+      NCopyVariant	      "Disabled"
+      FilterICVariant	      "InternalICsFilter"
+      IntegratorICVariant     "InternalICs"
+      ExternalResetVariant    "Disabled"
+      TRSumVariant	      "Passthrough"
+      SumFdbkVariant	      "Disabled"
+      SumVariant	      "Sum_PID"
+      InitialConditionSetting "Auto"
+    }
+    Block {
       BlockType		      Gain
       Name		      "dalt gain"
       SID		      "9"
-      Position		      [1675, 135, 1725, 165]
-      ZOrder		      9
-      Gain		      "0.5"
+      Position		      [1670, 135, 1710, 165]
+      ZOrder		      366
+      Gain		      "0.1"
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
       OutMin		      "-25"
       OutMax		      "25"
@@ -2519,11 +2742,181 @@ Model {
       SaturateOnIntegerOverflow	off
     }
     Block {
+      BlockType		      Reference
+      Name		      "dfp PID"
+      SID		      "165"
+      Ports		      [1, 1]
+      Position		      [1725, 192, 1765, 228]
+      ZOrder		      368
+      LibraryVersion	      "1.444"
+      SourceBlock	      "simulink/Continuous/PID Controller"
+      SourceType	      "PID 1dof"
+      SourceProductName	      "Simulink"
+      SourceProductBaseCode   "SL"
+      ContentPreviewEnabled   on
+      Controller	      "PID"
+      Form		      "Parallel"
+      TimeDomain	      "Continuous-time"
+      SampleTime	      "-1"
+      IntegratorMethod	      "Forward Euler"
+      FilterMethod	      "Forward Euler"
+      ControllerParametersSource "internal"
+      P			      "1"
+      I			      "0.05"
+      D			      "1.5"
+      UseFilter		      on
+      N			      "100"
+      TunerSelectOption	      "Transfer Function Based (PID Tuner App)"
+      ZeroCross		      on
+      InitialConditionSource  "internal"
+      InitialConditionForIntegrator "0"
+      InitialConditionForFilter	"0"
+      DifferentiatorICPrevScaledInput "0"
+      ExternalReset	      "none"
+      IgnoreLimit	      off
+      TrackingMode	      off
+      Kt		      "1"
+      LimitOutput	      off
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "-inf"
+      LinearizeAsGain	      on
+      AntiWindupMode	      "none"
+      Kb		      "1"
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	off
+      LockScale		      off
+      PGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      PProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      POutMin		      "[]"
+      POutMax		      "[]"
+      IGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      IProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      IOutMin		      "[]"
+      IOutMax		      "[]"
+      DGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      DProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      DOutMin		      "[]"
+      DOutMax		      "[]"
+      NGainOutDataTypeStr     "Inherit: Inherit via internal rule"
+      NProdOutDataTypeStr     "Inherit: Inherit via internal rule"
+      NOutMin		      "[]"
+      NOutMax		      "[]"
+      SumOutDataTypeStr	      "Inherit: Inherit via internal rule"
+      SumOutMin		      "[]"
+      SumOutMax		      "[]"
+      SaturationOutDataTypeStr "Inherit: Same as input"
+      SaturationOutMin	      "[]"
+      SaturationOutMax	      "[]"
+      PParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      PParamMin		      "[]"
+      PParamMax		      "[]"
+      IParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      IParamMin		      "[]"
+      IParamMax		      "[]"
+      DParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      DParamMin		      "[]"
+      DParamMax		      "[]"
+      NParamDataTypeStr	      "Inherit: Inherit via internal rule"
+      NParamMin		      "[]"
+      NParamMax		      "[]"
+      KbParamDataTypeStr      "Inherit: Inherit via internal rule"
+      KbParamMin	      "[]"
+      KbParamMax	      "[]"
+      KtParamDataTypeStr      "Inherit: Inherit via internal rule"
+      KtParamMin	      "[]"
+      KtParamMax	      "[]"
+      KbOutDataTypeStr	      "Inherit: Inherit via internal rule"
+      KbOutMin		      "[]"
+      KbOutMax		      "[]"
+      KtOutDataTypeStr	      "Inherit: Inherit via internal rule"
+      KtOutMin		      "[]"
+      KtOutMax		      "[]"
+      IntegratorOutDataTypeStr "Inherit: Inherit via internal rule"
+      IntegratorOutMin	      "[]"
+      IntegratorOutMax	      "[]"
+      FilterOutDataTypeStr    "Inherit: Inherit via internal rule"
+      FilterOutMin	      "[]"
+      FilterOutMax	      "[]"
+      SumI1OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI1OutMin	      "[]"
+      SumI1OutMax	      "[]"
+      SumI2OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI2OutMin	      "[]"
+      SumI2OutMax	      "[]"
+      SumI3OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI3OutMin	      "[]"
+      SumI3OutMax	      "[]"
+      SumI4OutDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI4OutMin	      "[]"
+      SumI4OutMax	      "[]"
+      SumDOutDataTypeStr      "Inherit: Inherit via internal rule"
+      SumDOutMin	      "[]"
+      SumDOutMax	      "[]"
+      SumAccumDataTypeStr     "Inherit: Inherit via internal rule"
+      SumI1AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumI2AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumI3AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumI4AccumDataTypeStr   "Inherit: Inherit via internal rule"
+      SumDAccumDataTypeStr    "Inherit: Inherit via internal rule"
+      DifferentiatorOutDataTypeStr "Inherit: Inherit via internal rule"
+      DifferentiatorOutMin    "[]"
+      DifferentiatorOutMax    "[]"
+      FilterDiffNumProductOutputDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffDenProductOutputDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffNumAccumDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffDenAccumDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffOutCoefDataTypeStr "Inherit: Inherit via internal rule"
+      FilterDiffOutCoefMin    "[]"
+      FilterDiffOutCoefMax    "[]"
+      ReciprocalOutDataTypeStr "Inherit: Inherit via internal rule"
+      ReciprocalOutMin	      "[]"
+      ReciprocalOutMax	      "[]"
+      SumDenOutDataTypeStr    "Inherit: Inherit via internal rule"
+      SumDenOutMin	      "[]"
+      SumDenOutMax	      "[]"
+      SumNumOutDataTypeStr    "Inherit: Inherit via internal rule"
+      SumNumOutMin	      "[]"
+      SumNumOutMax	      "[]"
+      SumDenAccumDataTypeStr  "Inherit: Inherit via internal rule"
+      SumNumAccumDataTypeStr  "Inherit: Inherit via internal rule"
+      DivideOutDataTypeStr    "Inherit: Inherit via internal rule"
+      DivideOutMin	      "[]"
+      DivideOutMax	      "[]"
+      IntegratorContinuousStateAttributes "''"
+      IntegratorStateMustResolveToSignalObject off
+      IntegratorRTWStateStorageClass "Auto"
+      FilterContinuousStateAttributes "''"
+      FilterStateMustResolveToSignalObject off
+      FilterRTWStateStorageClass "Auto"
+      ParallelPVariant	      "InternalParameters"
+      IdealPVariant	      "Disabled"
+      IVariant		      "InternalParameters"
+      DVariant		      "InternalParameters"
+      IntegratorVariant	      "Continuous"
+      SatVariant	      "Disabled"
+      AWVariant		      "Passthrough"
+      PCopyVariant	      "Disabled"
+      TRVariant		      "Disabled"
+      FdbkBlocksVariant	      "Forward"
+      IdealPFdbkVariant	      "Disabled"
+      SatFdbkVariant	      "Disabled"
+      DerivativeFilterVariant "ContFilter"
+      NVariant		      "InternalParameters"
+      NCopyVariant	      "Disabled"
+      FilterICVariant	      "InternalICsFilter"
+      IntegratorICVariant     "InternalICs"
+      ExternalResetVariant    "Disabled"
+      TRSumVariant	      "Passthrough"
+      SumFdbkVariant	      "Disabled"
+      SumVariant	      "Sum_PID"
+      InitialConditionSetting "Auto"
+    }
+    Block {
       BlockType		      Gain
       Name		      "dfp gain"
-      SID		      "55"
-      Position		      [1675, 195, 1725, 225]
-      ZOrder		      303
+      SID		      "167"
+      Position		      [1670, 195, 1710, 225]
+      ZOrder		      370
       Gain		      "1.0"
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
       OutMin		      "-25"
@@ -2533,20 +2926,39 @@ Model {
     }
     Block {
       BlockType		      Gain
-      Name		      "q"
+      Name		      "dq"
       SID		      "49"
-      Position		      [745, 335, 775, 365]
+      Position		      [700, 335, 730, 365]
       ZOrder		      296
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
       SaturateOnIntegerOverflow	off
     }
     Block {
+      BlockType		      Sum
+      Name		      "q"
+      SID		      "162"
+      Ports		      [2, 1]
+      Position		      [785, 342, 815, 373]
+      ZOrder		      363
+      InputSameDT	      off
+      OutDataTypeStr	      "Inherit: Inherit via internal rule"
+      SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      Constant
+      Name		      "q0"
+      SID		      "163"
+      Position		      [725, 380, 765, 410]
+      ZOrder		      364
+      Value		      "q0"
+    }
+    Block {
       BlockType		      Product
       Name		      "x (State)"
       SID		      "154"
       Ports		      [2, 1]
-      Position		      [637, 100, 668, 130]
+      Position		      [627, 100, 658, 130]
       ZOrder		      358
       BlockRotation	      270
       NamePlacement	      "alternate"
@@ -2600,7 +3012,7 @@ Model {
       Name		      "x-vel"
       SID		      "36"
       Ports		      [2, 1]
-      Position		      [955, 187, 985, 218]
+      Position		      [960, 187, 990, 218]
       ZOrder		      283
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -2737,7 +3149,6 @@ Model {
       ZOrder		      81
       SrcBlock		      "Velocity0"
       SrcPort		      1
-      Points		      [5, 0; 0, -30]
       DstBlock		      "Velocity"
       DstPort		      2
     }
@@ -2770,7 +3181,7 @@ Model {
       ZOrder		      97
       SrcBlock		      "x-vel"
       SrcPort		      1
-      Points		      [5, 0]
+      Points		      [0, 0]
       Branch {
 	ZOrder			168
 	Points			[0, -145]
@@ -2787,7 +3198,7 @@ Model {
       ZOrder		      98
       SrcBlock		      "Velocity"
       SrcPort		      1
-      Points		      [65, 0]
+      Points		      [110, 0]
       Branch {
 	ZOrder			134
 	Points			[0, 60]
@@ -2805,7 +3216,7 @@ Model {
       ZOrder		      102
       SrcBlock		      "Flightpath x-comp"
       SrcPort		      1
-      Points		      [3, 0; 0, -65]
+      Points		      [9, 0; 0, -41; -75, 0; 0, -34]
       DstBlock		      "x-vel"
       DstPort		      2
     }
@@ -2813,34 +3224,8 @@ Model {
       ZOrder		      105
       SrcBlock		      "Demux"
       SrcPort		      4
-      DstBlock		      "Theta"
+      DstBlock		      "dTheta"
       DstPort		      1
-    }
-    Line {
-      ZOrder		      106
-      SrcBlock		      "Theta"
-      SrcPort		      1
-      Points		      [0, 0]
-      Branch {
-	ZOrder			159
-	DstBlock		"Theta [rad]"
-	DstPort			1
-      }
-      Branch {
-	ZOrder			157
-	Points			[0, 130; 171, 0]
-	Branch {
-	  ZOrder		  207
-	  Points		  [0, 30]
-	  DstBlock		  "Flightpath"
-	  DstPort		  1
-	}
-	Branch {
-	  ZOrder		  206
-	  DstBlock		  "Scope:\nAlpha\nTheta\nq\nflightpath"
-	  DstPort		  2
-	}
-      }
     }
     Line {
       ZOrder		      107
@@ -2948,7 +3333,7 @@ Model {
       ZOrder		      127
       SrcBlock		      "Altitude0"
       SrcPort		      1
-      Points		      [5, 0; 0, -30]
+      Points		      [-1, 0; 0, -30]
       DstBlock		      "Altitude"
       DstPort		      2
     }
@@ -2956,7 +3341,7 @@ Model {
       ZOrder		      128
       SrcBlock		      "Altitude"
       SrcPort		      1
-      Points		      [100, 0; 0, 80]
+      Points		      [145, 0; 0, 80]
       DstBlock		      "Altitude [m]"
       DstPort		      1
     }
@@ -2966,12 +3351,12 @@ Model {
       SrcPort		      1
       Points		      [32, 0]
       Branch {
-	ZOrder			655
+	ZOrder			775
 	DstBlock		"dalt gain"
 	DstPort			1
       }
       Branch {
-	ZOrder			654
+	ZOrder			774
 	Points			[0, 185; 34, 0; 0, 176; -1922, 0; 0, -311]
 	DstBlock		"Add dAltitude"
 	DstPort			1
@@ -2981,40 +3366,15 @@ Model {
       ZOrder		      142
       SrcBlock		      "Demux"
       SrcPort		      3
-      DstBlock		      "Alpha"
+      DstBlock		      "dAlpha"
       DstPort		      1
-    }
-    Line {
-      ZOrder		      146
-      SrcBlock		      "Alpha"
-      SrcPort		      1
-      Points		      [15, 0; 0, 195; 142, 0]
-      Branch {
-	ZOrder			209
-	Points			[0, 55]
-	DstBlock		"Flightpath"
-	DstPort			2
-      }
-      Branch {
-	ZOrder			208
-	DstBlock		"Scope:\nAlpha\nTheta\nq\nflightpath"
-	DstPort			1
-      }
     }
     Line {
       ZOrder		      147
       SrcBlock		      "Demux"
       SrcPort		      5
-      DstBlock		      "q"
+      DstBlock		      "dq"
       DstPort		      1
-    }
-    Line {
-      ZOrder		      149
-      SrcBlock		      "q"
-      SrcPort		      1
-      Points		      [240, 0; 0, 65]
-      DstBlock		      "Scope:\nAlpha\nTheta\nq\nflightpath"
-      DstPort		      3
     }
     Line {
       ZOrder		      156
@@ -3024,8 +3384,8 @@ Model {
       DstPort		      1
     }
     Line {
-      ZOrder		      172
-      SrcBlock		      "dalt gain"
+      ZOrder		      761
+      SrcBlock		      "dalt PID"
       SrcPort		      1
       Points		      [20, 0]
       Branch {
@@ -3044,7 +3404,7 @@ Model {
       ZOrder		      173
       SrcBlock		      "Add"
       SrcPort		      1
-      Points		      [49, 0]
+      Points		      [4, 0]
       Branch {
 	ZOrder			442
 	DstBlock		"Add0"
@@ -3058,20 +3418,20 @@ Model {
       }
     }
     Line {
-      ZOrder		      178
-      SrcBlock		      "dfp gain"
+      ZOrder		      762
+      SrcBlock		      "dfp PID"
       SrcPort		      1
-      Points		      [15, 0]
+      Points		      [11, 0]
+      Branch {
+	ZOrder			771
+	Points			[0, 25]
+	DstBlock		"Inputs"
+	DstPort			2
+      }
       Branch {
 	ZOrder			183
 	Points			[0, -45]
 	DstBlock		"Add"
-	DstPort			2
-      }
-      Branch {
-	ZOrder			182
-	Points			[0, 25]
-	DstBlock		"Inputs"
 	DstPort			2
       }
     }
@@ -3145,18 +3505,18 @@ Model {
       ZOrder		      221
       SrcBlock		      "Flightpath error"
       SrcPort		      1
-      Points		      [27, 0]
+      Points		      [26, 0]
       Branch {
-	ZOrder			261
-	Points			[0, 10]
-	DstBlock		"Scope: Flightpath"
-	DstPort			3
-      }
-      Branch {
-	ZOrder			227
-	Points			[0, -132; 80, 0; 0, -73]
+	ZOrder			783
+	Points			[0, -105; 85, 0; 0, -100]
 	DstBlock		"dfp gain"
 	DstPort			1
+      }
+      Branch {
+	ZOrder			782
+	Points			[1, 0; 0, 10]
+	DstBlock		"Scope: Flightpath"
+	DstPort			3
       }
     }
     Line {
@@ -3469,7 +3829,7 @@ Model {
       ZOrder		      519
       SrcBlock		      "x (State)"
       SrcPort		      1
-      Points		      [0, -16; -910, 0; 0, 66]
+      Points		      [0, -16; -900, 0; 0, 66]
       DstBlock		      "Remove Altitude"
       DstPort		      1
     }
@@ -3479,6 +3839,115 @@ Model {
       SrcPort		      1
       Points		      [0, -5; 35, 0]
       DstBlock		      "x (State)"
+      DstPort		      1
+    }
+    Line {
+      ZOrder		      733
+      SrcBlock		      "Alpha0"
+      SrcPort		      1
+      DstBlock		      "Alpha"
+      DstPort		      2
+    }
+    Line {
+      ZOrder		      734
+      SrcBlock		      "dAlpha"
+      SrcPort		      1
+      DstBlock		      "Alpha"
+      DstPort		      1
+    }
+    Line {
+      ZOrder		      735
+      SrcBlock		      "Alpha"
+      SrcPort		      1
+      Points		      [55, 0; 0, 185]
+      Branch {
+	ZOrder			749
+	Points			[0, 55]
+	DstBlock		"Flightpath"
+	DstPort			2
+      }
+      Branch {
+	ZOrder			739
+	DstBlock		"Scope:\nAlpha\nTheta\nq\nflightpath"
+	DstPort			1
+      }
+    }
+    Line {
+      ZOrder		      736
+      SrcBlock		      "Theta0"
+      SrcPort		      1
+      Points		      [5, 0; 0, -30]
+      DstBlock		      "Theta"
+      DstPort		      2
+    }
+    Line {
+      ZOrder		      741
+      SrcBlock		      "dTheta"
+      SrcPort		      1
+      DstBlock		      "Theta"
+      DstPort		      1
+    }
+    Line {
+      ZOrder		      742
+      SrcBlock		      "Theta"
+      SrcPort		      1
+      Points		      [45, 0]
+      Branch {
+	ZOrder			745
+	DstBlock		"Theta [rad]"
+	DstPort			1
+      }
+      Branch {
+	ZOrder			744
+	Points			[0, 120]
+	Branch {
+	  ZOrder		  748
+	  Points		  [0, 30]
+	  DstBlock		  "Flightpath"
+	  DstPort		  1
+	}
+	Branch {
+	  ZOrder		  747
+	  DstBlock		  "Scope:\nAlpha\nTheta\nq\nflightpath"
+	  DstPort		  2
+	}
+      }
+    }
+    Line {
+      ZOrder		      758
+      SrcBlock		      "dq"
+      SrcPort		      1
+      DstBlock		      "q"
+      DstPort		      1
+    }
+    Line {
+      ZOrder		      759
+      SrcBlock		      "q0"
+      SrcPort		      1
+      Points		      [5, 0; 0, -30]
+      DstBlock		      "q"
+      DstPort		      2
+    }
+    Line {
+      ZOrder		      760
+      SrcBlock		      "q"
+      SrcPort		      1
+      Points		      [64, 0; 0, 55]
+      DstBlock		      "Scope:\nAlpha\nTheta\nq\nflightpath"
+      DstPort		      3
+    }
+    Line {
+      ZOrder		      777
+      SrcBlock		      "dalt gain"
+      SrcPort		      1
+      DstBlock		      "dalt PID"
+      DstPort		      1
+    }
+    Line {
+      ZOrder		      784
+      SrcBlock		      "dfp gain"
+      SrcPort		      1
+      DstBlock		      "dfp PID"
       DstPort		      1
     }
     Annotation {
@@ -3492,13 +3961,13 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4025
+      ZOrder		      5165
       FontSize		      12
     }
     Annotation {
       SID		      "155"
       Name		      "State-Space"
-      Position		      [558, 85, 683, 258]
+      Position		      [548, 85, 663, 258]
       InternalMargins	      [0, 0, 0, 0]
       FixedHeight	      on
       FixedWidth	      on
@@ -3506,7 +3975,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4019
+      ZOrder		      5159
       FontSize		      12
     }
     Annotation {
@@ -3520,7 +3989,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4031
+      ZOrder		      5171
       FontSize		      12
     }
     Annotation {
@@ -3534,7 +4003,7 @@ Model {
       BackgroundColor	      "[0.968627, 0.925490, 0.976471]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4013
+      ZOrder		      5153
       FontSize		      12
     }
     Annotation {
@@ -3548,7 +4017,7 @@ Model {
       BackgroundColor	      "[0.572549, 0.686275, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4020
+      ZOrder		      5160
       FontSize		      12
     }
     Annotation {
@@ -3562,7 +4031,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4026
+      ZOrder		      5166
       FontSize		      12
     }
     Annotation {
@@ -3576,7 +4045,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4027
+      ZOrder		      5167
       FontSize		      12
     }
     Annotation {
@@ -3590,7 +4059,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4024
+      ZOrder		      5164
       FontSize		      12
     }
     Annotation {
@@ -3604,13 +4073,13 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4017
+      ZOrder		      5157
       FontSize		      12
     }
     Annotation {
       SID		      "82"
       Name		      "Get X-position"
-      Position		      [880, 170, 1045, 305]
+      Position		      [880, 170, 1045, 315]
       InternalMargins	      [0, 0, 0, 0]
       FixedHeight	      on
       FixedWidth	      on
@@ -3618,13 +4087,13 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4029
+      ZOrder		      5169
       FontSize		      12
     }
     Annotation {
       SID		      "81"
       Name		      "State"
-      Position		      [700, -21, 865, 416]
+      Position		      [670, -11, 860, 431]
       InternalMargins	      [0, 0, 0, 0]
       FixedHeight	      on
       FixedWidth	      on
@@ -3632,7 +4101,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4018
+      ZOrder		      5158
       FontSize		      12
     }
     Annotation {
@@ -3646,7 +4115,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4028
+      ZOrder		      5168
       FontSize		      12
     }
     Annotation {
@@ -3660,7 +4129,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4015
+      ZOrder		      5155
       FontSize		      12
     }
     Annotation {
@@ -3674,7 +4143,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4016
+      ZOrder		      5156
       FontSize		      12
     }
     Annotation {
@@ -3688,7 +4157,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4023
+      ZOrder		      5163
       FontSize		      12
     }
     Annotation {
@@ -3702,7 +4171,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4032
+      ZOrder		      5172
       FontSize		      12
     }
     Annotation {
@@ -3716,7 +4185,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4030
+      ZOrder		      5170
       FontSize		      12
     }
     Annotation {
@@ -3730,7 +4199,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4014
+      ZOrder		      5154
       FontSize		      12
     }
     Annotation {
@@ -3744,7 +4213,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4022
+      ZOrder		      5162
       FontSize		      12
     }
     Annotation {
@@ -3758,7 +4227,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      4021
+      ZOrder		      5161
       FontSize		      12
     }
   }

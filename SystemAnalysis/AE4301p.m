@@ -41,7 +41,6 @@ if RunQ5
 
     fprintf('Trimming Linearized Model\n')
     FindF16Dynamics
-
     if ApplyStateSpaceSimplification == 1
         SimplifyStatespace
     end
@@ -168,6 +167,9 @@ if RunQ6
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 
     FindF16Dynamics
+    if ApplyStateSpaceSimplification == 1
+        SimplifyStatespace
+    end
     if 0%1
         %A_lo
         %B_lo
@@ -436,6 +438,9 @@ if RunQ7
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 
     FindF16Dynamics
+    if ApplyStateSpaceSimplification == 1
+        SimplifyStatespace
+    end
     if 0%1
         tf_long_Ue_q = minreal(tf(C_lo(Yq,:) * (inv((s*eye(size(A_lo,1))-A_lo))*B_lo(:,Ue))),e_minreal)
         tf_long_Ue_q_poles = esort(pole(tf_long_Ue_q));
@@ -490,9 +495,10 @@ if RunQ7
         plot(t,y2)
         xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         ti = title('n-State Ue-q Step');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         legend('2-State', '4-State')
+
         hold off
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         
         figure(76)
         grid on
@@ -510,7 +516,7 @@ if RunQ7
     tf_long_Ue_q_poles = esort(pole(tf_long_Ue_q));
     tf_long_Ue_q_poles = unique_complex(tf_long_Ue_q_poles,e)
 
-    if PlotQ7
+    if 0%PlotQ7
         figure(77)
         pzmap(  tf_long_Ue_q)
         % figure(78)
@@ -566,9 +572,9 @@ if RunQ7
         ti = title('Short Period - Compensator');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-        figure(79)
-        pzmap(Compensator)
-        ti = title('Short Period - Compensator Pole-Zero Map');
+        % figure(79)
+        % pzmap(Compensator)
+        % ti = title('Short Period - Compensator Pole-Zero Map');
     end
 
     CheckShortPeriodDesign(Compensator,poles_design,'Short Period - Compensator')
@@ -589,9 +595,9 @@ if RunQ7
         xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-        figure(713)
-        pzmap(tf_long_Ue_q_design)
-        ti = title('Short Period - Design Pole-Zero Map');
+        % figure(713)
+        % pzmap(tf_long_Ue_q_design)
+        % ti = title('Short Period - Design Pole-Zero Map');
     end
 
     CheckShortPeriodDesign(tf_long_Ue_q_design,tf_long_Ue_q_design_poles,'Short Period - Design')
@@ -647,22 +653,13 @@ if RunQ7
     fprintf('----------------------------------------\n')
 
     %-------
-    % Calc CAP and Gibson
-    v = velocity0;
-    if ~USE_SI_UNITS
-        v = v*feet_to_m; 
-    end
     
-    [wn,dr,P,T_half] = AnalyzePeriodicPoles(tf_long_Ue_q_design_poles);
-    [k,TC] = GetTC(tf_long_Ue_q_design);
-    CAP = g0 * wn^2 * TC / v;
-    DBqss = TC - 2*dr / wn;
-    
-    opt = stepDataOptions('StepAmplitude', -1);
-    [y,t] = step(tf_long_Ue_q_design, T, opt);
-    S = stepinfo(y,t);
-    qmqs = S.Peak / y(end);
-    
+    [CAP ,dr ,DBqss ,qmqs ] = GetCAP_and_Gibson(tf_long_Ue_q_design,tf_long_Ue_q_design_poles)
+    [CAP0,dr0,DBqss0,qmqs0] = GetCAP_and_Gibson(tf_long_Ue_q,tf_long_Ue_q_poles)
+
+    dCAP    = [dr    , CAP ]-[dr0   , CAP0 ]
+    dGibson = [DBqss , qmqs]-[DBqss0, qmqs0]
+
     if PlotQ7 %Plots of CAP criteria
         figure(761)
         subplot(2,2,1)
@@ -676,7 +673,9 @@ if RunQ7
         loglog([0.13 0.13],[0.01 10], 'k');
         rectangle('Position', [0.25 0.16 1.75 9.84]);
         rectangle('Position', [0.3 0.28 0.9 3.32]);
-        loglog(dr, CAP, "x");
+        quiver(dr0, CAP0,dCAP(1),dCAP(2),0)
+        loglog(dr , CAP , "x");
+        loglog(dr0, CAP0, ".");
         hold off
         
         subplot(2,2,2)
@@ -690,7 +689,9 @@ if RunQ7
         loglog([0.15 0.15],[0.01 10], 'k');
         rectangle('Position', [0.2 0.038 1.8 9.962]);
         rectangle('Position', [0.3 0.085 1.7 3.515]);
-        loglog(dr, CAP, "x");
+        quiver(dr0, CAP0,dCAP(1),dCAP(2),0)
+        loglog(dr , CAP , "x");
+        loglog(dr0, CAP0, ".");
         hold off
         
         subplot(2,2,3)
@@ -704,7 +705,9 @@ if RunQ7
         loglog([0.15 0.15],[0.01 10], 'k');
         rectangle('Position', [0.25 0.005 1.75 9.985]);
         rectangle('Position', [0.35 0.16 0.95 3.44]);
-        loglog(dr, CAP, "x");
+        quiver(dr0, CAP0,dCAP(1),dCAP(2),0)
+        loglog(dr , CAP , "x");
+        loglog(dr0, CAP0, ".");
         hold off
     end
     
@@ -716,17 +719,26 @@ if RunQ7
        v = [0 1; 0 3; 0.06 3; 0.3 1];
        f = [1 2 3 4];
        patch('Faces', f, 'Vertices', v, 'FaceColor', 'none');
-       plot(DBqss, qmqs, "x");
+       quiver(DBqss0, qmqs0,dGibson(1),dGibson(2),0)
+       plot(DBqss , qmqs , "x");
+       plot(DBqss0, qmqs0, ".");
+       
        hold off
+
+       print(gcf, '-dpng', strcat(figpath,'/','Pitch Rate Criteria',figext), dpi)
     end
     
     if PlotQ7 %Time response of pitch rate and pitch attitude
+        opt = stepDataOptions('StepAmplitude', -1);
+
         figure(765)
         step(tf_long_Ue_q_design, T, opt); %pitch rate
-        title('Pitch rate step response');
+        ti = title('Pitch rate step response');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         figure(766)
         step(tf_long_Ue_q_design*(1/s), T, opt); %pitch attitude
-        title('Pitch attitude step response');
+        ti = title('Pitch attitude step response');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 end
 
@@ -751,6 +763,13 @@ if RunQ8
     end
 
     FindF16Dynamics
+    if ApplyStateSpaceSimplification == 1
+        SimplifyStatespace
+    end
+
+    theta0 = xu_lo(5)
+    alpha0 = xu_lo(8)
+    q0     = xu_lo(11)
 
     thrust0   = xu_lo(13)
     elevator0 = xu_lo(14)
@@ -1116,4 +1135,30 @@ function CheckShortPeriodDesign(sys,poles,name)
     fprintf('wn_diff  : %f \n',wn_diff  )
     fprintf('TC_diff  : %f \n',TC_diff  )
     fprintf('dr_diff  : %f \n',dr_diff  )
+end
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% Get Pitch Rate Criteria
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+function [CAP,dr,DBqss,qmqs] = GetCAP_and_Gibson(sys,poles)
+
+    T = 0:0.01:7;
+
+    % Calc CAP and Gibson
+    global velocity0 USE_SI_UNITS feet_to_m g0
+    v = velocity0;
+    if ~USE_SI_UNITS
+        v = v*feet_to_m; 
+    end
+
+    [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
+    [k,TC] = GetTC(sys);
+    CAP = g0 * wn^2 * TC / v;
+    DBqss = TC - 2*dr / wn;
+    
+    opt = stepDataOptions('StepAmplitude', -1);
+    [y,t] = step(sys, T, opt);
+    S = stepinfo(y,t);
+    qmqs = S.Peak / y(end);
 end

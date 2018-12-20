@@ -16,8 +16,8 @@
     global FlightCondition
     FlightCondition = 1;
 
-    global AcceptFirstIteration
-    AcceptFirstIteration = 1;
+    global NrIteration
+    NrIteration = 3;%1;
 
     %----------------------------------------
     % Printing
@@ -60,7 +60,7 @@
     % Tolerances
     %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    ApplyStateSpaceSimplification = 1;
+    ApplyStateSpaceSimplification = 0;%1;
 
     e         = 0.0001; %Tolerance used by SimplifyStatespace
     e_minreal = 0.001 ; %Tolerance of Minreal commands for pole-zero cancellations
