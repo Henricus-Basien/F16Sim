@@ -8,10 +8,10 @@
     % Default Conditions
     %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    global altitude0
-    global velocity0
-    altitude0 = 10000;
-    velocity0 = 900;
+    global altitude00
+    global velocity00
+    altitude00 = 10000; % [ft]
+    velocity00 = 900  ; % [ft/s]  
 
     global FlightCondition
     FlightCondition = 1;
@@ -39,15 +39,17 @@
     % Exercises
     %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    RunQ5 = 1;
-    RunQ6 = 1;
-    RunQ7 = 1;
-    RunQ8 = 1;
+    RunQ5 = true;
+    RunQ6 = true;
+    RunQ7 = true;
+    RunQ8 = true;
 
-    PlotQ5 = 1;
-    PlotQ6 = 1;
-    PlotQ7 = 1;
-    PlotQ8 = 1;
+    PlotQ5 = true;
+    PlotQ6 = true;
+    PlotQ7 = true;
+    PlotQ8 = true;
+
+    ShowDominantPoles = false; % true;
 
     figpath ='OutputFigures';
     if ~exist(figpath, 'dir')
@@ -62,8 +64,9 @@
 
     ApplyStateSpaceSimplification = 0;%1;
 
-    e         = 0.0001; %Tolerance used by SimplifyStatespace
-    e_minreal = 0.001 ; %Tolerance of Minreal commands for pole-zero cancellations
+    e_ss      = 0.0001;     %Tolerance used by SimplifyStatespace
+    e_minreal = 0.002 ;     %Tolerance of Minreal commands for pole-zero cancellations
+    e         = e_minreal;  %Tolerance used for Duplicate Pole Removal
 
     %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     % SI Functionality

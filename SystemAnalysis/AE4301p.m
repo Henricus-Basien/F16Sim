@@ -40,6 +40,14 @@ if RunQ5
     fprintf('----------------------------------------\n')
 
     fprintf('Trimming Linearized Model\n')
+    altitude0 = 15000 % [ft]
+    velocity0 = 500   % [ft/s]
+
+    if USE_SI_UNITS
+        altitude0 = altitude0 * feet_to_m;
+        velocity0 = velocity0 * feet_to_m;
+    end
+
     FindF16Dynamics
     if ApplyStateSpaceSimplification == 1
         SimplifyStatespace
@@ -134,8 +142,11 @@ if RunQ5
         end
         legend('Location','southeast')
         ti = title('xa Shift');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         hold off
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        xlim([0 1]);
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,'_zoom',figext), dpi)
+        
     end
 
     fprintf('----------------------------------------\n')
@@ -166,6 +177,14 @@ if RunQ6
     fprintf('                             Q6                             \n')
     fprintf('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n')
 
+    altitude0 = altitude00 % [ft]
+    velocity0 = velocity00 % [ft/s]
+
+    if USE_SI_UNITS
+        altitude0 = altitude0 * feet_to_m;
+        velocity0 = velocity0 * feet_to_m;
+    end
+
     FindF16Dynamics
     if ApplyStateSpaceSimplification == 1
         SimplifyStatespace
@@ -186,9 +205,9 @@ if RunQ6
    
     %A_lo
     
-    longitudinal_states_ =[longitudinal_states 13 14];
-    PrintStateNames(longitudinal_states_,"longitudinal_states: ")
-    lateral_states_ = [lateral_states 13 15 16];
+    longitudinal_states_ = [longitudinal_states 13 14];
+    PrintStateNames(longitudinal_states,"longitudinal_states: ")
+    lateral_states_ = [lateral_states 15 16];
     PrintStateNames(lateral_states     ,"lateral_states: ")
     
     if 1 % Omits Input Dynamics!
@@ -205,10 +224,10 @@ if RunQ6
         Ut_long     = 1;
         Ue_long     = 2;
         % States
-        Xv_long     = 1;
-        Xalpha_long = 2;
-        Xtheta_long = 3;
-        Xq_long     = 4;
+        Yv_long     = 1;
+        Yalpha_long = 2;
+        Ytheta_long = 3;
+        Yq_long     = 4;
 
         %--- Lateral---
         A_las  = A_lo(lateral_states_,lateral_states_);
@@ -220,8 +239,7 @@ if RunQ6
 
         %.. Temporary Aliases ..
         % Inputs
-        Ut_lat     = 1;
-        Ua_lat     = 2;
+        Ua_lat     = 1;
         Ur_lat     = 2;
         % Outputs
         Ybeta_lat = 1;
@@ -241,10 +259,10 @@ if RunQ6
         Ut_long     = 1;
         Ue_long     = 2;
         % Outputs
-        Xh_long     = 1;
-        Xtheta_long = 2;
-        Xv_long     = 3;
-        Xalpha_long = 4;
+        Yh_long     = 1;
+        Ytheta_long = 2;
+        Yv_long     = 3;
+        Yalpha_long = 4;
 
         %--- Lateral---
         A_lat  = A_lateral_lo;
@@ -258,12 +276,12 @@ if RunQ6
         Ua_lat     = 2;
         Ur_lat     = 3;
         % States
-        Xphi_lat  = 1;
-        Xpsi_lat  = 2;
-        Xv_lat    = 3;
-        Xbeta_lat = 4;
-        Xp_lat    = 5;
-        Xr_lat    = 6;
+        Yphi_lat  = 1;
+        Ypsi_lat  = 2;
+        Yv_lat    = 3;
+        Ybeta_lat = 4;
+        Yp_lat    = 5;
+        Yr_lat    = 6;
 
     end
     
@@ -285,7 +303,7 @@ if RunQ6
     end 
     
     %------------------------- Full System --------------------------------
-    if 0%1
+    if 1
     
         %..............................
         % Get Transfer Functions
@@ -293,15 +311,25 @@ if RunQ6
 
         tf_long = minreal(tf(C_long * (inv((s*eye(size(A_long,1))-A_long))*B_long)),e_minreal)
         tf_lat  = minreal(tf(C_lat  * (inv((s*eye(size(A_lat ,1))-A_lat ))*B_lat )),e_minreal)
-
+        
         %..............................
         % Get Poles & Zeros
         %..............................
 
-        tf_long_zeros = zero(tf_long)
-        tf_long_poles = pole(tf_long)
-        tf_lat_zeros  = zero(tf_lat )
-        tf_lat_poles  = pole(tf_lat )
+        %--- Longitudinal ---
+        %.. Zeros ..
+        tf_long_zeros = esort(zero(tf_long));
+        tf_long_zeros = unique_complex(tf_long_zeros,e)
+        %.. Poles ..
+        tf_long_poles = esort(pole(tf_long));
+        tf_long_poles = unique_complex(tf_long_poles,e)
+        %--- Lateral ---
+        %.. Zeros ..
+        tf_lat_zeros  = esort(zero(tf_lat));
+        tf_lat_zeros  = unique_complex(tf_lat_zeros,e)
+        %.. Poles ..
+        tf_lat_poles  = esort(pole(tf_lat));
+        tf_lat_poles  = unique_complex(tf_lat_poles,e)
 
         %..............................
         % Plot Pole-Zero maps
@@ -332,12 +360,12 @@ if RunQ6
     %..............................
     
     %--- Short Period + Phugoid ---
-    tf_long_Ue_theta       = minreal(tf(C_long(Xtheta_long,:) * (inv((s*eye(size(A_long,1))-A_long))*B_long(:,Ue_long))),e_minreal)
-    tf_long_Ue_theta_poles = esort(pole(tf_long_Ue_theta));
-    tf_long_Ue_theta_poles = unique_complex(tf_long_Ue_theta_poles,e)
+    tf_long_Ue_v     = tf_long(Yv_long    ,Ue_long)
+    tf_long_Ue_theta = tf_long(Ytheta_long,Ue_long)
+    tf_long_Ue_q     = tf_long(Yq_long    ,Ue_long)
     
-    poles_phugoid     = tf_long_Ue_theta_poles(1:2)
-    poles_shortperiod = tf_long_Ue_theta_poles(3:4)
+    poles_phugoid     = tf_long_poles(1:2);
+    poles_shortperiod = tf_long_poles(3:4);
     
     %.. Phugoid ..
     PrintAnalyzePeriodicPoles(poles_phugoid    ,'Phugoid')
@@ -348,28 +376,87 @@ if RunQ6
     % Plot Longitudinal Eigen-Motions
     %..............................
     
+    %.. Phugoid ..
+    sys_phugoid_dominant = zpk([],poles_phugoid,1);
+
     if PlotQ6
+        T = 0:0.01:600;  
+
         figure(63);
         grid on
-        pzmap(tf_long_Ue_theta)
-        ti = title('Longitudinal Pole-Zero Map');
+        hold on
+        xlabel('Time [s]')
+
+        [y,t] = impulse(tf_long_Ue_v    ,T);
+        if ~USE_SI_UNITS
+            y = y*feet_to_m;
+        end
+        plot(t,y,'DisplayName','Impulse Response: \delta_e - V')
+        ylabel('Velocity [m/s]')
+        yyaxis right
+        [y,t] = impulse(tf_long_Ue_theta,T);
+        plot(t,y,'DisplayName','Impulse Response: \delta_e - \theta')
+        ylabel('\theta [\circ]')
+        % [y,t] = impulse(tf_long_Ue_theta,T);
+        % plot(t,y,'DisplayName','Full System - Impulse Response')
+        % if ShowDominantPoles
+        %     [y,t] = impulse(sys_phugoid_dominant,T);
+        %     plot(t,y,'DisplayName','Dominant poles - Impulse Response')
+        % end
+        % ylabel('Impulse Response')
+        % yyaxis right
+        % [y,t] = step(tf_long_Ue_theta,T);
+        % plot(t,y,'DisplayName','Full System - Step Response')
+        % if ShowDominantPoles
+        %     [y,t] = step(sys_phugoid_dominant,T);
+        %     plot(t,y,'DisplayName','Dominant poles - Step Response')
+        % end
+        % ylabel('Step Response')
+        
+        ti = title('Phugoid');
+        legend('Location','southeast')
+        hold off
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
-
-    %.. Phugoid ..
-    if PlotQ6
-        figure(64);
-        grid on
-        impulse(zpk([],poles_phugoid,1))
-        ti = title('Phugoid');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-    
     
     %.. Short Period ..
-        figure(65);
+    sys_shortperiod_dominant = zpk([],poles_shortperiod,1);
+    if PlotQ6
+        T = 0:0.01:7;  
+
+        figure(64);
         grid on
-        impulse(zpk([],poles_shortperiod,1))
+        hold on
+        xlabel('Time [s]')
+
+        [y,t] = impulse(tf_long_Ue_theta,T);
+        plot(t,y,'DisplayName','Impulse Response: \delta_e - \theta')
+        ylabel('\theta [\circ]')
+        yyaxis right
+        [y,t] = impulse(tf_long_Ue_q,T);
+        plot(t,y,'DisplayName','Impulse Response: \delta_e - q')
+        [y,t] = step(tf_long_Ue_q,T);
+        plot(t,y,'DisplayName','Step Response: \delta_e - q')
+        ylabel('Pitch Rate [\circ/s]')
+        % [y,t] = impulse(tf_long_Ue_theta,T);
+        % plot(t,y,'DisplayName','Full System - Impulse Response')
+        % if ShowDominantPoles
+        %     [y,t] = impulse(sys_shortperiod_dominant,T);
+        %     plot(t,y,'DisplayName','Dominant poles - Impulse Response')
+        % end
+        % ylabel('Impulse Response - \theta [\circ]')
+        % yyaxis right
+        % [y,t] = step(tf_long_Ue_theta,T);
+        % plot(t,y,'DisplayName','Full System - Step Response')
+        % if ShowDominantPoles
+        %     [y,t] = step(sys_shortperiod_dominant,T);
+        %     plot(t,y,'DisplayName','Dominant poles - Step Response')
+        % end
+        % ylabel('Step Response - \theta [\circ]')
+        
         ti = title('Short Period');
+        legend('Location','southeast')
+        hold off
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
@@ -378,13 +465,14 @@ if RunQ6
     %..............................
 
     %--- Aperiodic roll + Spiral ---
-    tf_lat_Ua       = minreal(tf(C_lat * (inv((s*eye(size(A_lat,1))-A_lat))*B_lat(:,Ua_lat))),e_minreal)
-    tf_lat_Ua_poles = esort(pole(tf_lat_Ua));
-    tf_lat_Ua_poles = unique_complex(tf_lat_Ua_poles,e)
-    
-    poles_dutchroll     = tf_lat_Ua_poles(3:4)
-    pole_aperiodicroll  = tf_lat_Ua_poles(1)
-    pole_spiral         = tf_lat_Ua_poles(2)
+    tf_lat_Ur_p = tf_lat(Yp_lat,Ur_lat)
+    tf_lat_Ur_r = tf_lat(Yr_lat,Ur_lat)
+    tf_lat_Ua_p = tf_lat(Yp_lat,Ua_lat)
+    tf_lat_Ua_r = tf_lat(Yr_lat,Ua_lat)
+
+    poles_dutchroll     = tf_lat_poles(3:4);
+    pole_aperiodicroll  = tf_lat_poles(1);
+    pole_spiral         = tf_lat_poles(2);
     
     %.. Dutch roll ..
     PrintAnalyzePeriodicPoles(poles_dutchroll   ,'Dutch roll')
@@ -397,33 +485,73 @@ if RunQ6
     % Plot Lateral Eigen-Motions
     %..............................
     
+    %.. Dutch roll ..
+    if PlotQ6
+        T = 0:0.01:10;  
+
+        figure(651);
+        grid on
+        hold on
+        xlabel('Time [s]')
+
+        %impulse(zpk([],poles_dutchroll,1))
+        [yp,t] = impulse(tf_lat_Ur_p,T);
+        plot(t,yp,'DisplayName','Impulse Response \delta_r - Roll Rate')
+        [yr,t] = impulse(tf_lat_Ur_r,T);
+        plot(t,yr,'DisplayName','Impulse Response \delta_r - Yaw Rate')
+
+        ylabel('Angular Rate [\circ/s')
+
+        ti = title('Dutch roll');
+        legend('Location','southeast')
+        hold off
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+
+        figure(652)
+        plot(yp,yr)
+        xlabel('Roll Rate [\circ/s]')
+        ylabel('Yaw Rate [\circ/s]')
+        ti = title('Dutch roll - Rates');
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    end
+    %.. Aperiodic roll ..
     if PlotQ6
         figure(66);
         grid on
-        pzmap(tf_lat_Ua)
-        ti = title('Lateral Pole-Zero Map');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-    
+        hold on
+        xlabel('Time [s]')
 
-    %.. Dutch roll ..
+        %step(zpk([],pole_aperiodicroll,1));
+        [y,t] = impulse(tf_lat_Ua_p);
+        plot(t,y,'DisplayName','Impulse Response: \delta_a - p')
+        % [y,t] = step(tf_lat_Ua_p);
+        % plot(t,y,'DisplayName','Step Response: \delta_a - p')
+        ylabel('Roll Rate [\circ/s]')
+
+        hold off
+        ti = title('Aperiodic roll');
+        legend('Location','southeast')
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+    end
+    %.. Spiral ..
+    if PlotQ6
+        T = 0:0.01:90;%180;  
+
         figure(67);
         grid on
-        impulse(zpk([],poles_dutchroll,1))
-        ti = title('Dutch roll');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        hold on
+        xlabel('Time [s]')
 
-    %.. Aperiodic roll ..
-        figure(68);
-        grid on
-        step(zpk([],pole_aperiodicroll,1))
-        ti = title('Aperiodic roll');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
-    
-    %.. Spiral ..
-        figure(69);
-        grid on
-        step(zpk([],pole_spiral,1))
+        %step(zpk([],pole_spiral,1));
+        [y,t] = impulse(tf_lat_Ua_r,T);
+        plot(t,y,'DisplayName','Impulse Response: \delta_a - r')
+        % [y,t] = step(tf_lat_Ua_r,T);
+        % plot(t,y,'DisplayName','Step Response - r')
+        ylabel('Yaw Rate [\circ/s]')
+
+        hold off
         ti = title('Spiral');
+        legend('Location','southeast')
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
     end
 
@@ -537,7 +665,7 @@ if RunQ7
 
     %--- Pole Placement ---
 
-    [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria
+    [wn_design,T_theta_design,dr_design] = GetShortPeriodDesignCriteria
     a = acos(dr_design);
     real_design = -wn_design*cos(a);
     imag_design =  wn_design*sin(a);
@@ -556,7 +684,7 @@ if RunQ7
     %--- T theta ---
     T_theta = GetT_theta(tf_long_Ue_q*Compensator_1);
     
-    Compensator_2 = (1+s*TC_design)/(1+s*T_theta)
+    Compensator_2 = (1+s*T_theta_design)/(1+s*T_theta)
 
     %--- Combine ---
     Compensator = minreal(Compensator_1*Compensator_2,e_minreal)
@@ -609,12 +737,12 @@ if RunQ7
     % Check Gains
     %..............................
     
-    TC = GetT_theta(tf_long_Ue_q * Compensator_1);
+    T_theta = GetT_theta(tf_long_Ue_q * Compensator_1);
 
     tf_long_Ue_alpha        = minreal(tf(C_alphaq(Xalpha__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
     tf_long_Ue_alpha_design = minreal(tf_long_Ue_alpha * Compensator_1,e_minreal)
 
-    TC = GetT_theta(tf_long_Ue_alpha_design);
+    T_theta = GetT_theta(tf_long_Ue_alpha_design);
     
     %..............................
     % Gust Case
@@ -839,8 +967,6 @@ if RunQ8
     %..............................
     % Design Controller
     %..............................
-    
-    UseOptimalControl = 1;%0;
 
     Q = eye(size(A_terrainfollow,1));
     R = eye(size(B_terrainfollow,2));
@@ -863,27 +989,48 @@ if RunQ8
     [K,S,e] = lqr(A_terrainfollow,B_terrainfollow,Q,R);
     K
     
+    %----------------------------------------
+    % Manual Control
+    %----------------------------------------
+
     %..............................
     % Run Simulation
     %..............................
     
+    UseOptimalControl = 0;
     sim('TerrainFollowing')
     
     %..............................
     % Evaluate Simulation
     %..............................
     
-    t = TerrainFollowing_Output_Altitude.time;
+    t_m   = TerrainFollowing_Output_Altitude.time;
+    [x_m] = TerrainFollowing_Output_xpos.signals.values;
+    [altitude_m,altitude_ref_m,altitude_ground_m] = TerrainFollowing_Output_Altitude.signals.values;
+    [altitude_err_m,height_over_ground_m]         = TerrainFollowing_Output_AltitudeError.signals.values;
+    [thrust_inputs_m]                             = TerrainFollowing_Output_Thrust.signals.values;
+    [elevator_inputs_m]                           = TerrainFollowing_Output_Elevator.signals.values;
+    [cost_total_m,cost_average_m]                 = TerrainFollowing_Output_Cost.signals.values;
+    
+    %----------------------------------------
+    % Optimal Control
+    %----------------------------------------
+    
+    UseOptimalControl = 1;
+    sim('TerrainFollowing')
+    
+    %..............................
+    % Evaluate Simulation
+    %..............................
+    
+    t   = TerrainFollowing_Output_Altitude.time;
+    [x] = TerrainFollowing_Output_xpos.signals.values;
     [altitude,altitude_ref,altitude_ground] = TerrainFollowing_Output_Altitude.signals.values;
     [altitude_err,height_over_ground]       = TerrainFollowing_Output_AltitudeError.signals.values;
     [thrust_inputs]                         = TerrainFollowing_Output_Thrust.signals.values;
     [elevator_inputs]                       = TerrainFollowing_Output_Elevator.signals.values;
-    
-    % TerrainFollowing_Output_Altitude
-    % TerrainFollowing_Output_AltitudeError
-    % TerrainFollowing_Output_Thrust
-    % TerrainFollowing_Output_Elevator
-    
+    [cost_total,cost_average]               = TerrainFollowing_Output_Cost.signals.values;
+
     %--- Minimum Safety margin Criterion ---
     d_alt_crit = 20 % [m]
 
@@ -933,40 +1080,65 @@ if RunQ8
         %--- Altitude ---
         figure(81)
         hold on
-        plot(t,altitude       , 'DisplayName','Altitude'        )
-        plot(t,altitude_ref   , 'DisplayName','Reference Height')
-        plot(t,altitude_ground, 'DisplayName','Ground Height'   )
+        plot(x,altitude       , 'DisplayName','Altitude (LQR)'        )
+        plot(x_m,altitude_m   , 'DisplayName','Altitude (PID)'  )
+        plot(x,altitude_ref   , 'DisplayName','Reference Height')
+        plot(x,altitude_ground, 'DisplayName','Ground Height'   )
         legend('Location','southeast')
         ti = title('TerrainFollowing - Flightpath');
-        xlabel('Time [s]');
+        xlabel('x-Position [m]')%('Time [s]');
         ylabel('Altitude [m]');
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         hold off
 
         %--- Altitude-Error ---
         figure(82)
-        plot(t,height_over_ground, 'DisplayName','Height over Ground')
-        yline(d_alt_crit);
-        yline(40- c_overshoot_max);
-        yline(40);
-        yline(40+c_overshoot_max);    
+        hold on
+        plot(x  ,height_over_ground  , 'DisplayName','Height (LQR)'      )
+        plot(x_m,height_over_ground_m, 'DisplayName','Height (PID)')
+        yline(d_alt_crit,'r', 'DisplayName','Critical Height');
+        yline(40-c_overshoot_max,'-.m', 'DisplayName','Minimum Overshoot');
+        yline(40                ,'g'  , 'DisplayName','Constant Ref. Height');
+        yline(40+c_overshoot_max,'-.m', 'DisplayName','Maximum Overshoot');    
         ti = title('TerrainFollowing - Height over Ground');
-        xlabel('Time [s]');
+        xlabel('x-Position [m]')%('Time [s]');
         ylabel('Height [m]');
         ylim([d_alt_crit-1,max(height_over_ground)+1])
+        legend('Location','southeast')
+        hold off
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
         %--- Inputs ---
         figure(83)
         hold on
-        plot(t,thrust_inputs  +thrust0  , 'DisplayName','Thrust'  )
+        plot(t  ,thrust_inputs    +thrust0  , 'DisplayName','Thrust (LQR)'  )
+        plot(t_m,thrust_inputs_m  +thrust0  , 'DisplayName','Thrust (PID)'  )
         ylabel('Thrust [' + fu + ']');
         yyaxis right
-        plot(t,elevator_inputs+elevator0, 'DisplayName','Elevator')
+        plot(t  ,elevator_inputs  +elevator0, 'DisplayName','Elevator (LQR)')
+        plot(t_m,elevator_inputs_m+elevator0, 'DisplayName','Elevator (PID)')
         ylabel('Elevator [deg]'); ylim([elevator_min*1.05 elevator_max*1.05]);
         legend('Location','southeast')
         ti = title('TerrainFollowing - Control Inputs');
         xlabel('Time [s]');
+        
+        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
+        hold off
+
+        %--- Cost ---
+        figure(84)
+        hold on
+        plot(t  ,cost_total  , 'DisplayName','Cost Total (LQR)')
+        plot(t_m,cost_total_m, 'DisplayName','Cost Total (PID)')
+        ylabel('Integral Reference Offset (Cost) [m*s]');
+        yyaxis right
+        plot(t  ,cost_average  , 'DisplayName','Cost Average (LQR)')
+        plot(t_m,cost_average_m, 'DisplayName','Cost Average (PID)')
+        ylabel('Average Reference Offset [m]');
+        legend('Location','southeast')
+        ti = title('TerrainFollowing - Cost');
+        xlabel('Time [s]');
+        
         
         print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
         hold off
@@ -1033,7 +1205,8 @@ end
 
 function PrintAnalyzePeriodicPoles(poles,name)
     fprintf("Analysis of Periodic pole %s\n",name)
-    [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles)
+    disp(poles)
+    [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
 
     fprintf('wn    : %f \n',wn)
     fprintf('dr    : %f \n',dr)
@@ -1050,7 +1223,8 @@ end
 
 function PrintAnalyzeAperiodicPole(pole,name)
     fprintf("Analysis of Aperiodic pole %s\n",name) 
-    [wn,dr,TC,T_half] = AnalyzeAperiodicPole(pole)
+    disp(pole)
+    [wn,dr,TC,T_half] = AnalyzeAperiodicPole(pole);
 
     fprintf('wn    : %f \n',wn)
     fprintf('dr    : %f \n',dr)
@@ -1068,15 +1242,15 @@ function X = unique_complex(X,e)
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-% Get TC
+% Get T_theta
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function [k ,TC] = GetTC(tf)
+function [k ,T_theta] = GetT_theta_old(tf)
     global e_minreal
     [num_, den_] = tfdata(minreal(tf, e_minreal));
     num = fliplr(num_{1});
     k   = num(1);
-    TC  = num(2)/k; 
+    T_theta  = num(2)/k; 
 end
 
 function [T_theta] = GetT_theta(tf)
@@ -1089,7 +1263,7 @@ end
 % Check Short Period Design Criteria
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-function [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria()
+function [wn_design,T_theta_design,dr_design] = GetShortPeriodDesignCriteria()
     %----------------------------------------
     % Get Design Criteria
     %----------------------------------------
@@ -1099,42 +1273,42 @@ function [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria()
         v = v*feet_to_m; 
     end
     
-    wn_design = 0.03*v;
-    TC_design = 1./(0.75*wn_design);
-    dr_design = 0.5;
+    wn_design      = 0.03*v;
+    T_theta_design = 1./(0.75*wn_design);
+    dr_design      = 0.5;
 end
 
 function CheckShortPeriodDesign(sys,poles,name)
 
-    [wn_design,TC_design,dr_design] = GetShortPeriodDesignCriteria;
+    [wn_design,T_theta_design,dr_design] = GetShortPeriodDesignCriteria;
 
     %----------------------------------------
     % Analyze System
     %----------------------------------------
     
     [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
-    TC = GetT_theta(sys);
+    T_theta = GetT_theta(sys);
     
     %----------------------------------------
     % Compare
     %----------------------------------------
     
-    wn_diff = wn_design-wn;
-    TC_diff = TC_design-TC;
-    dr_diff = dr_design-dr;
+    wn_diff      = wn_design-wn;
+    T_theta_diff = T_theta_design-T_theta;
+    dr_diff      = dr_design-dr;
 
     %----------------------------------------
     % Print differences
     %----------------------------------------
-    fprintf('wn_org   : %f \n',wn)
-    fprintf('TC_org   : %f \n',TC)
-    fprintf('dr_org   : %f \n',dr)
-    fprintf('wn_design: %f \n',wn_design)
-    fprintf('TC_design: %f \n',TC_design)
-    fprintf('dr_design: %f \n',dr_design)
-    fprintf('wn_diff  : %f \n',wn_diff  )
-    fprintf('TC_diff  : %f \n',TC_diff  )
-    fprintf('dr_diff  : %f \n',dr_diff  )
+    fprintf('wn_org        : %f \n',wn)
+    fprintf('T_theta_org   : %f \n',T_theta)
+    fprintf('dr_org        : %f \n',dr)
+    fprintf('wn_design     : %f \n',wn_design)
+    fprintf('T_theta_design: %f \n',T_theta_design)
+    fprintf('dr_design     : %f \n',dr_design)
+    fprintf('wn_diff       : %f \n',wn_diff  )
+    fprintf('T_theta_diff  : %f \n',T_theta_diff  )
+    fprintf('dr_diff       : %f \n',dr_diff  )
 end
 
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1153,9 +1327,9 @@ function [CAP,dr,DBqss,qmqs] = GetCAP_and_Gibson(sys,poles)
     end
 
     [wn,dr,P,T_half] = AnalyzePeriodicPoles(poles);
-    [k,TC] = GetTC(sys);
-    CAP = g0 * wn^2 * TC / v;
-    DBqss = TC - 2*dr / wn;
+    T_theta = GetT_theta(sys);
+    CAP = g0 * wn^2 * T_theta / v;
+    DBqss = T_theta - 2*dr / wn;
     
     opt = stepDataOptions('StepAmplitude', -1);
     [y,t] = step(sys, T, opt);
