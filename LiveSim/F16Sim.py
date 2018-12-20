@@ -87,7 +87,6 @@ class F16Sim(object):
         self.PrintTime = False#True
 
         self.Init_State()
-        self.Init_Time()
         
         self.Controlled = Controlled
         if self.Controlled:
@@ -96,6 +95,8 @@ class F16Sim(object):
         self.Visualize = Visualize
         if self.Visualize:
             self.Create3DModel()
+
+        self.Init_Time()
 
     #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # State
@@ -430,7 +431,8 @@ class F16Sim(object):
     def GetInfoText(self,nd=3):
 
         InfoText = ""
-        InfoText+="FPS_avg: "+str(round(1./self.dt_avg,2))+" Hz"+"\n"
+        if hasattr(self,"dt_avg") and self.dt_avg!=0:
+            InfoText+="FPS_avg: "+str(round(1./self.dt_avg,2))+" Hz"+"\n"
         InfoText+="\n"
 
         InfoText+="pos: "+str([str(np.round(           v ,nd)) for v in self.pos])+" [m]"    +"\n"
