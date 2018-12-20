@@ -6,7 +6,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.54"
+    ComputedModelVersion    "1.55"
     NumModelReferences	    1
     ModelReference {
       ModelRefBlockPath	      "TerrainFollowing/Reference Height [m]|canyongenerator"
@@ -116,8 +116,8 @@ Model {
 	ViewObjType		"SimulinkTopLevel"
 	LoadSaveID		"0"
 	Extents			[1882.0, 885.0]
-	ZoomFactor		[1.75]
-	Offset			[-376.26726295879763, -48.683429998656692]
+	ZoomFactor		[0.8]
+	Offset			[-261.04378286199085, -399.02093392935978]
       }
       Object {
 	$PropName		"DockComponentsInfo"
@@ -151,9 +151,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "Hyperion"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Dec 18 22:25:16 2018"
-  RTWModifiedTimeStamp	  467072598
-  ModelVersionFormat	  "1.%<AutoIncrement:54>"
+  LastModifiedDate	  "Wed Dec 19 01:07:47 2018"
+  RTWModifiedTimeStamp	  467082453
+  ModelVersionFormat	  "1.%<AutoIncrement:55>"
   SampleTimeColors	  off
   SampleTimeAnnotations	  off
   LibraryLinkDisplay	  "disabled"
@@ -1302,7 +1302,7 @@ Model {
     TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
     TiledPageScale	    1
     ShowPageBoundaries	    off
-    ZoomFactor		    "175"
+    ZoomFactor		    "80"
     ReportName		    "simulink-default.rpt"
     SIDHighWatermark	    "157"
     Block {
@@ -1310,7 +1310,7 @@ Model {
       Name		      "Add"
       SID		      "53"
       Ports		      [2, 1]
-      Position		      [1790, 142, 1820, 173]
+      Position		      [1765, 142, 1795, 173]
       ZOrder		      301
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -1332,7 +1332,7 @@ Model {
       Name		      "Add0"
       SID		      "101"
       Ports		      [2, 1]
-      Position		      [1995, 152, 2025, 183]
+      Position		      [1925, 152, 1955, 183]
       ZOrder		      334
       InputSameDT	      off
       OutDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -1550,7 +1550,7 @@ Model {
       BlockType		      Constant
       Name		      "Elevator0"
       SID		      "100"
-      Position		      [1925, 180, 1955, 210]
+      Position		      [1855, 180, 1885, 210]
       ZOrder		      333
       Value		      "elevator0"
     }
@@ -1713,7 +1713,7 @@ Model {
       Name		      "Inputs"
       SID		      "56"
       Ports		      [4]
-      Position		      [1840, 223, 1870, 257]
+      Position		      [1815, 223, 1845, 257]
       ZOrder		      304
       ForegroundColor	      "blue"
       ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
@@ -1762,7 +1762,7 @@ Model {
       Name		      "Limit Control Input"
       SID		      "52"
       Ports		      [1, 1]
-      Position		      [2059, 205, 2091, 240]
+      Position		      [1989, 205, 2021, 240]
       ZOrder		      300
       BlockRotation	      270
       BlockMirror	      on
@@ -2150,34 +2150,6 @@ Model {
     }
     Block {
       BlockType		      Scope
-      Name		      "Scope"
-      SID		      "157"
-      Ports		      [1]
-      Position		      [15, -21, 45, 11]
-      ZOrder		      359
-      ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
-      "gr.Configuration('Core','General UI',true),extmgr.Configuration('Core','Source UI',true),extmgr.Configuration('S"
-      "ources','WiredSimulink',true,'DataLoggingVariableName','ScopeData1'),extmgr.Configuration('Visuals','Time Domain"
-      "',true,'SerializedDisplays',{struct('MinYLimReal','-61.29319','MaxYLimReal','70.74935','YLabelReal','','MinYLimM"
-      "ag','0.00000','MaxYLimMag','70.74935','LegendVisibility','off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'A"
-      "xesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.06"
-      "66666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.8"
-      "31372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215"
-      "686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLi"
-      "nes',5,'LineNames',{{'Recombine:1','Recombine:2','Recombine:3','Recombine:4','Recombine:5'}},'ShowContent',true,"
-      "'Placement',1)},'DisplayPropertyDefaults',struct('MinYLimReal','-61.29319','MaxYLimReal','70.74935','YLabelReal'"
-      ",'','MinYLimMag','0.00000','MaxYLimMag','70.74935','LegendVisibility','off','XGrid',true,'YGrid',true,'PlotMagPh"
-      "ase',false,'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrd"
-      "er',[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647"
-      "058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0."
-      "0745098039215686 0.650980392156863])),extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration("
-      "'Tools','Measurements',true,'Version','2018b')),'Version','2018b','Position',[1 38 1920 969],'VisibleAtModelOpen"
-      "','on')"
-      NumInputPorts	      "1"
-      Floating		      off
-    }
-    Block {
-      BlockType		      Scope
       Name		      "Scope:\nAlpha\nTheta\nq\nflightpath"
       SID		      "46"
       Ports		      [4]
@@ -2221,16 +2193,15 @@ Model {
       "AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[1 1 0.0666666666666667;0.07"
       "45098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0.831372549019608 0.07"
       "45098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.0745098039215686 0.6509803921568"
-      "63],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLines',3,'LineNames',"
-      "{{'Altitude [m]','Reference Height [m]','Ground Altitude [m]'}},'ShowContent',true,'Placement',1)},'DisplayPrope"
-      "rtyDefaults',struct('MinYLimReal','1286.24396','MaxYLimReal','1523.80433','YLabelReal','','MinYLimMag','1286.243"
-      "96','MaxYLimMag','1523.80433','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor"
-      "',[0 0 0],'AxesTickColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.07450980392156"
-      "86 0.623529411764706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803"
-      "921569 1;0.392156862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.65"
-      "0980392156863])),extmgr.Configuration('Tools','Plot Navigation',true,'OnceAtStop',false,'PreviousZoomMode','Pan'"
-      "),extmgr.Configuration('Tools','Measurements',true,'Version','2018b')),'Version','2018b','Position',[-1915 -253 "
-      "952 959],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
+      "63],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'NumLines',0,'LineNames',"
+      "{{[]}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults',struct('MinYLimReal','1286.24396','MaxYLimRe"
+      "al','1523.80433','YLabelReal','','MinYLimMag','1286.24396','MaxYLimMag','1523.80433','LegendVisibility','Off','X"
+      "Grid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTickColor',[0.686274509803922 0.6862745098"
+      "03922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.160784313725"
+      "49;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.831372549019608 0.0745098039"
+      "215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration('Tools','Plot Navig"
+      "ation',true,'OnceAtStop',false,'PreviousZoomMode','Pan'),extmgr.Configuration('Tools','Measurements',true,'Versi"
+      "on','2018b')),'Version','2018b','Position',[-1915 -253 952 959],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
       NumInputPorts	      "3"
       Floating		      off
     }
@@ -2338,17 +2309,16 @@ Model {
       "0666666666666667;0.0745098039215686 0.623529411764706 1;1 0.411764705882353 0.16078431372549;0.392156862745098 0"
       ".831372549019608 0.0745098039215686;0.717647058823529 0.274509803921569 1;0.0588235294117647 1 1;1 0.07450980392"
       "15686 0.650980392156863],'Title','%<SignalLabel>','LinePropertiesCache',{{}},'UserDefinedChannelNames',{{}},'Num"
-      "Lines',2,'LineNames',{{'Cost Total','Cost Average'}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults"
-      "',struct('MinYLimReal','-34.77499','MaxYLimReal','312.97495','YLabelReal','','MinYLimMag','0.00000','MaxYLimMag'"
-      ",'312.97495','LegendVisibility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTi"
-      "ckColor',[0.686274509803922 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764"
-      "706 1;1 0.411764705882353 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156"
-      "862745098 0.831372549019608 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),"
-      "extmgr.Configuration('Tools','Plot Navigation',true),extmgr.Configuration('Tools','Measurements',true,'Version',"
-      "'2018b','Measurements',struct('traceselector',struct('Line',2),'peaks',struct('Threshold',0,'NumPeaks',3,'MinPea"
-      "kDistance',1,'MinPeakHeight',-Inf,'SortByXAxis',false,'TextLabelFormat',1,'TextIndices',[],'SortAscending',false"
-      ",'SettingsPanelOpen',0,'PeaksPanelOpen',1)))),'Version','2018b','Position',[1 36 1920 941],'VisibleAtModelOpen',"
-      "'on','OpenAtMdlStart',true)"
+      "Lines',0,'LineNames',{{[]}},'ShowContent',true,'Placement',1)},'DisplayPropertyDefaults',struct('MinYLimReal','-"
+      "34.77499','MaxYLimReal','312.97495','YLabelReal','','MinYLimMag','0.00000','MaxYLimMag','312.97495','LegendVisib"
+      "ility','Off','XGrid',true,'YGrid',true,'PlotMagPhase',false,'AxesColor',[0 0 0],'AxesTickColor',[0.6862745098039"
+      "22 0.686274509803922 0.686274509803922],'ColorOrder',[0.0745098039215686 0.623529411764706 1;1 0.411764705882353"
+      " 0.16078431372549;1 1 0.0666666666666667;0.717647058823529 0.274509803921569 1;0.392156862745098 0.8313725490196"
+      "08 0.0745098039215686;0.0588235294117647 1 1;1 0.0745098039215686 0.650980392156863])),extmgr.Configuration('Too"
+      "ls','Plot Navigation',true),extmgr.Configuration('Tools','Measurements',true,'Version','2018b','Measurements',st"
+      "ruct('peaks',struct('Threshold',0,'NumPeaks',3,'MinPeakDistance',1,'MinPeakHeight',-Inf,'SortByXAxis',false,'Tex"
+      "tLabelFormat',1,'TextIndices',[],'SortAscending',false,'SettingsPanelOpen',0,'PeaksPanelOpen',1)))),'Version','2"
+      "018b','Position',[1 36 1920 941],'VisibleAtModelOpen','on','OpenAtMdlStart',true)"
       NumInputPorts	      "2"
       Floating		      off
     }
@@ -2357,7 +2327,7 @@ Model {
       Name		      "Scope: Flightpath"
       SID		      "60"
       Ports		      [3]
-      Position		      [1615, 403, 1645, 437]
+      Position		      [1590, 398, 1620, 432]
       ZOrder		      308
       ForegroundColor	      "blue"
       ScopeSpecificationString "Simulink.scopes.TimeScopeBlockCfg('CurrentConfiguration', extmgr.ConfigurationSet(extm"
@@ -2441,7 +2411,7 @@ Model {
       Name		      "Substract0"
       SID		      "102"
       Ports		      [2, 1]
-      Position		      [2105, 247, 2135, 278]
+      Position		      [2035, 247, 2065, 278]
       ZOrder		      335
       Inputs		      "+-"
       InputSameDT	      off
@@ -2539,7 +2509,7 @@ Model {
       BlockType		      Gain
       Name		      "dalt gain"
       SID		      "9"
-      Position		      [1700, 135, 1750, 165]
+      Position		      [1675, 135, 1725, 165]
       ZOrder		      9
       Gain		      "0.5"
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -2552,7 +2522,7 @@ Model {
       BlockType		      Gain
       Name		      "dfp gain"
       SID		      "55"
-      Position		      [1700, 195, 1750, 225]
+      Position		      [1675, 195, 1725, 225]
       ZOrder		      303
       Gain		      "1.0"
       ParamDataTypeStr	      "Inherit: Inherit via internal rule"
@@ -2994,16 +2964,16 @@ Model {
       ZOrder		      137
       SrcBlock		      "Altitude Error"
       SrcPort		      1
-      Points		      [80, 0]
+      Points		      [32, 0]
       Branch {
-	ZOrder			506
-	Points			[0, 361; -1960, 0; 0, -311]
-	DstBlock		"Add dAltitude"
+	ZOrder			655
+	DstBlock		"dalt gain"
 	DstPort			1
       }
       Branch {
-	ZOrder			505
-	DstBlock		"dalt gain"
+	ZOrder			654
+	Points			[0, 185; 34, 0; 0, 176; -1922, 0; 0, -311]
+	DstBlock		"Add dAltitude"
 	DstPort			1
       }
     }
@@ -3074,7 +3044,7 @@ Model {
       ZOrder		      173
       SrcBlock		      "Add"
       SrcPort		      1
-      Points		      [62, 0]
+      Points		      [49, 0]
       Branch {
 	ZOrder			442
 	DstBlock		"Add0"
@@ -3082,7 +3052,7 @@ Model {
       }
       Branch {
 	ZOrder			441
-	Points			[0, 121; -72, 0; 0, -36]
+	Points			[0, 121; -59, 0; 0, -36]
 	DstBlock		"Inputs"
 	DstPort			3
       }
@@ -3154,7 +3124,7 @@ Model {
 	Points			[0, -46; 424, 0; 0, 1]
 	Branch {
 	  ZOrder		  266
-	  Points		  [125, 0; 0, 30]
+	  Points		  [132, 0; 0, 25]
 	  DstBlock		  "Scope: Flightpath"
 	  DstPort		  1
 	}
@@ -3178,13 +3148,13 @@ Model {
       Points		      [27, 0]
       Branch {
 	ZOrder			261
-	Points			[0, 15]
+	Points			[0, 10]
 	DstBlock		"Scope: Flightpath"
 	DstPort			3
       }
       Branch {
 	ZOrder			227
-	Points			[0, -132; 125, 0; 0, -73]
+	Points			[0, -132; 80, 0; 0, -73]
 	DstBlock		"dfp gain"
 	DstPort			1
       }
@@ -3203,7 +3173,7 @@ Model {
       Points		      [28, 0]
       Branch {
 	ZOrder			260
-	Points			[0, 27; 101, 0; 0, -27]
+	Points			[0, 27; 98, 0; 0, -32]
 	DstBlock		"Scope: Flightpath"
 	DstPort			2
       }
@@ -3346,16 +3316,16 @@ Model {
       ZOrder		      448
       SrcBlock		      "Substract0"
       SrcPort		      1
-      Points		      [9, 0; 0, 30]
+      Points		      [6, 0; 0, 30]
       Branch {
 	ZOrder			450
-	Points			[0, 264; -2252, 0; 0, -254]
+	Points			[0, 264; -2179, 0; 0, -254]
 	DstBlock		"Elevator Input"
 	DstPort			1
       }
       Branch {
 	ZOrder			449
-	Points			[-327, 0; 0, -40]
+	Points			[-279, 0; 0, -40]
 	DstBlock		"Inputs"
 	DstPort			4
       }
@@ -3483,19 +3453,9 @@ Model {
       ZOrder		      504
       SrcBlock		      "Recombine"
       SrcPort		      1
-      Points		      [16, 0]
-      Branch {
-	ZOrder			649
-	Points			[0, -180]
-	DstBlock		"Scope"
-	DstPort			1
-      }
-      Branch {
-	ZOrder			648
-	Points			[4, 0; 0, 32; 78, 0; 0, -22]
-	DstBlock		"LQR Input"
-	DstPort			2
-      }
+      Points		      [15, 0; 0, 32; 83, 0; 0, -22]
+      DstBlock		      "LQR Input"
+      DstPort		      2
     }
     Line {
       ZOrder		      507
@@ -3509,7 +3469,7 @@ Model {
       ZOrder		      519
       SrcBlock		      "x (State)"
       SrcPort		      1
-      Points		      [0, -16; -935, 0; 0, 66]
+      Points		      [0, -16; -910, 0; 0, 66]
       DstBlock		      "Remove Altitude"
       DstPort		      1
     }
@@ -3532,7 +3492,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3865
+      ZOrder		      4025
       FontSize		      12
     }
     Annotation {
@@ -3546,7 +3506,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3859
+      ZOrder		      4019
       FontSize		      12
     }
     Annotation {
@@ -3560,7 +3520,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3871
+      ZOrder		      4031
       FontSize		      12
     }
     Annotation {
@@ -3574,13 +3534,13 @@ Model {
       BackgroundColor	      "[0.968627, 0.925490, 0.976471]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3853
+      ZOrder		      4013
       FontSize		      12
     }
     Annotation {
       SID		      "103"
       Name		      "Get Input"
-      Position		      [-264, 93, 539, 434]
+      Position		      [-244, 93, 539, 434]
       InternalMargins	      [0, 0, 0, 0]
       FixedHeight	      on
       FixedWidth	      on
@@ -3588,7 +3548,7 @@ Model {
       BackgroundColor	      "[0.572549, 0.686275, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3860
+      ZOrder		      4020
       FontSize		      12
     }
     Annotation {
@@ -3602,7 +3562,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3866
+      ZOrder		      4026
       FontSize		      12
     }
     Annotation {
@@ -3616,7 +3576,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3867
+      ZOrder		      4027
       FontSize		      12
     }
     Annotation {
@@ -3630,7 +3590,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3864
+      ZOrder		      4024
       FontSize		      12
     }
     Annotation {
@@ -3644,7 +3604,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3857
+      ZOrder		      4017
       FontSize		      12
     }
     Annotation {
@@ -3658,7 +3618,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3869
+      ZOrder		      4029
       FontSize		      12
     }
     Annotation {
@@ -3672,7 +3632,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3858
+      ZOrder		      4018
       FontSize		      12
     }
     Annotation {
@@ -3686,7 +3646,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3868
+      ZOrder		      4028
       FontSize		      12
     }
     Annotation {
@@ -3700,7 +3660,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3855
+      ZOrder		      4015
       FontSize		      12
     }
     Annotation {
@@ -3714,13 +3674,13 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3856
+      ZOrder		      4016
       FontSize		      12
     }
     Annotation {
       SID		      "77"
       Name		      "Inputs"
-      Position		      [1685, 115, 2165, 297]
+      Position		      [1660, 115, 2085, 302]
       InternalMargins	      [0, 0, 0, 0]
       FixedHeight	      on
       FixedWidth	      on
@@ -3728,13 +3688,13 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3863
+      ZOrder		      4023
       FontSize		      12
     }
     Annotation {
       SID		      "76"
       Name		      "Flightpath"
-      Position		      [927, 368, 1672, 497]
+      Position		      [927, 368, 1652, 497]
       InternalMargins	      [0, 0, 0, 0]
       FixedHeight	      on
       FixedWidth	      on
@@ -3742,7 +3702,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3872
+      ZOrder		      4032
       FontSize		      12
     }
     Annotation {
@@ -3756,7 +3716,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3870
+      ZOrder		      4030
       FontSize		      12
     }
     Annotation {
@@ -3770,7 +3730,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3854
+      ZOrder		      4014
       FontSize		      12
     }
     Annotation {
@@ -3784,7 +3744,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3862
+      ZOrder		      4022
       FontSize		      12
     }
     Annotation {
@@ -3798,7 +3758,7 @@ Model {
       BackgroundColor	      "[0.901961, 0.901961, 1.000000]"
       DropShadow	      on
       AnnotationType	      "area_annotation"
-      ZOrder		      3861
+      ZOrder		      4021
       FontSize		      12
     }
   }
