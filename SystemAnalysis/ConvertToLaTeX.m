@@ -3,6 +3,6 @@
 %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 function ConvertToLaTeX(A)
-    precision   = 6; % [#Digits]
+    precision   = 3; % [#Digits]
     latex_table = latex(vpa(sym(A),precision))
 end
