@@ -10,8 +10,8 @@
 
     global altitude0
     global velocity0
-    altitude0 = 15000;
-    velocity0 = 500;
+    altitude0 = 10000;
+    velocity0 = 900;
 
     global FlightCondition
     FlightCondition = 1;
@@ -39,15 +39,15 @@
     % Exercises
     %++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    RunQ5 = 1
-    RunQ6 = 1
-    RunQ7 = 1
-    RunQ8 = 1
+    RunQ5 = 1;
+    RunQ6 = 1;
+    RunQ7 = 1;
+    RunQ8 = 1;
 
-    PlotQ5 = 1
-    PlotQ6 = 1
-    PlotQ7 = 1
-    PlotQ8 = 1
+    PlotQ5 = 1;
+    PlotQ6 = 1;
+    PlotQ7 = 1;
+    PlotQ8 = 1;
 
     figpath ='OutputFigures';
     if ~exist(figpath, 'dir')

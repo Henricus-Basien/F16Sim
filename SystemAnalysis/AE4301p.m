@@ -94,7 +94,7 @@ if RunQ5
     tf_Ue_Nz_zeros = zero(tf_Ue_Nz)
     tf_Ue_Nz_poles = pole(tf_Ue_Nz)
 
-    if 0%PlotQ5
+    if PlotQ5
         figure(52);
         grid on
         pzmap(tf_Ue_Nz)
@@ -485,11 +485,7 @@ if RunQ7
         [y1,t] = step(tf_long_Ue_q,T);
         plot(t,y1)
         xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
-        ti = title('2-State Ue-q Step');
-        print(gcf, '-dpng', strcat(figpath,'/',ti.String,figext), dpi)
 
-        %figure(75)
-        %grid on
         [y2,t] = step(tf_long_Ue_q_4,T);
         plot(t,y2)
         xlabel('Time [s]');ylabel('Pitch Rate [deg/s]');
@@ -713,7 +709,7 @@ if RunQ7
     end
     
     if PlotQ7 %Plots of Gibson Criteria
-       figure(764)
+       subplot(2,2,4)
        hold on
        grid on
        title('Gibson Criterion');
