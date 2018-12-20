@@ -589,8 +589,8 @@ if RunQ7
     %--- Aliases ---
 
     Ue__     = 1;
-    Xalpha__ = 1;
-    Xq__     = 2;
+    Yalpha__ = 1;
+    Yq__     = 2;
     reduce2_states = [2 4];
     reduce2_inputs = [2];
     A_2state = A_long(reduce2_states,reduce2_states)
@@ -606,8 +606,8 @@ if RunQ7
     fprintf('                  Q7.2                  \n')
     fprintf('----------------------------------------\n')
 
-    tf_long_Ue_q   = minreal(tf(C_alphaq(Xq__    ,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__    ))),e_minreal)
-    tf_long_Ue_q_4 = minreal(tf(C_long  (Xq_long ,:) * (inv((s*eye(size(A_long  ,1))-A_long  ))*B_long  (:,Ue_long ))),e_minreal)
+    tf_long_Ue_q   = minreal(tf(C_alphaq(Yq__    ,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__    ))),e_minreal)
+    tf_long_Ue_q_4 = minreal(tf(C_long  (Yq_long ,:) * (inv((s*eye(size(A_long  ,1))-A_long  ))*B_long  (:,Ue_long ))),e_minreal)
 
     T = 0:0.01:7;
     
@@ -739,7 +739,7 @@ if RunQ7
     
     T_theta = GetT_theta(tf_long_Ue_q * Compensator_1);
 
-    tf_long_Ue_alpha        = minreal(tf(C_alphaq(Xalpha__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
+    tf_long_Ue_alpha        = minreal(tf(C_alphaq(Yalpha__,:) * (inv((s*eye(size(A_alphaq,1))-A_alphaq))*B_alphaq(:,Ue__))),e_minreal)
     tf_long_Ue_alpha_design = minreal(tf_long_Ue_alpha * Compensator_1,e_minreal)
 
     T_theta = GetT_theta(tf_long_Ue_alpha_design);
